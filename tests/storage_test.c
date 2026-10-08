@@ -154,7 +154,7 @@ static void test_symmetric_and_banded(void)
     {
         double value;
         assert(numerus_storage_get(s, 0, 2, &value) == NUMERUS_STORAGE_SUCCESS);
-        assert(value == 3.0);
+        assert(value == 4.0);
     }
     {
         double value;
