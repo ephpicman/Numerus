@@ -143,6 +143,18 @@ int numerus_matrix_create_from_parent_with_transforms(
     numerus_matrix **matrix
 );
 
+/**
+ * @brief Create a lazy transpose view of an existing Matrix.
+ *
+ * The returned child exposes parent columns as rows and parent rows as
+ * columns. No element data is copied. The parent is non-owning and must
+ * remain alive for the lifetime of the transpose view.
+ */
+int numerus_matrix_create_transpose(
+    numerus_matrix *parent,
+    numerus_matrix **matrix
+);
+
 /** Create a dense Matrix. */
 int numerus_matrix_create_dense(
     size_t rows,
