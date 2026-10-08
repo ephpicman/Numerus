@@ -5,6 +5,7 @@
 #include <string.h>
 
 #ifndef NUMERUS_STORAGE_USE_LIBC_ALLOC
+# include "php.h"
 # include "Zend/zend_alloc.h"
 # define numerus_alloc(size) emalloc(size)
 # define numerus_calloc(count, size) ecalloc((count), (size))
