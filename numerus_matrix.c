@@ -66,7 +66,7 @@ static int allocate_matrix(numerus_matrix **matrix)
     return NUMERUS_MATRIX_SUCCESS;
 }
 
-static int create_storage(
+static numerus_matrix_status create_storage(
     numerus_storage_kind kind,
     size_t rows,
     size_t columns,
@@ -80,32 +80,32 @@ static int create_storage(
 
     switch (kind) {
         case NUMERUS_STORAGE_DENSE:
-            return numerus_storage_create_dense(
+            return storage_status_to_matrix_status(numerus_storage_create_dense(
                 rows,
                 columns,
                 data == NULL ? NULL : data->values,
                 storage
-            );
+            ));
 
         case NUMERUS_STORAGE_UPPER_TRIANGULAR:
             if (!dimensions_are_square(rows, columns)) {
                 return NUMERUS_MATRIX_NOT_SQUARE;
             }
-            return numerus_storage_create_upper_triangular(
+            return storage_status_to_matrix_status(numerus_storage_create_upper_triangular(
                 rows,
                 data == NULL ? NULL : data->values,
                 storage
-            );
+            ));
 
         case NUMERUS_STORAGE_LOWER_TRIANGULAR:
             if (!dimensions_are_square(rows, columns)) {
                 return NUMERUS_MATRIX_NOT_SQUARE;
             }
-            return numerus_storage_create_lower_triangular(
+            return storage_status_to_matrix_status(numerus_storage_create_lower_triangular(
                 rows,
                 data == NULL ? NULL : data->values,
                 storage
-            );
+            ));
 
         case NUMERUS_STORAGE_DIAGONAL:
             if (!dimensions_are_square(rows, columns)) {
@@ -124,12 +124,12 @@ static int create_storage(
             return numerus_storage_create_identity(rows, storage);
 
         case NUMERUS_STORAGE_CONSTANT:
-            return numerus_storage_create_constant(
+            return storage_status_to_matrix_status(numerus_storage_create_constant(
                 rows,
                 columns,
                 data == NULL ? 0.0 : data->value,
                 storage
-            );
+            ));
 
         case NUMERUS_STORAGE_ZERO:
             return numerus_storage_create_zero(rows, columns, storage);
@@ -138,41 +138,41 @@ static int create_storage(
             if (!dimensions_are_square(rows, columns)) {
                 return NUMERUS_MATRIX_NOT_SQUARE;
             }
-            return numerus_storage_create_scaled_identity(
+            return storage_status_to_matrix_status(numerus_storage_create_scaled_identity(
                 rows,
                 data == NULL ? 0.0 : data->value,
                 storage
-            );
+            ));
 
         case NUMERUS_STORAGE_SPARSE:
-            return numerus_storage_create_sparse(
+            return storage_status_to_matrix_status(numerus_storage_create_sparse(
                 rows,
                 columns,
                 data == NULL ? 0.0 : data->default_value,
                 data == NULL ? NULL : data->entries,
                 data == NULL ? 0 : data->count,
                 storage
-            );
+            ));
 
         case NUMERUS_STORAGE_SYMMETRIC:
             if (!dimensions_are_square(rows, columns)) {
                 return NUMERUS_MATRIX_NOT_SQUARE;
             }
-            return numerus_storage_create_symmetric(
+            return storage_status_to_matrix_status(numerus_storage_create_symmetric(
                 rows,
                 data == NULL ? NULL : data->values,
                 storage
-            );
+            ));
 
         case NUMERUS_STORAGE_BANDED:
-            return numerus_storage_create_banded(
+            return storage_status_to_matrix_status(numerus_storage_create_banded(
                 rows,
                 columns,
                 data == NULL ? 0 : data->lower_bandwidth,
                 data == NULL ? 0 : data->upper_bandwidth,
                 data == NULL ? NULL : data->values,
                 storage
-            );
+            ));
     }
 
     return NUMERUS_MATRIX_INVALID_ARGUMENT;
@@ -204,8 +204,8 @@ int numerus_matrix_create(
     }
 
     status = create_storage(kind, rows, columns, data, &storage);
-    if (status != NUMERUS_STORAGE_SUCCESS) {
-        return storage_status_to_matrix_status(status);
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        return status;
     }
 
     status = allocate_matrix(&result);
