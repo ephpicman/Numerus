@@ -88,6 +88,18 @@ static void test_all_storage_kinds(void)
     numerus_matrix_data data = {0};
     numerus_matrix *matrix = NULL;
 
+    assert(numerus_matrix_create_upper_triangular(
+        3, packed, &matrix
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get_unchecked(matrix, 0, 2) == 3.0);
+    numerus_matrix_destroy(matrix);
+
+    assert(numerus_matrix_create_lower_triangular(
+        3, packed, &matrix
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get_unchecked(matrix, 2, 0) == 4.0);
+    numerus_matrix_destroy(matrix);
+
     data.values = packed;
     assert(numerus_matrix_create(
         NUMERUS_STORAGE_UPPER_TRIANGULAR, 3, 3, &data, &matrix
@@ -127,6 +139,12 @@ static void test_all_storage_kinds(void)
     assert(numerus_matrix_get_unchecked(matrix, 0, 0) == -1.0);
     numerus_matrix_destroy(matrix);
 
+    assert(numerus_matrix_create_sparse(
+        2, 3, -1.0, entries, 2, &matrix
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get_unchecked(matrix, 0, 1) == 10.0);
+    numerus_matrix_destroy(matrix);
+
     data.values = banded;
     data.entries = NULL;
     data.count = 0;
@@ -137,6 +155,18 @@ static void test_all_storage_kinds(void)
     ) == NUMERUS_MATRIX_SUCCESS);
     assert(numerus_matrix_get_unchecked(matrix, 1, 2) == 5.0);
     assert(numerus_matrix_get_unchecked(matrix, 0, 2) == 0.0);
+    numerus_matrix_destroy(matrix);
+
+    assert(numerus_matrix_create_symmetric(
+        3, packed, &matrix
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get_unchecked(matrix, 0, 2) == 4.0);
+    numerus_matrix_destroy(matrix);
+
+    assert(numerus_matrix_create_banded(
+        3, 3, 1, 1, banded, &matrix
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get_unchecked(matrix, 1, 2) == 5.0);
     numerus_matrix_destroy(matrix);
 
     data.values = packed;
