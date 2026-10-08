@@ -34,14 +34,15 @@ static int size_add(size_t a, size_t b, size_t *result)
 
 static int triangular_count(size_t n, size_t *result)
 {
-    size_t a = n;
+    size_t a;
     size_t b;
 
-    if (a % 2 == 0) {
-        a /= 2;
+    if (n % 2 == 0) {
+        a = n / 2;
         b = n + 1;
     } else {
-        b = (n + 1) / 2;
+        a = n;
+        b = n / 2 + 1;
     }
 
     return size_mul(a, b, result);
@@ -117,7 +118,17 @@ static int copy_values(double **destination, const double *source, size_t count)
 
 static size_t upper_offset(size_t size, size_t row, size_t column)
 {
-    size_t skipped = row * size - (row * (row - 1)) / 2;
+    size_t a = row;
+    size_t b = 2 * size - row + 1;
+    size_t skipped;
+
+    if (a % 2 == 0) {
+        a /= 2;
+    } else {
+        b /= 2;
+    }
+
+    skipped = a * b;
     return skipped + (column - row);
 }
 
@@ -467,6 +478,19 @@ int numerus_storage_create_banded(
     size_t width;
     size_t count;
     int status;
+
+    if (rows == 0 || columns == 0) {
+        lower_bandwidth = 0;
+        upper_bandwidth = 0;
+    } else {
+        if (lower_bandwidth >= rows) {
+            lower_bandwidth = rows - 1;
+        }
+
+        if (upper_bandwidth >= columns) {
+            upper_bandwidth = columns - 1;
+        }
+    }
 
     if (size_add(lower_bandwidth, upper_bandwidth, &width) != NUMERUS_STORAGE_SUCCESS ||
         size_add(width, 1, &width) != NUMERUS_STORAGE_SUCCESS ||
