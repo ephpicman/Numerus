@@ -32,6 +32,13 @@ Storage is deliberately opaque. Its representation is private to
 `numerus_storage.c`, so higher-level components depend on the Storage API
 rather than its memory layout.
 
+Matrix supports storage-backed roots, lazy derived views (transpose, flips, and
+rotations), and lazy joined views. Horizontal joins append a second Matrix to
+the right; vertical joins append it below. Joins retain two non-owning parent
+references and read from the appropriate parent on demand, without copying
+element data. Join dimensions are validated and size addition is checked for
+overflow.
+
 All successful element reads return a `double`. Storage does not expose
 mutation; constructor inputs are copied into owned memory.
 
