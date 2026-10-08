@@ -43,6 +43,7 @@ struct numerus_storage {
 };
 
 /* Return a * b or NUMERUS_STORAGE_OVERFLOW when size_t cannot represent it. */
+static int size_mul(size_t a, size_t b, size_t *result)
 {
     if (a != 0 && b > SIZE_MAX / a) {
         return NUMERUS_STORAGE_OVERFLOW;
@@ -53,6 +54,7 @@ struct numerus_storage {
 }
 
 /* Return a + b or NUMERUS_STORAGE_OVERFLOW when size_t cannot represent it. */
+static int size_add(size_t a, size_t b, size_t *result)
 {
     if (b > SIZE_MAX - a) {
         return NUMERUS_STORAGE_OVERFLOW;
@@ -63,6 +65,7 @@ struct numerus_storage {
 }
 
 /* Compute n(n + 1) / 2 without overflowing an intermediate product. */
+static int triangular_count(size_t n, size_t *result)
 {
     size_t a;
     size_t b;
