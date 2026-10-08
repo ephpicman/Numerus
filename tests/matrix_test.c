@@ -842,6 +842,7 @@ static void test_join_error_propagation_and_horizontal_overflow(void)
 
     assert(numerus_matrix_create_join_horizontal(failing, valid, &joined) ==
         NUMERUS_MATRIX_SUCCESS);
+    value = 123.0;
     assert(numerus_matrix_get(joined, 0, 0, &value) ==
         NUMERUS_MATRIX_INVALID_ARGUMENT);
     assert(value == 123.0);
