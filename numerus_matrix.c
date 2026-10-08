@@ -864,6 +864,43 @@ numerus_matrix_status numerus_matrix_get_unchecked(
         return NUMERUS_MATRIX_INVALID_ARGUMENT;
     }
 
+    if (matrix->parent2 != NULL) {
+        numerus_matrix_status status;
+
+        if (matrix->join_type == NUMERUS_MATRIX_JOIN_HORIZONTAL) {
+            if (column < numerus_matrix_columns(matrix->parent)) {
+                return numerus_matrix_get(
+                    matrix->parent, row, column, value
+                );
+            }
+
+            return numerus_matrix_get(
+                matrix->parent2,
+                row,
+                column - numerus_matrix_columns(matrix->parent),
+                value
+            );
+        }
+
+        if (matrix->join_type == NUMERUS_MATRIX_JOIN_VERTICAL) {
+            if (row < numerus_matrix_rows(matrix->parent)) {
+                return numerus_matrix_get(
+                    matrix->parent, row, column, value
+                );
+            }
+
+            return numerus_matrix_get(
+                matrix->parent2,
+                row - numerus_matrix_rows(matrix->parent),
+                column,
+                value
+            );
+        }
+
+        status = NUMERUS_MATRIX_INVALID_ARGUMENT;
+        return status;
+    }
+
     if (matrix->parent != NULL) {
         size_t parent_row;
         size_t parent_column;
