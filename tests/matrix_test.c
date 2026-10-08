@@ -708,6 +708,163 @@ static void test_validation(void)
     numerus_matrix_destroy(matrix);
 }
 
+
+static void assert_matrix_values(
+    const numerus_matrix *matrix,
+    size_t rows,
+    size_t columns,
+    const double *expected
+)
+{
+    assert(numerus_matrix_rows(matrix) == rows);
+    assert(numerus_matrix_columns(matrix) == columns);
+
+    for (size_t row = 0; row < rows; row++) {
+        for (size_t column = 0; column < columns; column++) {
+            assert(matrix_value_equals(
+                matrix,
+                row,
+                column,
+                expected[row * columns + column]
+            ));
+        }
+    }
+}
+
+/*
+ * Check every coordinate, not just representative corners. Rectangular
+ * input is important because swapped dimensions expose mapping mistakes.
+ */
+static void test_orientation_transforms_exhaustively(void)
+{
+    const double source[] = {1, 2, 3, 4, 5, 6};
+    const double transpose[] = {1, 4, 2, 5, 3, 6};
+    const double flip_rows[] = {4, 5, 6, 1, 2, 3};
+    const double flip_columns[] = {3, 2, 1, 6, 5, 4};
+    const double rotate_clockwise[] = {4, 1, 5, 2, 6, 3};
+    const double rotate_180[] = {6, 5, 4, 3, 2, 1};
+    const double rotate_counterclockwise[] = {3, 6, 2, 5, 1, 4};
+    numerus_matrix *root = NULL;
+    numerus_matrix *view = NULL;
+
+    assert(numerus_matrix_create_dense(2, 3, source, &root) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    assert(numerus_matrix_create_transpose(root, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert_matrix_values(view, 3, 2, transpose);
+    numerus_matrix_destroy(view);
+
+    assert(numerus_matrix_create_flip_rows(root, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert_matrix_values(view, 2, 3, flip_rows);
+    numerus_matrix_destroy(view);
+
+    assert(numerus_matrix_create_flip_columns(root, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert_matrix_values(view, 2, 3, flip_columns);
+    numerus_matrix_destroy(view);
+
+    assert(numerus_matrix_create_rotate_90_clockwise(root, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert_matrix_values(view, 3, 2, rotate_clockwise);
+    numerus_matrix_destroy(view);
+
+    assert(numerus_matrix_create_rotate_180(root, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert_matrix_values(view, 2, 3, rotate_180);
+    numerus_matrix_destroy(view);
+
+    assert(numerus_matrix_create_rotate_90_counterclockwise(root, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert_matrix_values(view, 3, 2, rotate_counterclockwise);
+    numerus_matrix_destroy(view);
+    numerus_matrix_destroy(root);
+
+    /* Degenerate rectangular dimensions exercise zero-offset boundaries. */
+    {
+        const double row_values[] = {7, 8, 9};
+        const double row_rotated[] = {7, 8, 9};
+        const double column_values[] = {7, 8, 9};
+        const double column_rotated[] = {9, 8, 7};
+        numerus_matrix *row = NULL;
+        numerus_matrix *column = NULL;
+
+        assert(numerus_matrix_create_dense(1, 3, row_values, &row) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(numerus_matrix_create_rotate_90_clockwise(row, &view) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert_matrix_values(view, 3, 1, row_rotated);
+        numerus_matrix_destroy(view);
+
+        assert(numerus_matrix_create_dense(3, 1, column_values, &column) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(numerus_matrix_create_rotate_90_clockwise(column, &view) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert_matrix_values(view, 1, 3, column_rotated);
+        numerus_matrix_destroy(view);
+
+        numerus_matrix_destroy(column);
+        numerus_matrix_destroy(row);
+    }
+}
+
+static void test_join_error_propagation_and_horizontal_overflow(void)
+{
+    const double values[] = {1, 2};
+    numerus_matrix *root = NULL;
+    numerus_matrix *valid = NULL;
+    numerus_matrix *failing = NULL;
+    numerus_matrix *joined = NULL;
+    numerus_matrix *huge = NULL;
+    double value = 123.0;
+
+    assert(numerus_matrix_create_dense(2, 1, values, &root) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_from_parent(
+        root, 2, 1, &valid
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_from_parent_with_transforms(
+        root, 2, 1, invalid_coordinates, NULL, NULL, &failing
+    ) == NUMERUS_MATRIX_SUCCESS);
+
+    /* Errors from either side of a join must propagate without writing value. */
+    assert(numerus_matrix_create_join_horizontal(valid, failing, &joined) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get(joined, 0, 1, &value) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(value == 123.0);
+    assert(numerus_matrix_get(joined, 1, 0, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(value == 2.0);
+    numerus_matrix_destroy(joined);
+    joined = NULL;
+
+    assert(numerus_matrix_create_join_horizontal(failing, valid, &joined) ==
+        NUMERUS_MATRIX_SUCCESS);
+    value = 123.0;
+    assert(numerus_matrix_get(joined, 0, 0, &value) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(value == 123.0);
+    assert(numerus_matrix_get(joined, 0, 1, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(value == 1.0);
+    numerus_matrix_destroy(joined);
+
+    /* The logical dimensions allow overflow tests without huge allocations. */
+    assert(numerus_matrix_create_from_parent(
+        root, 2, (size_t) -1, &huge
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_join_horizontal(huge, valid, &joined) ==
+        NUMERUS_MATRIX_OVERFLOW);
+    assert(joined == NULL);
+
+    numerus_matrix_destroy(huge);
+    numerus_matrix_destroy(failing);
+    numerus_matrix_destroy(valid);
+    numerus_matrix_destroy(root);
+}
+
 int main(void)
 {
     test_factory_and_dimensions();
@@ -717,9 +874,11 @@ int main(void)
     test_transpose_transform();
     test_transpose_constructor();
     test_orientation_transforms();
+    test_orientation_transforms_exhaustively();
     test_value_transform();
     test_transform_error_propagation();
     test_matrix_joins();
+    test_join_error_propagation_and_horizontal_overflow();
     test_validation();
 
     puts("Matrix tests passed.");

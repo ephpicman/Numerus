@@ -202,6 +202,77 @@ static void test_bounds(void)
     numerus_storage_destroy(s);
 }
 
+
+static void test_validation_and_immutable_copies(void)
+{
+    double dense_values[] = {10, 20};
+    numerus_storage *storage = NULL;
+    double value = 0.0;
+
+    assert(numerus_storage_create_dense(
+        1, 2, dense_values, &storage
+    ) == NUMERUS_STORAGE_SUCCESS);
+
+    /* Storage owns a copy; callers may change their input buffer afterwards. */
+    dense_values[0] = 999;
+    assert(numerus_storage_get(storage, 0, 0, &value) ==
+        NUMERUS_STORAGE_SUCCESS);
+    assert(value == 10.0);
+    numerus_storage_destroy(storage);
+    storage = NULL;
+
+    {
+        numerus_storage_sparse_entry entries[] = {
+            {0, 11},
+            {2, 33}
+        };
+
+        assert(numerus_storage_create_sparse(
+            1, 3, -1.0, entries, 2, &storage
+        ) == NUMERUS_STORAGE_SUCCESS);
+
+        entries[0].value = 999;
+        entries[1].index = 0;
+
+        assert(numerus_storage_get(storage, 0, 0, &value) ==
+            NUMERUS_STORAGE_SUCCESS);
+        assert(value == 11.0);
+        assert(numerus_storage_get(storage, 0, 2, &value) ==
+            NUMERUS_STORAGE_SUCCESS);
+        assert(value == 33.0);
+        numerus_storage_destroy(storage);
+        storage = NULL;
+    }
+
+    {
+        const numerus_storage_sparse_entry duplicate_indices[] = {
+            {1, 10},
+            {1, 20}
+        };
+        const numerus_storage_sparse_entry out_of_range[] = {
+            {3, 10}
+        };
+
+        assert(numerus_storage_create_sparse(
+            1, 3, 0.0, duplicate_indices, 2, &storage
+        ) == NUMERUS_STORAGE_INVALID_ARGUMENT);
+        assert(storage == NULL);
+
+        assert(numerus_storage_create_sparse(
+            1, 3, 0.0, out_of_range, 1, &storage
+        ) == NUMERUS_STORAGE_OUT_OF_BOUNDS);
+        assert(storage == NULL);
+
+        assert(numerus_storage_create_sparse(
+            1, 3, 0.0, NULL, 1, &storage
+        ) == NUMERUS_STORAGE_INVALID_ARGUMENT);
+    }
+
+    assert(numerus_storage_create_dense(
+        (size_t) -1, 2, NULL, &storage
+    ) == NUMERUS_STORAGE_OVERFLOW);
+}
+
 int main(void)
 {
     test_basic_storages();
@@ -209,6 +280,7 @@ int main(void)
     test_sparse();
     test_symmetric_and_banded();
     test_bounds();
+    test_validation_and_immutable_copies();
 
     puts("Storage tests passed.");
     return 0;
