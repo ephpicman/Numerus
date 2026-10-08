@@ -1,0 +1,25 @@
+# PHP extension build artefacts
+autom4te.cache/
+build/
+.libs/
+modules/
+
+# Autoconf / libtool generated files
+aclocal.m4
+config.h
+config.h.in
+config.log
+config.nice
+config.status
+configure
+libtool
+Makefile
+Makefile.fragments
+Makefile.objects
+run-tests.php
+stamp-h1
+
+# Editor / OS files
+.DS_Store
+.idea/
+.vscode/

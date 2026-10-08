@@ -1,0 +1,79 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    container:
+      image: php:${{ matrix.php }}-cli
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php:
+          - "8.2"
+          - "8.3"
+          - "8.4"
+          - "8.5"
+
+    steps:
+      - name: Install build dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends autoconf build-essential pkg-config
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare build system
+        run: phpize
+
+      - name: Configure
+        run: ./configure --enable-numerus
+
+      - name: Build
+        run: make -j"$(nproc)"
+
+      - name: Run extension tests
+        run: make test TESTS='tests/*.phpt'
+
+      - name: Verify extension loads
+        run: php -d extension="$(pwd)/modules/numerus.so" -r 'var_dump(extension_loaded("numerus"));'
+
+  debug:
+    name: Debug build
+    runs-on: ubuntu-latest
+    container:
+      image: php:8.5-cli
+
+    steps:
+      - name: Install build dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends autoconf build-essential pkg-config
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare build system
+        run: phpize
+
+      - name: Configure debug build
+        env:
+          CFLAGS: -g -O0
+        run: ./configure --enable-numerus
+
+      - name: Build
+        run: make -j"$(nproc)"
+
+      - name: Run extension tests
+        run: make test TESTS='tests/*.phpt'

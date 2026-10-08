@@ -1,0 +1,5 @@
+ARG_ENABLE("numerus", "whether to enable numerus support", "no");
+
+if (PHP_NUMERUS != "no") {
+    EXTENSION("numerus", "numerus.c");
+}
