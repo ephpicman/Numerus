@@ -61,6 +61,34 @@ typedef struct {
 typedef struct numerus_matrix numerus_matrix;
 
 /**
+ * @brief Map a child Matrix coordinate to its parent's coordinate.
+ *
+ * The callback must write both parent coordinates on success. It must return
+ * a Matrix status on failure; the status is propagated to the caller.
+ */
+typedef numerus_matrix_status (*numerus_coordinate_transform_fn)(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    void *context
+);
+
+/**
+ * @brief Transform a value read from the parent.
+ *
+ * row and column are the original coordinates requested from the child.
+ * The callback writes result only when it returns NUMERUS_MATRIX_SUCCESS.
+ */
+typedef numerus_matrix_status (*numerus_value_transform_fn)(
+    size_t row,
+    size_t column,
+    double parent_value,
+    double *result,
+    void *context
+);
+
+/**
  * @brief Create a root Matrix from a Storage representation.
  *
  * On success, Matrix owns the newly created Storage.
@@ -96,6 +124,22 @@ int numerus_matrix_create_from_parent(
     numerus_matrix *parent,
     size_t rows,
     size_t columns,
+    numerus_matrix **matrix
+);
+
+/**
+ * @brief Create a child Matrix with coordinate and value transforms.
+ *
+ * A NULL callback selects its identity/pass-through default. The context is
+ * non-owning and must remain alive while the child may be read.
+ */
+int numerus_matrix_create_from_parent_with_transforms(
+    numerus_matrix *parent,
+    size_t rows,
+    size_t columns,
+    numerus_coordinate_transform_fn coordinate_transform,
+    numerus_value_transform_fn value_transform,
+    void *context,
     numerus_matrix **matrix
 );
 
@@ -197,10 +241,11 @@ numerus_matrix_status numerus_matrix_get(
  * This is the hot-path accessor for callers that already validated the
  * Matrix and coordinates.
  */
-double numerus_matrix_get_unchecked(
+numerus_matrix_status numerus_matrix_get_unchecked(
     const numerus_matrix *matrix,
     size_t row,
-    size_t column
+    size_t column,
+    double *value
 );
 
 /** Return the number of rows, or zero for NULL. */
