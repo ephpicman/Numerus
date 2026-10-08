@@ -865,8 +865,6 @@ numerus_matrix_status numerus_matrix_get_unchecked(
     }
 
     if (matrix->parent2 != NULL) {
-        numerus_matrix_status status;
-
         if (matrix->join_type == NUMERUS_MATRIX_JOIN_HORIZONTAL) {
             if (column < numerus_matrix_columns(matrix->parent)) {
                 return numerus_matrix_get(
@@ -897,8 +895,7 @@ numerus_matrix_status numerus_matrix_get_unchecked(
             );
         }
 
-        status = NUMERUS_MATRIX_INVALID_ARGUMENT;
-        return status;
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
     }
 
     if (matrix->parent != NULL) {
