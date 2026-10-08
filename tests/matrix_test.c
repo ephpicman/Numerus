@@ -366,7 +366,7 @@ static void test_transpose_constructor(void)
     numerus_matrix *parent = NULL;
     numerus_matrix *transpose = NULL;
     numerus_matrix *double_transpose = NULL;
-    double value = -1.0;
+    numerus_matrix *invalid_output = NULL;
 
     assert(numerus_matrix_create_dense(2, 3, values, &parent) ==
         NUMERUS_MATRIX_SUCCESS);
@@ -400,7 +400,7 @@ static void test_transpose_constructor(void)
         }
     }
 
-    assert(numerus_matrix_create_transpose(NULL, &value) ==
+    assert(numerus_matrix_create_transpose(NULL, &invalid_output) ==
         NUMERUS_MATRIX_INVALID_ARGUMENT);
     assert(numerus_matrix_create_transpose(parent, NULL) ==
         NUMERUS_MATRIX_INVALID_ARGUMENT);
