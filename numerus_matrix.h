@@ -155,6 +155,36 @@ int numerus_matrix_create_transpose(
     numerus_matrix **matrix
 );
 
+/** Create a lazy view with the order of rows reversed. */
+int numerus_matrix_create_flip_rows(
+    numerus_matrix *parent,
+    numerus_matrix **matrix
+);
+
+/** Create a lazy view with the order of columns reversed. */
+int numerus_matrix_create_flip_columns(
+    numerus_matrix *parent,
+    numerus_matrix **matrix
+);
+
+/** Create a lazy 90-degree clockwise rotation view. */
+int numerus_matrix_create_rotate_90_clockwise(
+    numerus_matrix *parent,
+    numerus_matrix **matrix
+);
+
+/** Create a lazy 180-degree rotation view. */
+int numerus_matrix_create_rotate_180(
+    numerus_matrix *parent,
+    numerus_matrix **matrix
+);
+
+/** Create a lazy 90-degree counter-clockwise rotation view. */
+int numerus_matrix_create_rotate_90_counterclockwise(
+    numerus_matrix *parent,
+    numerus_matrix **matrix
+);
+
 /** Create a dense Matrix. */
 int numerus_matrix_create_dense(
     size_t rows,
