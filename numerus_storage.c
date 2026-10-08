@@ -4,14 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-enum {
-    NUMERUS_STORAGE_SUCCESS = 0,
-    NUMERUS_STORAGE_INVALID_ARGUMENT = 1,
-    NUMERUS_STORAGE_OVERFLOW = 2,
-    NUMERUS_STORAGE_OUT_OF_MEMORY = 3,
-    NUMERUS_STORAGE_OUT_OF_BOUNDS = 4
-};
-
 static int size_mul(size_t a, size_t b, size_t *result)
 {
     if (a != 0 && b > SIZE_MAX / a) {
@@ -552,18 +544,12 @@ static double sparse_get(
     return storage->data.sparse.default_value;
 }
 
-double numerus_storage_get(
+double numerus_storage_get_unchecked(
     const numerus_storage *storage,
     size_t row,
     size_t column
 )
 {
-    if (storage == NULL ||
-        row >= storage->rows ||
-        column >= storage->columns) {
-        return 0.0;
-    }
-
     switch (storage->kind) {
         case NUMERUS_STORAGE_DENSE:
             return storage->data.dense.values[row * storage->columns + column];
@@ -646,6 +632,26 @@ double numerus_storage_get(
     }
 
     return 0.0;
+}
+
+numerus_storage_status numerus_storage_get(
+    const numerus_storage *storage,
+    size_t row,
+    size_t column,
+    double *value
+)
+{
+    if (storage == NULL || value == NULL) {
+        return NUMERUS_STORAGE_INVALID_ARGUMENT;
+    }
+
+    if (row >= storage->rows || column >= storage->columns) {
+        return NUMERUS_STORAGE_OUT_OF_BOUNDS;
+    }
+
+    *value = numerus_storage_get_unchecked(storage, row, column);
+
+    return NUMERUS_STORAGE_SUCCESS;
 }
 
 void numerus_storage_destroy(numerus_storage *storage)
