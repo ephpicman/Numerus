@@ -29,8 +29,19 @@ typedef enum {
     /** A matrix coordinate is outside the valid range. */
     NUMERUS_MATRIX_OUT_OF_BOUNDS,
     /** The requested Storage representation requires a square Matrix. */
-    NUMERUS_MATRIX_NOT_SQUARE
+    NUMERUS_MATRIX_NOT_SQUARE,
+    NUMERUS_MATRIX_DIMENSION_MISMATCH
 } numerus_matrix_status;
+
+/**
+ * @brief Layout used to join two Matrices.
+ */
+typedef enum {
+    /** Append the second Matrix to the right of the first. */
+    NUMERUS_MATRIX_JOIN_HORIZONTAL = 0,
+    /** Append the second Matrix below the first. */
+    NUMERUS_MATRIX_JOIN_VERTICAL
+} numerus_matrix_join_type;
 
 /**
  * @brief Parameters consumed by the general Matrix factory.
@@ -182,6 +193,30 @@ int numerus_matrix_create_rotate_180(
 /** Create a lazy 90-degree counter-clockwise rotation view. */
 int numerus_matrix_create_rotate_90_counterclockwise(
     numerus_matrix *parent,
+    numerus_matrix **matrix
+);
+
+/**
+ * @brief Create a lazy horizontal join of two Matrices.
+ *
+ * Both parents must have the same number of rows. The second Matrix is
+ * appended to the right of the first. Neither parent is owned by the result.
+ */
+int numerus_matrix_create_join_horizontal(
+    numerus_matrix *parent,
+    numerus_matrix *parent2,
+    numerus_matrix **matrix
+);
+
+/**
+ * @brief Create a lazy vertical join of two Matrices.
+ *
+ * Both parents must have the same number of columns. The second Matrix is
+ * appended below the first. Neither parent is owned by the result.
+ */
+int numerus_matrix_create_join_vertical(
+    numerus_matrix *parent,
+    numerus_matrix *parent2,
     numerus_matrix **matrix
 );
 
