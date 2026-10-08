@@ -150,7 +150,7 @@ static void test_all_storage_kinds(void)
         NUMERUS_STORAGE_SPARSE, 2, 3, &data, &matrix
     ) == NUMERUS_MATRIX_SUCCESS);
     assert(matrix_value_equals(matrix, 0, 1, 10.0));
-    assert(numerus_matrix_get_unchecked(matrix, 0, 0) == -1.0);
+    assert(matrix_value_equals(matrix, 0, 0, -1.0));
     numerus_matrix_destroy(matrix);
 
     assert(numerus_matrix_create_sparse(
