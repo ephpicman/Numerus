@@ -10,8 +10,8 @@ large application-level API.
 
 ## Current status
 
-The project currently contains the extension skeleton and an internal immutable
-**Storage** subsystem for matrix data.
+The project currently contains the extension skeleton, an internal immutable
+**Storage** subsystem, and the first internal **Matrix** abstraction built on top of it.
 
 Storage provides a common logical matrix interface over specialised
 representations:
@@ -36,7 +36,9 @@ All successful element reads return a `double`. Storage does not expose
 mutation; constructor inputs are copied into owned memory.
 
 See [Storage documentation](docs/storage.md) for the representation model,
-semantics, API, and implementation notes.
+semantics, API, and implementation notes. Matrix currently remains an internal C
+abstraction; its PHP-facing construction API will be added after the internal
+lifecycle and semantics are stabilised.
 
 ## Requirements
 
@@ -80,7 +82,7 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
 ```
 
 The native test build uses the libc allocator only because it runs as a
-standalone executable. The extension build itself uses Zend Memory Manager
+standalone executable. It currently covers both Storage and Matrix. The extension build itself uses Zend Memory Manager
 (`emalloc`, `ecalloc`, and `efree`).
 
 ## CI
@@ -105,6 +107,9 @@ GitHub Actions verifies:
 - `numerus.c` — module implementation.
 - `numerus_storage.h` — opaque Storage API and public contracts.
 - `numerus_storage.c` — Storage representations and access logic.
+- `numerus_matrix.h` — internal Matrix API and construction contracts.
+- `numerus_matrix.c` — Matrix construction, parent delegation, and access logic.
+- `tests/matrix_test.c` — native Matrix tests.
 - `tests/` — PHPT and native C tests.
 - `docs/storage.md` — Storage design and API documentation.
 - `.github/workflows/tests.yml` — build and test matrix.
