@@ -1,5 +1,6 @@
 #include "numerus_matrix.h"
 
+#include <stdint.h>
 #include <stdlib.h>
 
 #ifndef NUMERUS_MATRIX_USE_LIBC_ALLOC
@@ -17,6 +18,8 @@ struct numerus_matrix {
     size_t columns;
     numerus_storage *storage;
     numerus_matrix *parent;
+    numerus_matrix *parent2;
+    numerus_matrix_join_type join_type;
     numerus_coordinate_transform_fn coordinate_transform;
     numerus_value_transform_fn value_transform;
     void *transform_context;
@@ -226,6 +229,8 @@ static int allocate_matrix(numerus_matrix **matrix)
     (*matrix)->columns = 0;
     (*matrix)->storage = NULL;
     (*matrix)->parent = NULL;
+    (*matrix)->parent2 = NULL;
+    (*matrix)->join_type = NUMERUS_MATRIX_JOIN_HORIZONTAL;
     (*matrix)->coordinate_transform = NULL;
     (*matrix)->value_transform = NULL;
     (*matrix)->transform_context = NULL;
@@ -385,6 +390,7 @@ int numerus_matrix_create(
     result->columns = columns;
     result->storage = storage;
     result->parent = NULL;
+    result->parent2 = NULL;
     result->coordinate_transform = NULL;
     result->value_transform = NULL;
     result->transform_context = NULL;
@@ -442,6 +448,7 @@ int numerus_matrix_create_from_parent_with_transforms(
     result->columns = columns;
     result->storage = NULL;
     result->parent = parent;
+    result->parent2 = NULL;
     result->coordinate_transform = coordinate_transform == NULL
         ? identity_coordinate_transform
         : coordinate_transform;
@@ -571,6 +578,92 @@ int numerus_matrix_create_rotate_90_counterclockwise(
         NULL,
         parent,
         matrix
+    );
+}
+
+static int numerus_matrix_create_join(
+    numerus_matrix *parent,
+    numerus_matrix *parent2,
+    numerus_matrix_join_type join_type,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix *result = NULL;
+    size_t rows;
+    size_t columns;
+    int status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+
+    if (parent == NULL || parent2 == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    if (join_type == NUMERUS_MATRIX_JOIN_HORIZONTAL) {
+        if (numerus_matrix_rows(parent) != numerus_matrix_rows(parent2)) {
+            return NUMERUS_MATRIX_DIMENSION_MISMATCH;
+        }
+
+        rows = numerus_matrix_rows(parent);
+        if (numerus_matrix_columns(parent) > SIZE_MAX - numerus_matrix_columns(parent2)) {
+            return NUMERUS_MATRIX_OVERFLOW;
+        }
+        columns = numerus_matrix_columns(parent) + numerus_matrix_columns(parent2);
+    } else if (join_type == NUMERUS_MATRIX_JOIN_VERTICAL) {
+        if (numerus_matrix_columns(parent) != numerus_matrix_columns(parent2)) {
+            return NUMERUS_MATRIX_DIMENSION_MISMATCH;
+        }
+
+        columns = numerus_matrix_columns(parent);
+        if (numerus_matrix_rows(parent) > SIZE_MAX - numerus_matrix_rows(parent2)) {
+            return NUMERUS_MATRIX_OVERFLOW;
+        }
+        rows = numerus_matrix_rows(parent) + numerus_matrix_rows(parent2);
+    } else {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    status = allocate_matrix(&result);
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        return status;
+    }
+
+    result->rows = rows;
+    result->columns = columns;
+    result->storage = NULL;
+    result->parent = parent;
+    result->parent2 = parent2;
+    result->join_type = join_type;
+    result->coordinate_transform = NULL;
+    result->value_transform = NULL;
+    result->transform_context = NULL;
+    *matrix = result;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+int numerus_matrix_create_join_horizontal(
+    numerus_matrix *parent,
+    numerus_matrix *parent2,
+    numerus_matrix **matrix
+)
+{
+    return numerus_matrix_create_join(
+        parent, parent2, NUMERUS_MATRIX_JOIN_HORIZONTAL, matrix
+    );
+}
+
+int numerus_matrix_create_join_vertical(
+    numerus_matrix *parent,
+    numerus_matrix *parent2,
+    numerus_matrix **matrix
+)
+{
+    return numerus_matrix_create_join(
+        parent, parent2, NUMERUS_MATRIX_JOIN_VERTICAL, matrix
     );
 }
 
