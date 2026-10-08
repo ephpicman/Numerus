@@ -1,8 +1,45 @@
 #include "numerus_storage.h"
 
 #include <stdint.h>
-#include <stdlib.h>
 #include <string.h>
+
+#ifndef NUMERUS_STORAGE_USE_LIBC_ALLOC
+# include "Zend/zend_alloc.h"
+# define numerus_alloc(size) emalloc(size)
+# define numerus_calloc(count, size) ecalloc((count), (size))
+# define numerus_free(ptr) efree(ptr)
+#else
+# include <stdlib.h>
+# define numerus_alloc(size) malloc(size)
+# define numerus_calloc(count, size) calloc((count), (size))
+# define numerus_free(ptr) free(ptr)
+#endif
+
+struct numerus_storage {
+    numerus_storage_kind kind;
+    size_t rows;
+    size_t columns;
+
+    union {
+        struct { double *values; } dense;
+        struct { double *values; } upper_triangular;
+        struct { double *values; } lower_triangular;
+        struct { double *values; } diagonal;
+        struct { double value; } constant;
+        struct { double value; } scaled_identity;
+        struct {
+            size_t count;
+            numerus_storage_sparse_entry *entries;
+            double default_value;
+        } sparse;
+        struct { double *values; } symmetric;
+        struct {
+            size_t lower_bandwidth;
+            size_t upper_bandwidth;
+            double *values;
+        } banded;
+    } data;
+};
 
 static int size_mul(size_t a, size_t b, size_t *result)
 {
@@ -53,7 +90,7 @@ static int allocate_storage(
         return NUMERUS_STORAGE_INVALID_ARGUMENT;
     }
 
-    result = calloc(1, sizeof(*result));
+    result = numerus_calloc(1, sizeof(*result));
     if (result == NULL) {
         return NUMERUS_STORAGE_OUT_OF_MEMORY;
     }
@@ -78,7 +115,7 @@ static int allocate_values(size_t count, double **values)
         return NUMERUS_STORAGE_OVERFLOW;
     }
 
-    *values = calloc(1, bytes);
+    *values = numerus_calloc(1, bytes);
 
     if (*values == NULL && bytes != 0) {
         return NUMERUS_STORAGE_OUT_OF_MEMORY;
@@ -96,7 +133,7 @@ static int copy_values(double **destination, const double *source, size_t count)
     }
 
     if (count != 0 && source == NULL) {
-        free(*destination);
+        numerus_free(*destination);
         *destination = NULL;
         return NUMERUS_STORAGE_INVALID_ARGUMENT;
     }
@@ -383,7 +420,7 @@ int numerus_storage_create_sparse(
             return NUMERUS_STORAGE_OVERFLOW;
         }
 
-        (*storage)->data.sparse.entries = malloc(bytes);
+        (*storage)->data.sparse.entries = numerus_alloc(bytes);
         if ((*storage)->data.sparse.entries == NULL) {
             numerus_storage_destroy(*storage);
             *storage = NULL;
@@ -662,25 +699,25 @@ void numerus_storage_destroy(numerus_storage *storage)
 
     switch (storage->kind) {
         case NUMERUS_STORAGE_DENSE:
-            free(storage->data.dense.values);
+            numerus_free(storage->data.dense.values);
             break;
         case NUMERUS_STORAGE_UPPER_TRIANGULAR:
-            free(storage->data.upper_triangular.values);
+            numerus_free(storage->data.upper_triangular.values);
             break;
         case NUMERUS_STORAGE_LOWER_TRIANGULAR:
-            free(storage->data.lower_triangular.values);
+            numerus_free(storage->data.lower_triangular.values);
             break;
         case NUMERUS_STORAGE_DIAGONAL:
-            free(storage->data.diagonal.values);
+            numerus_free(storage->data.diagonal.values);
             break;
         case NUMERUS_STORAGE_SPARSE:
-            free(storage->data.sparse.entries);
+            numerus_free(storage->data.sparse.entries);
             break;
         case NUMERUS_STORAGE_SYMMETRIC:
-            free(storage->data.symmetric.values);
+            numerus_free(storage->data.symmetric.values);
             break;
         case NUMERUS_STORAGE_BANDED:
-            free(storage->data.banded.values);
+            numerus_free(storage->data.banded.values);
             break;
         case NUMERUS_STORAGE_IDENTITY:
         case NUMERUS_STORAGE_CONSTANT:
@@ -689,7 +726,7 @@ void numerus_storage_destroy(numerus_storage *storage)
             break;
     }
 
-    free(storage);
+    numerus_free(storage);
 }
 
 size_t numerus_storage_rows(const numerus_storage *storage)
