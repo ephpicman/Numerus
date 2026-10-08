@@ -361,6 +361,81 @@ int numerus_matrix_create_scaled_identity(
     );
 }
 
+int numerus_matrix_create_upper_triangular(
+    size_t size,
+    const double *values,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix_data data = {0};
+    data.values = values;
+    return numerus_matrix_create(
+        NUMERUS_STORAGE_UPPER_TRIANGULAR, size, size, &data, matrix
+    );
+}
+
+int numerus_matrix_create_lower_triangular(
+    size_t size,
+    const double *values,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix_data data = {0};
+    data.values = values;
+    return numerus_matrix_create(
+        NUMERUS_STORAGE_LOWER_TRIANGULAR, size, size, &data, matrix
+    );
+}
+
+int numerus_matrix_create_sparse(
+    size_t rows,
+    size_t columns,
+    double default_value,
+    const numerus_storage_sparse_entry *entries,
+    size_t count,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix_data data = {0};
+    data.default_value = default_value;
+    data.entries = entries;
+    data.count = count;
+    return numerus_matrix_create(
+        NUMERUS_STORAGE_SPARSE, rows, columns, &data, matrix
+    );
+}
+
+int numerus_matrix_create_symmetric(
+    size_t size,
+    const double *values,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix_data data = {0};
+    data.values = values;
+    return numerus_matrix_create(
+        NUMERUS_STORAGE_SYMMETRIC, size, size, &data, matrix
+    );
+}
+
+int numerus_matrix_create_banded(
+    size_t rows,
+    size_t columns,
+    size_t lower_bandwidth,
+    size_t upper_bandwidth,
+    const double *values,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix_data data = {0};
+    data.lower_bandwidth = lower_bandwidth;
+    data.upper_bandwidth = upper_bandwidth;
+    data.values = values;
+    return numerus_matrix_create(
+        NUMERUS_STORAGE_BANDED, rows, columns, &data, matrix
+    );
+}
+
 /**
  * Read one Matrix element, delegating through every parent until Storage.
  */
