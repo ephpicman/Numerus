@@ -228,13 +228,15 @@ int numerus_matrix_create(
  */
 int numerus_matrix_create_from_parent(
     numerus_matrix *parent,
+    size_t rows,
+    size_t columns,
     numerus_matrix **matrix
 )
 {
     numerus_matrix *result;
     int status;
 
-    if (parent == NULL || matrix == NULL) {
+    if (parent == NULL || matrix == NULL || !dimensions_valid(rows, columns)) {
         return NUMERUS_MATRIX_INVALID_ARGUMENT;
     }
 
@@ -245,8 +247,8 @@ int numerus_matrix_create_from_parent(
         return status;
     }
 
-    result->rows = parent->rows;
-    result->columns = parent->columns;
+    result->rows = rows;
+    result->columns = columns;
     result->storage = NULL;
     result->parent = parent;
     *matrix = result;
