@@ -127,7 +127,7 @@ static void test_all_storage_kinds(void)
     assert(numerus_matrix_get_unchecked(matrix, 0, 0) == -1.0);
     numerus_matrix_destroy(matrix);
 
-    data.values = packed;
+    data.values = banded;
     data.entries = NULL;
     data.count = 0;
     data.lower_bandwidth = 1;
