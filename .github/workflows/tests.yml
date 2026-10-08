@@ -43,6 +43,12 @@ jobs:
       - name: Build
         run: make -j"$(nproc)"
 
+      - name: Run native storage tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -o tests/storage_test tests/storage_test.c numerus_storage.c
+          ./tests/storage_test
+
       - name: Run extension tests
         run: make test TESTS='tests/*.phpt'
 
