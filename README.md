@@ -1,8 +1,42 @@
-# PHP Extension Template
+# Numerus
 
-A minimal, production-oriented starting point for building PHP extensions in C.
+Numerus is a native PHP extension for numerical computing infrastructure.
 
-The repository is intentionally small. It provides the build system, PHPT test infrastructure, cross-platform build metadata, and GitHub Actions CI that should be common to a PHP extension project.
+The project is being built as a low-level foundation for higher-level numerical
+work in PHP, including matrix computation, numerical methods, optimisation,
+statistical estimation, and related mathematical models. The current codebase
+is intentionally focused on the internal primitives rather than exposing a
+large application-level API.
+
+## Current status
+
+The project currently contains the extension skeleton and an internal immutable
+**Storage** subsystem for matrix data.
+
+Storage provides a common logical matrix interface over specialised
+representations:
+
+- dense rectangular
+- upper triangular
+- lower triangular
+- diagonal
+- identity
+- constant
+- zero
+- scaled identity
+- sparse with a default value and explicit overrides
+- symmetric
+- banded
+
+Storage is deliberately opaque. Its representation is private to
+`numerus_storage.c`, so higher-level components depend on the Storage API
+rather than its memory layout.
+
+All successful element reads return a `double`. Storage does not expose
+mutation; constructor inputs are copied into owned memory.
+
+See [Storage documentation](docs/storage.md) for the representation model,
+semantics, API, and implementation notes.
 
 ## Requirements
 
@@ -30,52 +64,65 @@ On Windows, use the standard PHP build tools and `config.w32`.
 
 ## Test
 
-PHPT is the primary test mechanism:
+PHPT is the primary test mechanism for PHP-visible behaviour:
 
 ```sh
 make test TESTS='tests/*.phpt'
 ```
 
-The test suite is deliberately independent of PHPUnit. PHP extensions should normally test their public PHP-visible behaviour through PHPT.
+The repository also contains native C tests for the internal Storage subsystem:
+
+```sh
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/storage_test tests/storage_test.c numerus_storage.c
+./tests/storage_test
+```
+
+The native test build uses the libc allocator only because it runs as a
+standalone executable. The extension build itself uses Zend Memory Manager
+(`emalloc`, `ecalloc`, and `efree`).
 
 ## CI
 
-GitHub Actions currently verifies:
+GitHub Actions verifies:
 
 - PHP 8.2
 - PHP 8.3
 - PHP 8.4
 - PHP 8.5
 - extension compilation
+- native Storage tests
 - PHPT tests
 - extension loading
 - a separate debug-oriented build
-
-The workflow is designed to be extended as an individual extension acquires additional platform or runtime requirements.
 
 ## Project structure
 
 - `config.m4` — Unix Autoconf configuration.
 - `config.w32` — Windows build configuration.
 - `php_numerus.h` — module declarations and version.
-- `numerus.c` — minimal module implementation.
-- `tests/` — PHPT tests.
+- `numerus.c` — module implementation.
+- `numerus_storage.h` — opaque Storage API and public contracts.
+- `numerus_storage.c` — Storage representations and access logic.
+- `tests/` — PHPT and native C tests.
+- `docs/storage.md` — Storage design and API documentation.
 - `.github/workflows/tests.yml` — build and test matrix.
-- `.gitignore` — generated build artefacts.
-- `.editorconfig` — basic repository conventions.
 
-## Using this as a template
+## Design principles
 
-When creating a new extension from this repository:
+Numerus is intentionally being built from the bottom up:
 
-1. Rename the repository.
-2. Rename the extension identifiers from `numerus` to the new extension name.
-3. Update `config.m4` and `config.w32`.
-4. Update the module declaration and version.
-5. Replace the example PHPT tests.
-6. Keep the CI structure unless the extension has additional requirements.
+1. Keep low-level numerical primitives small and composable.
+2. Keep representation details private behind stable C APIs.
+3. Prefer specialised storage when it materially reduces memory or computation.
+4. Keep Storage immutable so higher-level Matrix objects can safely share it.
+5. Validate at public boundaries and provide unchecked hot paths only where the
+   caller has already established the required invariants.
+6. Make overflow, allocation failure, and bounds behaviour explicit.
 
-The template deliberately does not prescribe an application architecture. The internal C structure should be chosen according to the extension's actual domain and performance requirements.
+Higher-level matrix algorithms and PHP-facing APIs will be introduced only when
+the underlying numerical semantics justify them.
 
 ## License
 
