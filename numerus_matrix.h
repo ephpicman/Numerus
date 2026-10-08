@@ -142,6 +142,47 @@ int numerus_matrix_create_scaled_identity(
     numerus_matrix **matrix
 );
 
+/** Create an upper-triangular Matrix. */
+int numerus_matrix_create_upper_triangular(
+    size_t size,
+    const double *values,
+    numerus_matrix **matrix
+);
+
+/** Create a lower-triangular Matrix. */
+int numerus_matrix_create_lower_triangular(
+    size_t size,
+    const double *values,
+    numerus_matrix **matrix
+);
+
+/** Create a sparse Matrix with a default value and explicit overrides. */
+int numerus_matrix_create_sparse(
+    size_t rows,
+    size_t columns,
+    double default_value,
+    const numerus_storage_sparse_entry *entries,
+    size_t count,
+    numerus_matrix **matrix
+);
+
+/** Create a symmetric Matrix. */
+int numerus_matrix_create_symmetric(
+    size_t size,
+    const double *values,
+    numerus_matrix **matrix
+);
+
+/** Create a banded Matrix. */
+int numerus_matrix_create_banded(
+    size_t rows,
+    size_t columns,
+    size_t lower_bandwidth,
+    size_t upper_bandwidth,
+    const double *values,
+    numerus_matrix **matrix
+);
+
 /** Read one Matrix element with validation. */
 numerus_matrix_status numerus_matrix_get(
     const numerus_matrix *matrix,
