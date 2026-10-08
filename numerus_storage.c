@@ -42,7 +42,7 @@ struct numerus_storage {
     } data;
 };
 
-static int size_mul(size_t a, size_t b, size_t *result)
+/* Return a * b or NUMERUS_STORAGE_OVERFLOW when size_t cannot represent it. */
 {
     if (a != 0 && b > SIZE_MAX / a) {
         return NUMERUS_STORAGE_OVERFLOW;
@@ -52,7 +52,7 @@ static int size_mul(size_t a, size_t b, size_t *result)
     return NUMERUS_STORAGE_SUCCESS;
 }
 
-static int size_add(size_t a, size_t b, size_t *result)
+/* Return a + b or NUMERUS_STORAGE_OVERFLOW when size_t cannot represent it. */
 {
     if (b > SIZE_MAX - a) {
         return NUMERUS_STORAGE_OVERFLOW;
@@ -62,7 +62,7 @@ static int size_add(size_t a, size_t b, size_t *result)
     return NUMERUS_STORAGE_SUCCESS;
 }
 
-static int triangular_count(size_t n, size_t *result)
+/* Compute n(n + 1) / 2 without overflowing an intermediate product. */
 {
     size_t a;
     size_t b;
@@ -77,6 +77,8 @@ static int triangular_count(size_t n, size_t *result)
 
     return size_mul(a, b, result);
 }
+
+/* Allocate and initialise the opaque Storage object itself. */
 
 static int allocate_storage(
     numerus_storage_kind kind,
@@ -104,7 +106,7 @@ static int allocate_storage(
     return NUMERUS_STORAGE_SUCCESS;
 }
 
-static int allocate_values(size_t count, double **values)
+/* Allocate zero-initialised storage for count double values. */
 {
     size_t bytes;
 
@@ -125,7 +127,7 @@ static int allocate_values(size_t count, double **values)
     return NUMERUS_STORAGE_SUCCESS;
 }
 
-static int copy_values(double **destination, const double *source, size_t count)
+/* Allocate owned storage and copy an immutable input value buffer. */
 {
     int status = allocate_values(count, destination);
 
@@ -146,7 +148,7 @@ static int copy_values(double **destination, const double *source, size_t count)
     return NUMERUS_STORAGE_SUCCESS;
 }
 
-static size_t upper_offset(size_t size, size_t row, size_t column)
+/* Return the packed upper-triangular offset for a valid coordinate. */
 {
     size_t a = row;
     size_t b = 2 * size - row + 1;
@@ -162,16 +164,17 @@ static size_t upper_offset(size_t size, size_t row, size_t column)
     return skipped + (column - row);
 }
 
-static size_t lower_offset(size_t row, size_t column)
+/* Return the packed lower-triangular offset for a valid coordinate. */
 {
     return row * (row + 1) / 2 + column;
 }
 
-static size_t triangular_offset(size_t row, size_t column)
+/* Return the packed lower-triangular offset used by symmetric storage. */
 {
     return row * (row + 1) / 2 + column;
 }
 
+/** Create an immutable row-major dense Storage. */
 int numerus_storage_create_dense(
     size_t rows,
     size_t columns,
@@ -200,6 +203,7 @@ int numerus_storage_create_dense(
     return status;
 }
 
+/** Create immutable packed upper-triangular Storage. */
 int numerus_storage_create_upper_triangular(
     size_t size,
     const double *values,
@@ -236,6 +240,7 @@ int numerus_storage_create_upper_triangular(
     return status;
 }
 
+/** Create immutable packed lower-triangular Storage. */
 int numerus_storage_create_lower_triangular(
     size_t size,
     const double *values,
@@ -272,6 +277,7 @@ int numerus_storage_create_lower_triangular(
     return status;
 }
 
+/** Create immutable diagonal Storage. */
 int numerus_storage_create_diagonal(
     size_t size,
     const double *values,
@@ -302,6 +308,7 @@ int numerus_storage_create_diagonal(
     return status;
 }
 
+/** Create immutable identity Storage without storing matrix values. */
 int numerus_storage_create_identity(size_t size, numerus_storage **storage)
 {
     return allocate_storage(
@@ -312,6 +319,7 @@ int numerus_storage_create_identity(size_t size, numerus_storage **storage)
     );
 }
 
+/** Create immutable constant-value Storage. */
 int numerus_storage_create_constant(
     size_t rows,
     size_t columns,
@@ -333,6 +341,7 @@ int numerus_storage_create_constant(
     return status;
 }
 
+/** Create immutable zero Storage without storing matrix values. */
 int numerus_storage_create_zero(
     size_t rows,
     size_t columns,
@@ -347,6 +356,7 @@ int numerus_storage_create_zero(
     );
 }
 
+/** Create immutable scaled-identity Storage. */
 int numerus_storage_create_scaled_identity(
     size_t size,
     double value,
@@ -367,6 +377,7 @@ int numerus_storage_create_scaled_identity(
     return status;
 }
 
+/* Compare sparse entries by their row-major linear index for qsort. */
 static int sparse_compare(const void *left, const void *right)
 {
     const numerus_storage_sparse_entry *a = left;
@@ -383,6 +394,7 @@ static int sparse_compare(const void *left, const void *right)
     return 0;
 }
 
+/** Create immutable default-value sparse Storage and canonicalise its entries. */
 int numerus_storage_create_sparse(
     size_t rows,
     size_t columns,
@@ -460,6 +472,7 @@ int numerus_storage_create_sparse(
     return NUMERUS_STORAGE_SUCCESS;
 }
 
+/** Create immutable symmetric Storage from a packed lower triangle. */
 int numerus_storage_create_symmetric(
     size_t size,
     const double *values,
@@ -496,6 +509,7 @@ int numerus_storage_create_symmetric(
     return status;
 }
 
+/** Create immutable fixed-bandwidth Storage. */
 int numerus_storage_create_banded(
     size_t rows,
     size_t columns,
@@ -554,6 +568,7 @@ int numerus_storage_create_banded(
     return status;
 }
 
+/* Look up one valid sparse coordinate using binary search. */
 static double sparse_get(
     const numerus_storage *storage,
     size_t row,
@@ -582,6 +597,7 @@ static double sparse_get(
     return storage->data.sparse.default_value;
 }
 
+/** Read a valid coordinate without repeating bounds or NULL checks. */
 double numerus_storage_get_unchecked(
     const numerus_storage *storage,
     size_t row,
@@ -672,6 +688,7 @@ double numerus_storage_get_unchecked(
     return 0.0;
 }
 
+/** Validate a coordinate and read its logical value. */
 numerus_storage_status numerus_storage_get(
     const numerus_storage *storage,
     size_t row,
@@ -692,6 +709,7 @@ numerus_storage_status numerus_storage_get(
     return NUMERUS_STORAGE_SUCCESS;
 }
 
+/** Release the Storage object and all owned representation buffers. */
 void numerus_storage_destroy(numerus_storage *storage)
 {
     if (storage == NULL) {
@@ -730,16 +748,19 @@ void numerus_storage_destroy(numerus_storage *storage)
     numerus_free(storage);
 }
 
+/** Return the row count, or zero for NULL. */
 size_t numerus_storage_rows(const numerus_storage *storage)
 {
     return storage == NULL ? 0 : storage->rows;
 }
 
+/** Return the column count, or zero for NULL. */
 size_t numerus_storage_columns(const numerus_storage *storage)
 {
     return storage == NULL ? 0 : storage->columns;
 }
 
+/** Return the representation kind, or ZERO for NULL. */
 numerus_storage_kind numerus_storage_kind_of(const numerus_storage *storage)
 {
     return storage == NULL ? NUMERUS_STORAGE_ZERO : storage->kind;
