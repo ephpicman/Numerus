@@ -360,6 +360,56 @@ static void test_transpose_transform(void)
     numerus_matrix_destroy(parent);
 }
 
+static void test_transpose_constructor(void)
+{
+    const double values[] = {1, 2, 3, 4, 5, 6};
+    numerus_matrix *parent = NULL;
+    numerus_matrix *transpose = NULL;
+    numerus_matrix *double_transpose = NULL;
+    double value = -1.0;
+
+    assert(numerus_matrix_create_dense(2, 3, values, &parent) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    assert(numerus_matrix_create_transpose(parent, &transpose) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(transpose) == 3);
+    assert(numerus_matrix_columns(transpose) == 2);
+    assert(numerus_matrix_storage_kind(transpose) == NUMERUS_STORAGE_DENSE);
+
+    assert(matrix_value_equals(transpose, 0, 0, 1.0));
+    assert(matrix_value_equals(transpose, 0, 1, 4.0));
+    assert(matrix_value_equals(transpose, 1, 0, 2.0));
+    assert(matrix_value_equals(transpose, 1, 1, 5.0));
+    assert(matrix_value_equals(transpose, 2, 0, 3.0));
+    assert(matrix_value_equals(transpose, 2, 1, 6.0));
+
+    assert(numerus_matrix_create_transpose(transpose, &double_transpose) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(double_transpose) == 2);
+    assert(numerus_matrix_columns(double_transpose) == 3);
+
+    for (size_t row = 0; row < 2; row++) {
+        for (size_t column = 0; column < 3; column++) {
+            assert(matrix_value_equals(
+                double_transpose,
+                row,
+                column,
+                values[row * 3 + column]
+            ));
+        }
+    }
+
+    assert(numerus_matrix_create_transpose(NULL, &value) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(numerus_matrix_create_transpose(parent, NULL) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+
+    numerus_matrix_destroy(double_transpose);
+    numerus_matrix_destroy(transpose);
+    numerus_matrix_destroy(parent);
+}
+
 static void test_value_transform(void)
 {
     numerus_matrix *parent = NULL;
@@ -464,6 +514,7 @@ int main(void)
     test_all_storage_kinds();
     test_parent_chain();
     test_transpose_transform();
+    test_transpose_constructor();
     test_value_transform();
     test_transform_error_propagation();
     test_validation();
