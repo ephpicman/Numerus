@@ -46,6 +46,7 @@ jobs:
       - name: Run native storage tests
         run: |
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -o tests/storage_test tests/storage_test.c numerus_storage.c
           ./tests/storage_test
 
