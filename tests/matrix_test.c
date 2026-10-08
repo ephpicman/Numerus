@@ -567,6 +567,109 @@ static void test_transform_error_propagation(void)
     numerus_matrix_destroy(parent);
 }
 
+static void test_matrix_joins(void)
+{
+    const double left_values[] = {1, 2, 3, 4};
+    const double right_values[] = {5, 6};
+    const double bottom_values[] = {7, 8};
+    numerus_matrix *left = NULL;
+    numerus_matrix *right = NULL;
+    numerus_matrix *bottom = NULL;
+    numerus_matrix *joined = NULL;
+    numerus_matrix *derived = NULL;
+    numerus_matrix *nested = NULL;
+    double value = 123.0;
+
+    assert(numerus_matrix_create_dense(2, 2, left_values, &left) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(2, 1, right_values, &right) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(1, 2, bottom_values, &bottom) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    /* Horizontal join places the second parent to the right. */
+    assert(numerus_matrix_create_join_horizontal(left, right, &joined) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(joined) == 2);
+    assert(numerus_matrix_columns(joined) == 3);
+    assert(matrix_value_equals(joined, 0, 0, 1.0));
+    assert(matrix_value_equals(joined, 0, 1, 2.0));
+    assert(matrix_value_equals(joined, 0, 2, 5.0));
+    assert(matrix_value_equals(joined, 1, 0, 3.0));
+    assert(matrix_value_equals(joined, 1, 1, 4.0));
+    assert(matrix_value_equals(joined, 1, 2, 6.0));
+    assert(numerus_matrix_get(joined, 0, 3, &value) ==
+        NUMERUS_MATRIX_OUT_OF_BOUNDS);
+    assert(value == 123.0);
+
+    /* A derived view can use a joined Matrix as its parent. */
+    assert(numerus_matrix_create_transpose(joined, &derived) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(derived) == 3);
+    assert(numerus_matrix_columns(derived) == 2);
+    assert(matrix_value_equals(derived, 2, 0, 5.0));
+    assert(matrix_value_equals(derived, 2, 1, 6.0));
+    numerus_matrix_destroy(derived);
+    derived = NULL;
+
+    /* Nested joins remain lazy and preserve the left-to-right layout. */
+    assert(numerus_matrix_create_dense(2, 1, (const double[]){9, 10}, &derived) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_join_horizontal(joined, derived, &nested) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(nested) == 2);
+    assert(numerus_matrix_columns(nested) == 4);
+    assert(matrix_value_equals(nested, 0, 3, 9.0));
+    assert(matrix_value_equals(nested, 1, 3, 10.0));
+    numerus_matrix_destroy(nested);
+    numerus_matrix_destroy(derived);
+    numerus_matrix_destroy(joined);
+    joined = NULL;
+    derived = NULL;
+    nested = NULL;
+
+    /* Vertical join places the second parent below the first. */
+    assert(numerus_matrix_create_join_vertical(left, bottom, &joined) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(joined) == 3);
+    assert(numerus_matrix_columns(joined) == 2);
+    assert(matrix_value_equals(joined, 0, 0, 1.0));
+    assert(matrix_value_equals(joined, 1, 1, 4.0));
+    assert(matrix_value_equals(joined, 2, 0, 7.0));
+    assert(matrix_value_equals(joined, 2, 1, 8.0));
+    numerus_matrix_destroy(joined);
+
+    /* Incompatible dimensions are rejected without returning an object. */
+    assert(numerus_matrix_create_join_horizontal(left, bottom, &joined) ==
+        NUMERUS_MATRIX_DIMENSION_MISMATCH);
+    assert(joined == NULL);
+    assert(numerus_matrix_create_join_vertical(left, right, &joined) ==
+        NUMERUS_MATRIX_DIMENSION_MISMATCH);
+    assert(joined == NULL);
+    assert(numerus_matrix_create_join_horizontal(NULL, right, &joined) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(joined == NULL);
+    assert(numerus_matrix_create_join_vertical(left, right, NULL) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+
+    /* Logical dimensions let us exercise addition overflow without huge data. */
+    {
+        numerus_matrix *huge = NULL;
+
+        assert(numerus_matrix_create_from_parent(
+            left, (size_t) -1, 2, &huge
+        ) == NUMERUS_MATRIX_SUCCESS);
+        assert(numerus_matrix_create_join_vertical(huge, left, &joined) ==
+            NUMERUS_MATRIX_OVERFLOW);
+        assert(joined == NULL);
+        numerus_matrix_destroy(huge);
+    }
+
+    numerus_matrix_destroy(bottom);
+    numerus_matrix_destroy(right);
+    numerus_matrix_destroy(left);
+}
+
 static void test_validation(void)
 {
     numerus_matrix *matrix = NULL;
@@ -616,6 +719,7 @@ int main(void)
     test_orientation_transforms();
     test_value_transform();
     test_transform_error_propagation();
+    test_matrix_joins();
     test_validation();
 
     puts("Matrix tests passed.");
