@@ -410,6 +410,104 @@ static void test_transpose_constructor(void)
     numerus_matrix_destroy(parent);
 }
 
+static void test_orientation_transforms(void)
+{
+    const double values[] = {1, 2, 3, 4, 5, 6};
+    numerus_matrix *parent = NULL;
+    numerus_matrix *view = NULL;
+
+    assert(numerus_matrix_create_dense(2, 3, values, &parent) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    assert(numerus_matrix_create_flip_rows(parent, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(view) == 2);
+    assert(numerus_matrix_columns(view) == 3);
+    assert(matrix_value_equals(view, 0, 0, 4.0));
+    assert(matrix_value_equals(view, 0, 2, 6.0));
+    assert(matrix_value_equals(view, 1, 0, 1.0));
+    assert(matrix_value_equals(view, 1, 2, 3.0));
+    numerus_matrix_destroy(view);
+
+    assert(numerus_matrix_create_flip_columns(parent, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(matrix_value_equals(view, 0, 0, 3.0));
+    assert(matrix_value_equals(view, 0, 2, 1.0));
+    assert(matrix_value_equals(view, 1, 0, 6.0));
+    assert(matrix_value_equals(view, 1, 2, 4.0));
+    numerus_matrix_destroy(view);
+
+    assert(numerus_matrix_create_rotate_90_clockwise(parent, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(view) == 3);
+    assert(numerus_matrix_columns(view) == 2);
+    assert(matrix_value_equals(view, 0, 0, 4.0));
+    assert(matrix_value_equals(view, 0, 1, 1.0));
+    assert(matrix_value_equals(view, 1, 0, 5.0));
+    assert(matrix_value_equals(view, 1, 1, 2.0));
+    assert(matrix_value_equals(view, 2, 0, 6.0));
+    assert(matrix_value_equals(view, 2, 1, 3.0));
+    numerus_matrix_destroy(view);
+
+    assert(numerus_matrix_create_rotate_180(parent, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(view) == 2);
+    assert(numerus_matrix_columns(view) == 3);
+    assert(matrix_value_equals(view, 0, 0, 6.0));
+    assert(matrix_value_equals(view, 0, 2, 4.0));
+    assert(matrix_value_equals(view, 1, 0, 3.0));
+    assert(matrix_value_equals(view, 1, 2, 1.0));
+    numerus_matrix_destroy(view);
+
+    assert(numerus_matrix_create_rotate_90_counterclockwise(parent, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(view) == 3);
+    assert(numerus_matrix_columns(view) == 2);
+    assert(matrix_value_equals(view, 0, 0, 3.0));
+    assert(matrix_value_equals(view, 0, 1, 6.0));
+    assert(matrix_value_equals(view, 1, 0, 2.0));
+    assert(matrix_value_equals(view, 1, 1, 5.0));
+    assert(matrix_value_equals(view, 2, 0, 1.0));
+    assert(matrix_value_equals(view, 2, 1, 4.0));
+    numerus_matrix_destroy(view);
+
+    /* Rotation of a transpose composes as a horizontal flip. */
+    assert(numerus_matrix_create_transpose(parent, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    {
+        numerus_matrix *rotated = NULL;
+
+        assert(numerus_matrix_create_rotate_90_clockwise(view, &rotated) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(numerus_matrix_rows(rotated) == 2);
+        assert(numerus_matrix_columns(rotated) == 3);
+        for (size_t row = 0; row < 2; row++) {
+            for (size_t column = 0; column < 3; column++) {
+                assert(matrix_value_equals(
+                    rotated,
+                    row,
+                    column,
+                    values[row * 3 + (2 - column)]
+                ));
+            }
+        }
+        numerus_matrix_destroy(rotated);
+    }
+    numerus_matrix_destroy(view);
+    numerus_matrix_destroy(parent);
+
+    assert(numerus_matrix_create_flip_rows(NULL, &view) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(numerus_matrix_create_flip_columns(NULL, &view) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(numerus_matrix_create_rotate_90_clockwise(NULL, &view) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(numerus_matrix_create_rotate_180(NULL, &view) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(numerus_matrix_create_rotate_90_counterclockwise(NULL, &view) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+}
+
 static void test_value_transform(void)
 {
     numerus_matrix *parent = NULL;
@@ -515,6 +613,7 @@ int main(void)
     test_parent_chain();
     test_transpose_transform();
     test_transpose_constructor();
+    test_orientation_transforms();
     test_value_transform();
     test_transform_error_propagation();
     test_validation();
