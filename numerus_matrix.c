@@ -63,6 +63,26 @@ static numerus_matrix_status passthrough_value_transform(
     return NUMERUS_MATRIX_SUCCESS;
 }
 
+static numerus_matrix_status transpose_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    void *context
+)
+{
+    (void) context;
+
+    if (parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = column;
+    *parent_column = row;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
 static int dimensions_valid(size_t rows, size_t columns)
 {
     return rows != 0 && columns != 0;
@@ -332,6 +352,26 @@ int numerus_matrix_create_from_parent_with_transforms(
     *matrix = result;
 
     return NUMERUS_MATRIX_SUCCESS;
+}
+
+int numerus_matrix_create_transpose(
+    numerus_matrix *parent,
+    numerus_matrix **matrix
+)
+{
+    if (parent == NULL || matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    return numerus_matrix_create_from_parent_with_transforms(
+        parent,
+        numerus_matrix_columns(parent),
+        numerus_matrix_rows(parent),
+        transpose_coordinate_transform,
+        NULL,
+        NULL,
+        matrix
+    );
 }
 
 int numerus_matrix_create_dense(
