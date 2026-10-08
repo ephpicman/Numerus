@@ -29,7 +29,8 @@ typedef enum {
     /** A matrix coordinate is outside the valid range. */
     NUMERUS_MATRIX_OUT_OF_BOUNDS,
     /** The requested Storage representation requires a square Matrix. */
-    NUMERUS_MATRIX_NOT_SQUARE
+    NUMERUS_MATRIX_NOT_SQUARE,
+    NUMERUS_MATRIX_DIMENSION_MISMATCH
 } numerus_matrix_status;
 
 /**
