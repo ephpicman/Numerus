@@ -111,17 +111,17 @@ static numerus_matrix_status create_storage(
             if (!dimensions_are_square(rows, columns)) {
                 return NUMERUS_MATRIX_NOT_SQUARE;
             }
-            return numerus_storage_create_diagonal(
+            return storage_status_to_matrix_status(numerus_storage_create_diagonal(
                 rows,
                 data == NULL ? NULL : data->values,
                 storage
-            );
+            ));
 
         case NUMERUS_STORAGE_IDENTITY:
             if (!dimensions_are_square(rows, columns)) {
                 return NUMERUS_MATRIX_NOT_SQUARE;
             }
-            return numerus_storage_create_identity(rows, storage);
+            return storage_status_to_matrix_status(numerus_storage_create_identity(rows, storage));
 
         case NUMERUS_STORAGE_CONSTANT:
             return storage_status_to_matrix_status(numerus_storage_create_constant(
@@ -132,7 +132,7 @@ static numerus_matrix_status create_storage(
             ));
 
         case NUMERUS_STORAGE_ZERO:
-            return numerus_storage_create_zero(rows, columns, storage);
+            return storage_status_to_matrix_status(numerus_storage_create_zero(rows, columns, storage));
 
         case NUMERUS_STORAGE_SCALED_IDENTITY:
             if (!dimensions_are_square(rows, columns)) {
