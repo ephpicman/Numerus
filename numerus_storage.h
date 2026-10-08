@@ -4,6 +4,14 @@
 #include <stddef.h>
 
 typedef enum {
+    NUMERUS_STORAGE_SUCCESS = 0,
+    NUMERUS_STORAGE_INVALID_ARGUMENT,
+    NUMERUS_STORAGE_OVERFLOW,
+    NUMERUS_STORAGE_OUT_OF_MEMORY,
+    NUMERUS_STORAGE_OUT_OF_BOUNDS
+} numerus_storage_status;
+
+typedef enum {
     NUMERUS_STORAGE_DENSE,
     NUMERUS_STORAGE_UPPER_TRIANGULAR,
     NUMERUS_STORAGE_LOWER_TRIANGULAR,
@@ -62,7 +70,18 @@ int numerus_storage_create_sparse(size_t rows, size_t columns, double default_va
 int numerus_storage_create_symmetric(size_t size, const double *values, numerus_storage **storage);
 int numerus_storage_create_banded(size_t rows, size_t columns, size_t lower_bandwidth, size_t upper_bandwidth, const double *values, numerus_storage **storage);
 
-double numerus_storage_get(const numerus_storage *storage, size_t row, size_t column);
+numerus_storage_status numerus_storage_get(
+    const numerus_storage *storage,
+    size_t row,
+    size_t column,
+    double *value
+);
+
+double numerus_storage_get_unchecked(
+    const numerus_storage *storage,
+    size_t row,
+    size_t column
+);
 void numerus_storage_destroy(numerus_storage *storage);
 
 size_t numerus_storage_rows(const numerus_storage *storage);
