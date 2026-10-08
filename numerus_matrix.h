@@ -83,11 +83,19 @@ int numerus_matrix_create(
 /**
  * @brief Create a Matrix whose values are provided by an existing parent.
  *
- * The parent reference is non-owning. The caller/later object layer is
- * responsible for keeping the parent alive for as long as the child exists.
+ * A child may have different logical dimensions from its parent. This is
+ * required for derived views such as a transpose. The parent reference is
+ * non-owning; the eventual object layer is responsible for keeping it alive.
+ *
+ * @param parent Existing parent Matrix.
+ * @param rows Number of rows exposed by the child.
+ * @param columns Number of columns exposed by the child.
+ * @param matrix Receives the new child Matrix.
  */
 int numerus_matrix_create_from_parent(
     numerus_matrix *parent,
+    size_t rows,
+    size_t columns,
     numerus_matrix **matrix
 );
 
