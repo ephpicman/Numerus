@@ -1,6 +1,7 @@
 #include "numerus_storage.h"
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 #ifndef NUMERUS_STORAGE_USE_LIBC_ALLOC
@@ -9,7 +10,6 @@
 # define numerus_calloc(count, size) ecalloc((count), (size))
 # define numerus_free(ptr) efree(ptr)
 #else
-# include <stdlib.h>
 # define numerus_alloc(size) malloc(size)
 # define numerus_calloc(count, size) calloc((count), (size))
 # define numerus_free(ptr) free(ptr)
