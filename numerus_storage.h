@@ -32,32 +32,6 @@ typedef struct {
     double value;
 } numerus_storage_sparse_entry;
 
-struct numerus_storage {
-    numerus_storage_kind kind;
-    size_t rows;
-    size_t columns;
-
-    union {
-        struct { double *values; } dense;
-        struct { double *values; } upper_triangular;
-        struct { double *values; } lower_triangular;
-        struct { double *values; } diagonal;
-        struct { double value; } constant;
-        struct { double value; } scaled_identity;
-        struct {
-            size_t count;
-            numerus_storage_sparse_entry *entries;
-            double default_value;
-        } sparse;
-        struct { double *values; } symmetric;
-        struct {
-            size_t lower_bandwidth;
-            size_t upper_bandwidth;
-            double *values;
-        } banded;
-    } data;
-};
-
 int numerus_storage_create_dense(size_t rows, size_t columns, const double *values, numerus_storage **storage);
 int numerus_storage_create_upper_triangular(size_t size, const double *values, numerus_storage **storage);
 int numerus_storage_create_lower_triangular(size_t size, const double *values, numerus_storage **storage);
@@ -82,6 +56,7 @@ double numerus_storage_get_unchecked(
     size_t row,
     size_t column
 );
+
 void numerus_storage_destroy(numerus_storage *storage);
 
 size_t numerus_storage_rows(const numerus_storage *storage);
