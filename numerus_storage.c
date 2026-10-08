@@ -110,6 +110,7 @@ static int allocate_storage(
 }
 
 /* Allocate zero-initialised storage for count double values. */
+static int allocate_values(size_t count, double **values)
 {
     size_t bytes;
 
@@ -131,6 +132,7 @@ static int allocate_storage(
 }
 
 /* Allocate owned storage and copy an immutable input value buffer. */
+static int copy_values(double **destination, const double *source, size_t count)
 {
     int status = allocate_values(count, destination);
 
@@ -152,6 +154,7 @@ static int allocate_storage(
 }
 
 /* Return the packed upper-triangular offset for a valid coordinate. */
+static size_t upper_offset(size_t size, size_t row, size_t column)
 {
     size_t a = row;
     size_t b = 2 * size - row + 1;
@@ -168,11 +171,13 @@ static int allocate_storage(
 }
 
 /* Return the packed lower-triangular offset for a valid coordinate. */
+static size_t lower_offset(size_t row, size_t column)
 {
     return row * (row + 1) / 2 + column;
 }
 
 /* Return the packed lower-triangular offset used by symmetric storage. */
+static size_t triangular_offset(size_t row, size_t column)
 {
     return row * (row + 1) / 2 + column;
 }
