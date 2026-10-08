@@ -160,11 +160,11 @@ static void test_parent_chain(void)
     ) == NUMERUS_MATRIX_SUCCESS);
 
     assert(numerus_matrix_create_from_parent(
-        root, &middle
+        root, 2, 2, &middle
     ) == NUMERUS_MATRIX_SUCCESS);
 
     assert(numerus_matrix_create_from_parent(
-        middle, &leaf
+        middle, 2, 2, &leaf
     ) == NUMERUS_MATRIX_SUCCESS);
 
     assert(numerus_matrix_storage_kind(leaf) == NUMERUS_STORAGE_DENSE);
@@ -191,6 +191,18 @@ static void test_parent_chain(void)
     assert(numerus_matrix_get_unchecked(root, 0, 0) == 1.0);
 
     numerus_matrix_destroy(root);
+
+    /* A derived Matrix can expose different dimensions from its parent. */
+    assert(numerus_matrix_create_dense(2, 3, (const double[]){
+        1, 2, 3, 4, 5, 6
+    }, &root) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_from_parent(
+        root, 3, 2, &leaf
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(leaf) == 3);
+    assert(numerus_matrix_columns(leaf) == 2);
+    numerus_matrix_destroy(leaf);
+    numerus_matrix_destroy(root);
 }
 
 static void test_validation(void)
@@ -207,8 +219,12 @@ static void test_validation(void)
         NUMERUS_STORAGE_IDENTITY, 2, 3, NULL, &matrix
     ) == NUMERUS_MATRIX_NOT_SQUARE);
 
-    assert(numerus_matrix_create_from_parent(NULL, &matrix) ==
+    assert(numerus_matrix_create_from_parent(NULL, 2, 2, &matrix) ==
         NUMERUS_MATRIX_INVALID_ARGUMENT);
+
+    assert(numerus_matrix_create_from_parent(
+        NULL, 2, 2, NULL
+    ) == NUMERUS_MATRIX_INVALID_ARGUMENT);
 
     assert(numerus_matrix_create_zero(2, 2, &matrix) ==
         NUMERUS_MATRIX_SUCCESS);
