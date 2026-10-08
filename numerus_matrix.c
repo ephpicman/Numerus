@@ -83,6 +83,106 @@ static numerus_matrix_status transpose_coordinate_transform(
     return NUMERUS_MATRIX_SUCCESS;
 }
 
+static numerus_matrix_status flip_rows_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    void *context
+)
+{
+    const numerus_matrix *parent = context;
+
+    if (parent == NULL || parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = numerus_matrix_rows(parent) - 1 - row;
+    *parent_column = column;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status flip_columns_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    void *context
+)
+{
+    const numerus_matrix *parent = context;
+
+    if (parent == NULL || parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = row;
+    *parent_column = numerus_matrix_columns(parent) - 1 - column;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status rotate_90_clockwise_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    void *context
+)
+{
+    const numerus_matrix *parent = context;
+
+    if (parent == NULL || parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = numerus_matrix_rows(parent) - 1 - column;
+    *parent_column = row;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status rotate_180_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    void *context
+)
+{
+    const numerus_matrix *parent = context;
+
+    if (parent == NULL || parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = numerus_matrix_rows(parent) - 1 - row;
+    *parent_column = numerus_matrix_columns(parent) - 1 - column;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status rotate_90_counterclockwise_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    void *context
+)
+{
+    const numerus_matrix *parent = context;
+
+    if (parent == NULL || parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = column;
+    *parent_column = numerus_matrix_columns(parent) - 1 - row;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
 static int dimensions_valid(size_t rows, size_t columns)
 {
     return rows != 0 && columns != 0;
@@ -370,6 +470,106 @@ int numerus_matrix_create_transpose(
         transpose_coordinate_transform,
         NULL,
         NULL,
+        matrix
+    );
+}
+
+int numerus_matrix_create_flip_rows(
+    numerus_matrix *parent,
+    numerus_matrix **matrix
+)
+{
+    if (parent == NULL || matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    return numerus_matrix_create_from_parent_with_transforms(
+        parent,
+        numerus_matrix_rows(parent),
+        numerus_matrix_columns(parent),
+        flip_rows_coordinate_transform,
+        NULL,
+        parent,
+        matrix
+    );
+}
+
+int numerus_matrix_create_flip_columns(
+    numerus_matrix *parent,
+    numerus_matrix **matrix
+)
+{
+    if (parent == NULL || matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    return numerus_matrix_create_from_parent_with_transforms(
+        parent,
+        numerus_matrix_rows(parent),
+        numerus_matrix_columns(parent),
+        flip_columns_coordinate_transform,
+        NULL,
+        parent,
+        matrix
+    );
+}
+
+int numerus_matrix_create_rotate_90_clockwise(
+    numerus_matrix *parent,
+    numerus_matrix **matrix
+)
+{
+    if (parent == NULL || matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    return numerus_matrix_create_from_parent_with_transforms(
+        parent,
+        numerus_matrix_columns(parent),
+        numerus_matrix_rows(parent),
+        rotate_90_clockwise_coordinate_transform,
+        NULL,
+        parent,
+        matrix
+    );
+}
+
+int numerus_matrix_create_rotate_180(
+    numerus_matrix *parent,
+    numerus_matrix **matrix
+)
+{
+    if (parent == NULL || matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    return numerus_matrix_create_from_parent_with_transforms(
+        parent,
+        numerus_matrix_rows(parent),
+        numerus_matrix_columns(parent),
+        rotate_180_coordinate_transform,
+        NULL,
+        parent,
+        matrix
+    );
+}
+
+int numerus_matrix_create_rotate_90_counterclockwise(
+    numerus_matrix *parent,
+    numerus_matrix **matrix
+)
+{
+    if (parent == NULL || matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    return numerus_matrix_create_from_parent_with_transforms(
+        parent,
+        numerus_matrix_columns(parent),
+        numerus_matrix_rows(parent),
+        rotate_90_counterclockwise_coordinate_transform,
+        NULL,
+        parent,
         matrix
     );
 }
