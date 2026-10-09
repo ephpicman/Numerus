@@ -44,12 +44,22 @@ int status = numerus_matrix_create(
 
 Convenience constructors are also available for each representation, including
 `numerus_matrix_create_dense()`, `numerus_matrix_create_identity()`,
-`numerus_matrix_create_sparse()`, and `numerus_matrix_create_banded()`.
+`numerus_matrix_create_sparse()`, and `numerus_matrix_create_banded()`. Row- and column-vector constructors
+are also available; they produce ordinary dense Matrices with shapes 1×n and
+n×1 respectively.
 The root owns the Storage created for it. Constructor input buffers are copied
 by Storage and are not retained.
 
 Dimensions must be positive. Constructors that use square-only representations
 return `NUMERUS_MATRIX_NOT_SQUARE` when rows and columns differ.
+
+## Vector-shaped constructors
+
+`numerus_matrix_create_row_vector(length, values, &matrix)` creates a dense
+1×length Matrix, while `numerus_matrix_create_column_vector()` creates a
+length×1 Matrix. The input buffer is copied into Storage; no separate Vector
+type is introduced. Length must be positive, and a failed constructor leaves
+the output pointer NULL.
 
 ## Lazy views
 
@@ -302,9 +312,9 @@ determinism requirements.
 
 The native Matrix tests cover storage-backed constructors, orientation
 transforms, row/column removal and swaps, composed views, lazy scalar
-multiplication, scalar division, exact/approximate equality, element-wise
-arithmetic, nested-view materialization, rectangular products, overflow and
-read-failure handling, cached structural flags, and determinant calculations.
+multiplication, scalar division, exact/approximate equality, vector constructors,
+element-wise arithmetic, nested-view materialization, rectangular products,
+overflow and read-failure handling, and cached structural flags.
 
 Run them from the repository root:
 
@@ -362,6 +372,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_compare_test tests/matrix_compare_test.c numerus_matrix.c numerus_matrix_compare.c numerus_storage.c
 ./tests/matrix_compare_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_vector_constructor_test tests/matrix_vector_constructor_test.c numerus_matrix.c numerus_matrix_constructors.c numerus_storage.c
+./tests/matrix_vector_constructor_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds
