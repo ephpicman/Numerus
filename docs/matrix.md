@@ -357,6 +357,21 @@ It returns `NUMERUS_MATRIX_NOT_SQUARE` for non-square (A),
 `NUMERUS_MATRIX_NON_FINITE` for non-finite inputs or intermediates. On
 failure, the output pointer remains NULL.
 
+## Least-squares solve
+
+`numerus_matrix_least_squares(A, B, &X)` computes a minimizer of
+`||A X - B||₂` using column-pivoted Householder QR. It supports overdetermined
+and square systems with one or multiple right-hand-side columns. The result is
+a dense Matrix of shape columns(A)-by-columns(B). It does not form normal
+equations or an inverse.
+
+The current contract requires full numerical column rank. Underdetermined or
+rank-deficient inputs return `NUMERUS_MATRIX_RANK_DEFICIENT` rather than
+silently selecting an arbitrary minimizer; a future minimum-norm solution
+belongs with pseudoinverse/SVD work. Non-finite inputs/intermediates and source
+read failures propagate their statuses, and the output pointer remains NULL
+on failure.
+
 ## Linear-system classification
 
 `numerus_matrix_classify_system(A, B, &kind)` classifies the numerical
@@ -898,6 +913,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_system_test tests/matrix_system_test.c numerus_matrix_system.c numerus_matrix_qr.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
 ./tests/matrix_system_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_least_squares_test tests/matrix_least_squares_test.c numerus_matrix_least_squares.c numerus_matrix_qr.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+./tests/matrix_least_squares_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
