@@ -357,6 +357,11 @@ that exact-zero policy, not a scale-aware numerical-rank estimate. Read and
 allocation failures clean up the workspace and leave the output pointer NULL.
 The API is private infrastructure for later determinant, solve, and rank work.
 
+The general determinant path now uses the private LU factorization, multiplying
+its diagonal pivots and permutation parity. The cached zero/identity/triangular
+fast paths remain in place. This keeps pivot selection and elimination logic
+shared with future solve and rank operations.
+
 ## Determinant edge cases
 
 The determinant uses Gaussian elimination with partial pivoting and an exact
@@ -533,151 +538,151 @@ Run them from the repository root:
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_test tests/matrix_test.c numerus_matrix.c numerus_storage.c
+  -o tests/matrix_test tests/matrix_test.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_unary_test tests/matrix_unary_test.c numerus_matrix.c numerus_storage.c
+  -o tests/matrix_unary_test tests/matrix_unary_test.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_unary_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_binary_test tests/matrix_binary_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c
+  -o tests/matrix_binary_test tests/matrix_binary_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_binary_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_hadamard_test tests/matrix_hadamard_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c
+  -o tests/matrix_hadamard_test tests/matrix_hadamard_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_hadamard_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_division_test tests/matrix_division_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c
+  -o tests/matrix_division_test tests/matrix_division_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_division_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_materialize_test tests/matrix_materialize_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_storage.c
+  -o tests/matrix_materialize_test tests/matrix_materialize_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_materialize_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_multiply_test tests/matrix_multiply_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_storage.c
+  -o tests/matrix_multiply_test tests/matrix_multiply_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_multiply_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_scalar_division_test tests/matrix_scalar_division_test.c numerus_matrix.c numerus_storage.c
+  -o tests/matrix_scalar_division_test tests/matrix_scalar_division_test.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_scalar_division_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_compare_test tests/matrix_compare_test.c numerus_matrix.c numerus_matrix_compare.c numerus_storage.c
+  -o tests/matrix_compare_test tests/matrix_compare_test.c numerus_matrix.c numerus_matrix_compare.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_compare_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_vector_constructor_test tests/matrix_vector_constructor_test.c numerus_matrix.c numerus_matrix_constructors.c numerus_storage.c
+  -o tests/matrix_vector_constructor_test tests/matrix_vector_constructor_test.c numerus_matrix.c numerus_matrix_constructors.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_vector_constructor_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_power_test tests/matrix_power_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_power.c numerus_storage.c
+  -o tests/matrix_power_test tests/matrix_power_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_power.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_power_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_kronecker_test tests/matrix_kronecker_test.c numerus_matrix.c numerus_matrix_kronecker.c numerus_storage.c
+  -o tests/matrix_kronecker_test tests/matrix_kronecker_test.c numerus_matrix.c numerus_matrix_kronecker.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_kronecker_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_slice_test tests/matrix_slice_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+  -o tests/matrix_slice_test tests/matrix_slice_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_slice_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_selection_test tests/matrix_selection_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+  -o tests/matrix_selection_test tests/matrix_selection_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_selection_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_reshape_test tests/matrix_reshape_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+  -o tests/matrix_reshape_test tests/matrix_reshape_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_reshape_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_padding_test tests/matrix_padding_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+  -o tests/matrix_padding_test tests/matrix_padding_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_padding_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_repeat_test tests/matrix_repeat_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+  -o tests/matrix_repeat_test tests/matrix_repeat_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_repeat_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_block_grid_test tests/matrix_block_grid_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+  -o tests/matrix_block_grid_test tests/matrix_block_grid_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_block_grid_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_diagonal_test tests/matrix_diagonal_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+  -o tests/matrix_diagonal_test tests/matrix_diagonal_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_diagonal_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_permutation_test tests/matrix_permutation_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+  -o tests/matrix_permutation_test tests/matrix_permutation_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_permutation_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_trace_test tests/matrix_trace_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c
+  -o tests/matrix_trace_test tests/matrix_trace_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_trace_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_aggregate_test tests/matrix_aggregate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c
+  -o tests/matrix_aggregate_test tests/matrix_aggregate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_aggregate_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_norm_test tests/matrix_norm_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm
+  -o tests/matrix_norm_test tests/matrix_norm_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm numerus_matrix_lu.c
 ./tests/matrix_norm_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_finite_test tests/matrix_finite_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm
+  -o tests/matrix_finite_test tests/matrix_finite_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm numerus_matrix_lu.c
 ./tests/matrix_finite_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_determinant_test tests/matrix_determinant_test.c numerus_matrix.c numerus_storage.c
+  -o tests/matrix_determinant_test tests/matrix_determinant_test.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c
 ./tests/matrix_determinant_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
@@ -689,7 +694,7 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_structural_predicate_test tests/matrix_structural_predicate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm
+  -o tests/matrix_structural_predicate_test tests/matrix_structural_predicate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm numerus_matrix_lu.c
 ./tests/matrix_structural_predicate_test
 ```
 
