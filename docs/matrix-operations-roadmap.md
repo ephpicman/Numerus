@@ -215,7 +215,7 @@ Exit criteria: clear scalar-vs-matrix result types, explicit NaN semantics, no h
 
 # Phase 10 — Specialized matrices and storage-aware algorithms
 
-- [ ] 10.1 Audit current Storage kinds. Dense, triangular, diagonal, identity, constant, zero, scaled identity, sparse, symmetric, and banded representations already exist; operations should exploit them where beneficial.
+- [x] 10.1 Audit current Storage kinds. Documented representation costs, generic multiplication behavior, IEEE-754 constraints, and the benchmark evidence needed before specialization in [the Storage optimization audit](matrix-storage-optimization-audit.md).
 - [ ] 10.2 Specialized arithmetic paths. Add identity/zero/diagonal/triangular shortcuts to arithmetic and multiplication only when equivalence and benchmarks support them.
 - [ ] 10.3 Toeplitz, Hankel, Vandermonde, Hilbert, and permutation constructors. Add only if use cases justify public API surface.
 - [ ] 10.4 Sparse-aware multiplication and factorization. Avoid densifying large sparse inputs unnecessarily; define sparse fill-in behavior.
