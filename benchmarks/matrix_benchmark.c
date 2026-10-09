@@ -504,6 +504,8 @@ fail:
     numerus_matrix_destroy(scaled);
     numerus_matrix_destroy(joined);
     numerus_matrix_destroy(transpose);
+    numerus_matrix_destroy(zero);
+    numerus_matrix_destroy(identity);
     numerus_matrix_destroy(sparse);
     numerus_matrix_destroy(upper);
     numerus_matrix_destroy(diagonal);
