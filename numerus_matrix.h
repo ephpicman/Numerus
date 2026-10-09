@@ -322,6 +322,19 @@ int numerus_matrix_create_subtract(
     numerus_matrix **matrix
 );
 
+/**
+ * Create a lazy Hadamard (element-wise) product of equally sized Matrices.
+ *
+ * This is element-wise multiplication, not matrix multiplication. Both parent
+ * references are non-owning and must remain alive for the result's lifetime.
+ * IEEE-754 double semantics apply.
+ */
+int numerus_matrix_create_hadamard_product(
+    numerus_matrix *left,
+    numerus_matrix *right,
+    numerus_matrix **matrix
+);
+
 /** Create a dense Matrix. */
 int numerus_matrix_create_dense(
     size_t rows,
