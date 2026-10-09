@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-static numerus_matrix_status fail_on_row_two(
+static numerus_matrix_status fail_on_row_one(
     size_t row,
     size_t column,
     size_t *parent_row,
@@ -15,7 +15,7 @@ static numerus_matrix_status fail_on_row_two(
     (void) column;
     (void) context;
 
-    if (row == 2) {
+    if (row == 1) {
         return NUMERUS_MATRIX_INVALID_ARGUMENT;
     }
 
@@ -134,7 +134,7 @@ static void test_overflow_and_parent_read_failure(void)
     assert(reshaped == NULL);
 
     assert(numerus_matrix_create_from_parent_with_transforms(
-        root, 2, 2, fail_on_row_two, NULL, NULL, &failing
+        root, 2, 2, fail_on_row_one, NULL, NULL, &failing
     ) == NUMERUS_MATRIX_SUCCESS);
     assert(numerus_matrix_create_reshape(failing, 1, 4, &reshaped) ==
         NUMERUS_MATRIX_SUCCESS);
