@@ -432,8 +432,7 @@ static numerus_matrix_status matrix_evaluate_finite_predicate(
         }
     }
 
-    *result = predicate == MATRIX_FINITE_PREDICATE_ALL_FINITE
-        || false;
+    *result = predicate == MATRIX_FINITE_PREDICATE_ALL_FINITE;
     return NUMERUS_MATRIX_SUCCESS;
 }
 
