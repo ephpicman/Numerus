@@ -40,6 +40,24 @@ void numerus_matrix_store_lu_cache(
     numerus_matrix_lu_factorization *factorization
 );
 
+/** Obtain a retained LU factorization, computing and caching it on a miss. */
+numerus_matrix_status numerus_matrix_get_or_factorize_lu(
+    const numerus_matrix *matrix,
+    numerus_matrix_lu_factorization **factorization
+);
+
+/** Internal LU-cache lookup; a successful miss returns *factorization == NULL. */
+numerus_matrix_status numerus_matrix_get_cached_lu(
+    const numerus_matrix *matrix,
+    numerus_matrix_lu_factorization **factorization
+);
+
+/** Retain an eligible LU factorization in the source Matrix, if possible. */
+void numerus_matrix_store_lu_cache(
+    const numerus_matrix *matrix,
+    numerus_matrix_lu_factorization *factorization
+);
+
 /** Internal inverse-cache lookup; a successful miss returns *inverse == NULL. */
 numerus_matrix_status numerus_matrix_get_cached_inverse(
     const numerus_matrix *matrix,
