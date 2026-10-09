@@ -769,6 +769,27 @@ numerus_matrix_status numerus_matrix_determinant(
 );
 
 /**
+ * Return whether a square Matrix is skew-symmetric within NUMERUS_EPSILON.
+ * A non-square Matrix returns success with false. Output is unchanged on read
+ * failure.
+ */
+numerus_matrix_status numerus_matrix_is_skew_symmetric(
+    const numerus_matrix *matrix,
+    bool *is_skew_symmetric
+);
+
+/**
+ * Return whether a square Matrix has orthonormal rows within
+ * NUMERUS_EPSILON. A non-square Matrix returns success with false. This check
+ * uses O(n^3) time and O(1) auxiliary memory; output is unchanged on read
+ * failure.
+ */
+numerus_matrix_status numerus_matrix_is_orthogonal(
+    const numerus_matrix *matrix,
+    bool *is_orthogonal
+);
+
+/**
  * Return whether any element is NaN. The output is unchanged if a read fails.
  * The scan stops at the first matching element.
  */

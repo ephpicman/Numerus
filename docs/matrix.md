@@ -436,6 +436,19 @@ Repeated indices are rejected here (unlike selection views, which intentionally
 allow duplicates). The index list is copied, the view remains lazy, and the
 parent must outlive it.
 
+## Additional structural predicates
+
+`numerus_matrix_is_skew_symmetric()` checks a square Matrix against
+(A^T = -A), using the shared absolute/relative comparison policy and the
+absolute zero tolerance for diagonal elements. `numerus_matrix_is_orthogonal()`
+checks whether the row dot products equal the identity matrix within the same
+comparison tolerance. Non-square inputs return success with `false`, matching
+the structural-flag API's predicate behavior. Read failures propagate without
+changing the output boolean.
+
+The skew-symmetric check is O(n²). The orthogonal check is O(n³) time and O(1)
+auxiliary memory; it does not allocate a temporary product Matrix.
+
 ## Finite-value predicates
 
 `numerus_matrix_has_nan()` reports whether at least one element is NaN;
@@ -634,6 +647,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_finite_test tests/matrix_finite_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm
 ./tests/matrix_finite_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_structural_predicate_test tests/matrix_structural_predicate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm
+./tests/matrix_structural_predicate_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds
