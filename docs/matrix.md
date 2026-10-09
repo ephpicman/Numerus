@@ -342,6 +342,21 @@ does not describe both sides of the node and should not be treated as a complete
 summary of its input representations.
 
 
+## Row-echelon forms
+
+`numerus_matrix_row_echelon_form()` and
+`numerus_matrix_reduced_row_echelon_form()` return independent dense Matrices
+with the same shape as the input. Both use partial row pivoting and the
+scale-aware threshold `NUMERUS_EPSILON * max(rows, columns)` relative to the
+largest absolute input value. The reduced form normalizes pivots to one and
+eliminates above and below each pivot; the ordinary row-echelon form eliminates
+only below pivots.
+
+Non-finite input or intermediate values return
+`NUMERUS_MATRIX_NON_FINITE`. Read, allocation, and size failures propagate
+their specific status; the output pointer is NULL on failure. These routines
+do not mutate or retain the input Matrix.
+
 ## Numerical rank
 
 `numerus_matrix_rank()` estimates rank for square or rectangular Matrices using
@@ -711,6 +726,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_rank_test tests/matrix_rank_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_storage.c -lm
 ./tests/matrix_rank_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_elimination_test tests/matrix_elimination_test.c numerus_matrix_elimination.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+./tests/matrix_elimination_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \

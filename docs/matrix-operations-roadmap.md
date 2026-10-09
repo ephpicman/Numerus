@@ -145,9 +145,9 @@ Exit criteria: documented semantics for NaN/infinity and approximate predicates;
 - [x] 4.2 Factorization infrastructure. Reusable owned work buffers and pivot arrays are isolated behind a private read-only interface. (Merged in PR #41.)
 - [x] 4.3 LU with partial pivoting. Private factorization exposes permutation and L/U accessors; reconstruction tests verify PA ≈ LU. (Merged in PR #41.)
 - [x] 4.4 Reuse LU for determinant. The general determinant path reuses LU while preserving zero/identity/triangular fast paths. (Merged in PR #42.) (Implementation proposed; merge pending.)
-- [ ] 4.5 Numerical rank. Implement via stable factorization/QR or SVD with scale-aware threshold semantics. Do not equate fixed absolute epsilon with numerical rank. (Complete-pivoting estimate proposed; merge pending.)
-- [ ] 4.6 REF and RREF. Use independent work buffers; document pivot tolerance and result representation. Materialize the result.
-- [ ] 4.7 Gaussian elimination and Gauss–Jordan. Reuse pivoting infrastructure; test row swaps, zero pivots, rank-deficient cases, and rectangular matrices where applicable.
+- [x] 4.5 Numerical rank. Complete-pivoting elimination uses a scale-aware threshold; this is a numerical estimate, not symbolic rank. (Merged in PR #43.)
+- [ ] 4.6 REF and RREF. Use independent work buffers; document pivot tolerance and result representation. Materialize the result. (Implementation proposed; merge pending.)
+- [ ] 4.7 Gaussian elimination and Gauss–Jordan. Reuse pivoting infrastructure; test row swaps, zero pivots, rank-deficient cases, and rectangular matrices where applicable. (REF/RREF implementation proposed; merge pending.)
 
 Exit criteria: factorization reconstruction tests, numerical edge-case coverage, determinant regression tests, documented rank tolerance.
 

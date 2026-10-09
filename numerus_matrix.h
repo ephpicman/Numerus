@@ -778,6 +778,26 @@ numerus_matrix_status numerus_matrix_determinant(
  * elimination intermediates return NUMERUS_MATRIX_NON_FINITE. The output is
  * unchanged on any failure.
  */
+/**
+ * Materialize a row-echelon form using scale-aware pivoting.
+ * The result is independent dense Storage. Non-finite input or intermediates
+ * return NUMERUS_MATRIX_NON_FINITE; on failure, *result remains NULL.
+ */
+numerus_matrix_status numerus_matrix_row_echelon_form(
+    const numerus_matrix *matrix,
+    numerus_matrix **result
+);
+
+/**
+ * Materialize a reduced row-echelon form using scale-aware pivoting.
+ * The result is independent dense Storage. Non-finite input or intermediates
+ * return NUMERUS_MATRIX_NON_FINITE; on failure, *result remains NULL.
+ */
+numerus_matrix_status numerus_matrix_reduced_row_echelon_form(
+    const numerus_matrix *matrix,
+    numerus_matrix **result
+);
+
 numerus_matrix_status numerus_matrix_rank(
     const numerus_matrix *matrix,
     size_t *rank
