@@ -47,6 +47,8 @@ struct numerus_matrix {
     double transform_scalar;
     size_t transform_row_offset;
     size_t transform_column_offset;
+    size_t *selection_indices;
+    numerus_matrix_selection_axis selection_axis;
 };
 
 static numerus_matrix_status identity_coordinate_transform(
@@ -128,6 +130,36 @@ static numerus_matrix_status slice_coordinate_transform(
     *parent_row = view->transform_row_offset + row;
     *parent_column = view->transform_column_offset + column;
     return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status selection_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    const numerus_matrix *view = context;
+
+    if (view == NULL || view->selection_indices == NULL ||
+        parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    if (view->selection_axis == NUMERUS_MATRIX_SELECTION_ROWS) {
+        *parent_row = view->selection_indices[row];
+        *parent_column = column;
+        return NUMERUS_MATRIX_SUCCESS;
+    }
+
+    if (view->selection_axis == NUMERUS_MATRIX_SELECTION_COLUMNS) {
+        *parent_row = row;
+        *parent_column = view->selection_indices[column];
+        return NUMERUS_MATRIX_SUCCESS;
+    }
+
+    return NUMERUS_MATRIX_INVALID_ARGUMENT;
 }
 
 static numerus_matrix_status divide_scalar_value_transform(
@@ -425,6 +457,8 @@ static int allocate_matrix(numerus_matrix **matrix)
     (*matrix)->transform_scalar = 0.0;
     (*matrix)->transform_row_offset = 0;
     (*matrix)->transform_column_offset = 0;
+    (*matrix)->selection_indices = NULL;
+    (*matrix)->selection_axis = NUMERUS_MATRIX_SELECTION_NONE;
 
     return NUMERUS_MATRIX_SUCCESS;
 }
@@ -700,6 +734,90 @@ int numerus_matrix_create_negate(
 )
 {
     return numerus_matrix_create_scale(parent, -1.0, matrix);
+}
+
+int numerus_matrix_create_selection_view(
+    numerus_matrix *parent,
+    const size_t *indices,
+    size_t count,
+    numerus_matrix_selection_axis axis,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix *view = NULL;
+    size_t *owned_indices;
+    size_t index_bytes;
+    size_t parent_rows;
+    size_t parent_columns;
+    size_t index;
+    size_t selected_limit;
+    size_t view_rows;
+    size_t view_columns;
+    numerus_matrix_status status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+
+    if (parent == NULL || indices == NULL || count == 0) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    if (axis != NUMERUS_MATRIX_SELECTION_ROWS &&
+        axis != NUMERUS_MATRIX_SELECTION_COLUMNS) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    if (!numerus_size_multiply(count, sizeof(*owned_indices), &index_bytes)) {
+        return NUMERUS_MATRIX_OVERFLOW;
+    }
+
+    parent_rows = numerus_matrix_rows(parent);
+    parent_columns = numerus_matrix_columns(parent);
+    selected_limit = axis == NUMERUS_MATRIX_SELECTION_ROWS
+        ? parent_rows
+        : parent_columns;
+
+    for (index = 0; index < count; index++) {
+        if (indices[index] >= selected_limit) {
+            return NUMERUS_MATRIX_OUT_OF_BOUNDS;
+        }
+    }
+
+    owned_indices = numerus_matrix_alloc(index_bytes);
+    if (owned_indices == NULL) {
+        return NUMERUS_MATRIX_OUT_OF_MEMORY;
+    }
+    for (index = 0; index < count; index++) {
+        owned_indices[index] = indices[index];
+    }
+
+    view_rows = axis == NUMERUS_MATRIX_SELECTION_ROWS
+        ? count
+        : parent_rows;
+    view_columns = axis == NUMERUS_MATRIX_SELECTION_COLUMNS
+        ? count
+        : parent_columns;
+
+    status = numerus_matrix_create_from_parent_with_transforms(
+        parent,
+        view_rows,
+        view_columns,
+        selection_coordinate_transform,
+        NULL,
+        NULL,
+        &view
+    );
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        numerus_matrix_free(owned_indices);
+        return status;
+    }
+
+    view->selection_indices = owned_indices;
+    view->selection_axis = axis;
+    view->transform_context = view;
+    *matrix = view;
+
+    return NUMERUS_MATRIX_SUCCESS;
 }
 
 int numerus_matrix_create_slice_view(
@@ -1834,5 +1952,6 @@ void numerus_matrix_destroy(numerus_matrix *matrix)
         numerus_storage_destroy(matrix->storage);
     }
 
+    numerus_matrix_free(matrix->selection_indices);
     numerus_matrix_free(matrix);
 }

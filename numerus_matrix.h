@@ -481,6 +481,32 @@ int numerus_matrix_create_slice(
     numerus_matrix **matrix
 );
 
+/**
+ * Select rows by a copied array of zero-based indices.
+ *
+ * Index order is preserved and repeated indices are allowed. The result is a
+ * lazy view; the index array is copied, while the parent remains borrowed.
+ */
+int numerus_matrix_create_select_rows(
+    numerus_matrix *parent,
+    const size_t *indices,
+    size_t count,
+    numerus_matrix **matrix
+);
+
+/**
+ * Select columns by a copied array of zero-based indices.
+ *
+ * Index order is preserved and repeated indices are allowed. The result is a
+ * lazy view; the index array is copied, while the parent remains borrowed.
+ */
+int numerus_matrix_create_select_columns(
+    numerus_matrix *parent,
+    const size_t *indices,
+    size_t count,
+    numerus_matrix **matrix
+);
+
 /** Create a dense Matrix. */
 int numerus_matrix_create_dense(
     size_t rows,

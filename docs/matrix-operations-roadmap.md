@@ -113,7 +113,7 @@ Exit criteria: fundamental arithmetic and multiplication have shape, overflow, n
 
 Some capabilities already exist. Reuse them; do not reimplement existing behavior.
 
-- [ ] 2.1 Slice and submatrix views. Rectangular ranges with strict zero-based bounds and positive result dimensions.
+- [x] 2.1 Slice and submatrix views. Rectangular ranges use strict zero-based bounds and positive result dimensions. (Merged in PR #25.)
 - [ ] 2.2 Row/column extraction and selection. Support a single row/column and arbitrary index lists, with documented duplicate-index behavior.
 - [ ] 2.3 Reshape and flatten views. Preserve a documented logical traversal order (initially row-major); require element counts to match and guard multiplication overflow.
 - [ ] 2.4 Padding and zero extension. Lazy coordinate mapping when outside-parent values are constant; otherwise use suitable specialized Storage.

@@ -53,6 +53,21 @@ by Storage and are not retained.
 Dimensions must be positive. Constructors that use square-only representations
 return `NUMERUS_MATRIX_NOT_SQUARE` when rows and columns differ.
 
+## Row and column selection
+
+`numerus_matrix_create_select_rows(parent, indices, count, &result)` and
+`numerus_matrix_create_select_columns()` create lazy views using zero-based
+index lists. The index list is copied into view-owned memory; callers may reuse
+or modify their input arrays after construction. Indices are validated against
+the selected parent dimension before allocation.
+
+Selection order is preserved and duplicate indices are allowed, so a row or
+column can intentionally appear more than once. Count must be positive; a
+null list is invalid, an out-of-range index returns
+`NUMERUS_MATRIX_OUT_OF_BOUNDS`, and index-buffer size overflow returns
+`NUMERUS_MATRIX_OVERFLOW`. The parent is still borrowed and must outlive the
+view. Nested selections compose through the parent accessor.
+
 ## Range slices
 
 `numerus_matrix_create_slice(parent, row_start, row_count, column_start,
@@ -354,9 +369,9 @@ determinism requirements.
 
 The native Matrix tests cover storage-backed constructors, orientation
 transforms, row/column removal and swaps, composed views, lazy scalar
-multiplication, powers, Kronecker products, range slices and nested views,
-scalar division, exact/approximate equality, vector constructors, element-wise
-arithmetic, materialization, overflow/read-failure handling, and structural flags.
+multiplication, powers, Kronecker products, range slices, indexed row/column
+selection, scalar division, exact/approximate equality, vector constructors,
+element-wise arithmetic, materialization, and overflow/read-failure handling.
 
 Run them from the repository root:
 
@@ -438,6 +453,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_slice_test tests/matrix_slice_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
 ./tests/matrix_slice_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_selection_test tests/matrix_selection_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+./tests/matrix_selection_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds
