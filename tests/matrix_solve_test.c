@@ -1,0 +1,139 @@
+#include "../numerus_matrix.h"
+
+#include <assert.h>
+#include <math.h>
+#include <stdio.h>
+
+static void assert_solution(
+    const numerus_matrix *matrix,
+    const numerus_matrix *solution,
+    const numerus_matrix *right_hand_side
+)
+{
+    size_t rows = numerus_matrix_rows(matrix);
+    size_t columns = numerus_matrix_columns(right_hand_side);
+    size_t row;
+    size_t column;
+
+    for (row = 0; row < rows; row++) {
+        for (column = 0; column < columns; column++) {
+            size_t k;
+            double value = 0.0;
+            double expected;
+
+            for (k = 0; k < rows; k++) {
+                double left;
+                double right;
+                assert(numerus_matrix_get(matrix, row, k, &left) ==
+                    NUMERUS_MATRIX_SUCCESS);
+                assert(numerus_matrix_get(solution, k, column, &right) ==
+                    NUMERUS_MATRIX_SUCCESS);
+                value += left * right;
+            }
+            assert(numerus_matrix_get(
+                right_hand_side, row, column, &expected
+            ) == NUMERUS_MATRIX_SUCCESS);
+            assert(fabs(value - expected) < 1e-9);
+        }
+    }
+}
+
+static void test_multiple_right_hand_sides(void)
+{
+    const double matrix_values[] = {3, 1, 1, 2};
+    const double rhs_values[] = {9, 4, 8, 3};
+    numerus_matrix *matrix = NULL;
+    numerus_matrix *rhs = NULL;
+    numerus_matrix *solution = NULL;
+    double value;
+
+    assert(numerus_matrix_create_dense(2, 2, matrix_values, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(2, 2, rhs_values, &rhs) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_solve(matrix, rhs, &solution) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    assert(numerus_matrix_get(solution, 0, 0, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value - 2.0) < 1e-12);
+    assert(numerus_matrix_get(solution, 1, 0, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value - 3.0) < 1e-12);
+    assert(numerus_matrix_get(solution, 0, 1, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value - 1.0) < 1e-12);
+    assert(numerus_matrix_get(solution, 1, 1, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value - 1.0) < 1e-12);
+
+    assert_solution(matrix, solution, rhs);
+    numerus_matrix_destroy(solution);
+    numerus_matrix_destroy(rhs);
+    numerus_matrix_destroy(matrix);
+}
+
+static void test_row_pivoting_and_errors(void)
+{
+    const double pivot_values[] = {0, 1, 1, 0};
+    const double rhs_values[] = {2, 4, 3, 5};
+    const double singular_values[] = {1, 2, 2, 4};
+    const double mismatched_values[] = {1, 2, 3};
+    const double nan_rhs_values[] = {NAN, 1};
+    numerus_matrix *matrix = NULL;
+    numerus_matrix *rhs = NULL;
+    numerus_matrix *solution = (void *) 1;
+    double value;
+
+    assert(numerus_matrix_create_dense(2, 2, pivot_values, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(2, 2, rhs_values, &rhs) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_solve(matrix, rhs, &solution) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get(solution, 0, 0, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(value == 3.0);
+    assert(numerus_matrix_get(solution, 1, 1, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(value == 4.0);
+    assert_solution(matrix, solution, rhs);
+    numerus_matrix_destroy(solution);
+    numerus_matrix_destroy(rhs);
+    numerus_matrix_destroy(matrix);
+
+    assert(numerus_matrix_create_dense(2, 2, singular_values, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(2, 2, rhs_values, &rhs) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_solve(matrix, rhs, &solution) ==
+        NUMERUS_MATRIX_SINGULAR);
+    assert(solution == NULL);
+    numerus_matrix_destroy(rhs);
+    numerus_matrix_destroy(matrix);
+
+    assert(numerus_matrix_create_dense(2, 2, pivot_values, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(3, 1, mismatched_values, &rhs) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_solve(matrix, rhs, &solution) ==
+        NUMERUS_MATRIX_DIMENSION_MISMATCH);
+    assert(solution == NULL);
+    numerus_matrix_destroy(rhs);
+
+    assert(numerus_matrix_create_dense(2, 1, nan_rhs_values, &rhs) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_solve(matrix, rhs, &solution) ==
+        NUMERUS_MATRIX_NON_FINITE);
+    assert(solution == NULL);
+    numerus_matrix_destroy(rhs);
+    numerus_matrix_destroy(matrix);
+}
+
+int main(void)
+{
+    test_multiple_right_hand_sides();
+    test_row_pivoting_and_errors();
+    puts("Matrix linear solve tests passed.");
+    return 0;
+}
