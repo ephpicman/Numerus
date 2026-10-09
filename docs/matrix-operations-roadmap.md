@@ -181,7 +181,7 @@ Exit criteria: rectangular and rank-deficient test suites; residual-based valida
 - [x] 7.1 QR decomposition. Reduced Householder QR defines Q as m×min(m,n) and R as min(m,n)×n; unpivoted QR is not rank-revealing. (Merged in PR #49.)
 - [x] 7.2 Cholesky decomposition. Scale-aware symmetry and positive-pivot checks; semidefinite/indefinite inputs return explicit statuses. (Merged in PR #56.)
 - [x] 7.3 LDLᵀ decomposition. Unpivoted LDLᵀ supports symmetric matrices with safely nonzero leading pivots, including some indefinite matrices; pivot-required cases return an explicit small-pivot status. (Integrated in PR #58.)
-- [ ] 7.4 SVD. One-sided Jacobi SVD proposed in PR #59; covers tall/wide, rank-deficient and zero matrices with reconstruction, orthogonality, ordering and convergence tests. (Merge pending.)
+- [x] 7.4 SVD. One-sided Jacobi SVD covers tall/wide, rank-deficient and zero matrices with reconstruction, orthogonality, ordering and convergence tests. (Merged in PR #59.)
 - [ ] 7.5 Schur decomposition. Add after a reliable eigenvalue foundation exists.
 - [ ] 7.6 Hessenberg and bidiagonal reductions. Implement as internal building blocks when required by eigenvalue/SVD algorithms.
 - [ ] 7.7 Decomposition reuse/cache. Share only immutable, successfully computed factors with explicit ownership and measured benefit.
@@ -190,7 +190,7 @@ Exit criteria: reconstruction and orthogonality tests, convergence/error reporti
 
 # Phase 8 — Eigenvalues and matrix functions
 
-- [ ] 8.1 Symmetric-matrix eigenvalues/eigenvectors. Start with the real symmetric case and a well-defined convergence contract.
+- [ ] 8.1 Symmetric-matrix eigenvalues/eigenvectors. Cyclic Jacobi rotations return descending real eigenvalues and orthonormal eigenvectors with reconstruction/convergence tests. (Implementation proposed in PR #60; merge pending.)
 - [ ] 8.2 General real-matrix eigenvalues. Eigenvalues can be complex even for real matrices. Since complex values are out of scope, define an explicit limitation/error contract instead of silently discarding imaginary components.
 - [ ] 8.3 Spectral radius and spectral norm. Reuse relevant eigenvalue/SVD implementation.
 - [ ] 8.4 Diagonalizability checks. Define numerical rather than symbolic semantics.
