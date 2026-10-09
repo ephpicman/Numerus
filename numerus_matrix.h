@@ -841,6 +841,34 @@ numerus_matrix_status numerus_matrix_reduced_row_echelon_form(
  *
  * On failure, *basis remains NULL and *nullity remains unchanged.
  */
+/**
+ * Return a basis for the numerical column space of a Matrix.
+ *
+ * The basis columns are selected from the input columns using column-pivoted
+ * Householder QR. If the numerical rank is zero, success is represented by
+ * *basis == NULL and *dimension == 0. On failure, *basis is NULL and
+ * *dimension is unchanged.
+ */
+numerus_matrix_status numerus_matrix_column_space_basis(
+    const numerus_matrix *matrix,
+    numerus_matrix **basis,
+    size_t *dimension
+);
+
+/**
+ * Return a basis for the numerical row space of a Matrix.
+ *
+ * The basis rows are selected from the input rows using column-pivoted QR of
+ * the transpose. If the numerical rank is zero, success is represented by
+ * *basis == NULL and *dimension == 0. On failure, *basis is NULL and
+ * *dimension is unchanged.
+ */
+numerus_matrix_status numerus_matrix_row_space_basis(
+    const numerus_matrix *matrix,
+    numerus_matrix **basis,
+    size_t *dimension
+);
+
 numerus_matrix_status numerus_matrix_null_space(
     const numerus_matrix *matrix,
     numerus_matrix **basis,
