@@ -171,7 +171,7 @@ Exit criteria: independent inverse Storage, explicit singular/error behavior, re
 - [x] 6.2 Column-space and row-space bases. Column basis vectors are columns; row basis vectors are rows. Both use the documented scale-aware numerical-rank threshold. (Merged in PR #52.)
 - [x] 6.3 Consistency and solution classification. Pivoted QR and an RHS-relative residual distinguish inconsistent, unique, and infinitely many solutions. (Merged in PR #53.)
 - [x] 6.4 Least-squares solve. Column-pivoted QR solves full-column-rank overdetermined and square systems without normal equations; rank-deficient/minimum-norm cases are deferred to SVD/pseudoinverse work. (Merged in PR #54.)
-- [ ] 6.5 Weighted least squares. Finite nonnegative weights are applied by row scaling with sqrt(weight), then solved by pivoted QR. (Implementation proposed in PR #55; merge pending.)
+- [x] 6.5 Weighted least squares. Finite nonnegative weights are applied by row scaling with sqrt(weight), then solved by pivoted QR. (Merged in PR #55.)
 - [ ] 6.6 Moore–Penrose pseudoinverse. Prefer SVD-based implementation and test all four Moore–Penrose conditions within a documented tolerance.
 
 Exit criteria: rectangular and rank-deficient test suites; residual-based validation; documented numerical thresholds.
@@ -191,10 +191,10 @@ Exit criteria: reconstruction and orthogonality tests, convergence/error reporti
 # Phase 8 — Eigenvalues and matrix functions
 
 - [x] 8.1 Symmetric-matrix eigenvalues/eigenvectors. Cyclic Jacobi rotations return descending real eigenvalues and orthonormal eigenvectors with reconstruction/convergence tests. (Merged in PR #60.)
-- [ ] 8.2 General real-matrix eigenvalues. Eigenvalues can be complex even for real matrices. Since complex values are out of scope, define an explicit limitation/error contract instead of silently discarding imaginary components.
-- [ ] 8.3 Spectral radius and spectral norm. General spectral norm reuses SVD; symmetric spectral radius reuses symmetric eigendecomposition. General nonsymmetric spectral radius remains deferred until the real/complex eigenvalue contract is implemented. (Implementation proposed in PR #61; merge pending.)
+- [ ] 8.2 General real-matrix eigenvalues. Deferred: complex numbers are an explicit non-goal, and the current API exposes only real symmetric eigendecomposition. Do not silently discard imaginary components; revisit only after a complex-value representation and error contract are designed.
+- [x] 8.3 Spectral radius and spectral norm. General spectral norm reuses SVD; symmetric spectral radius reuses symmetric eigendecomposition. General nonsymmetric spectral radius remains deferred until the real/complex eigenvalue contract is implemented. (Merged in PR #61.)
 - [ ] 8.4 Diagonalizability checks. Define numerical rather than symbolic semantics.
-- [ ] 8.5 Matrix power for negative integer exponents. Build on inverse and exponentiation by squaring.
+- [ ] 8.5 Matrix power for negative integer exponents. Build on inverse and exponentiation by squaring. (Implementation proposed; merge pending.)
 - [ ] 8.6 Matrix exponential. Prefer a numerically appropriate scaling-and-squaring method with Padé approximation rather than naïve Taylor summation as the only production path.
 - [ ] 8.7 Matrix square root and logarithm. Specify supported input classes and failure behavior.
 - [ ] 8.8 Matrix sine/cosine and polynomial functions. Add after matrix exponential and multiplication semantics are stable.
