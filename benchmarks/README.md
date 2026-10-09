@@ -15,7 +15,8 @@ cc -std=c11 -O2 -Wall -Wextra -Wpedantic -Werror \
   -o benchmarks/matrix_benchmark \
   benchmarks/matrix_benchmark.c \
   numerus_matrix.c numerus_matrix_binary.c \
-  numerus_matrix_materialize.c numerus_matrix_multiply.c \\\n  numerus_matrix_analysis.c numerus_matrix_lu.c \\\n  numerus_matrix_inverse.c numerus_matrix_condition.c numerus_storage.c
+  numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_analysis.c \\
+  numerus_matrix_lu.c numerus_matrix_inverse.c numerus_matrix_condition.c numerus_storage.c
 ./benchmarks/matrix_benchmark
 ```
 
