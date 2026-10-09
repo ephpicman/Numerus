@@ -83,6 +83,40 @@ static numerus_matrix_status matrix_matches_zero(
     return NUMERUS_MATRIX_SUCCESS;
 }
 
+static numerus_matrix_status create_dense_zero_result(
+    size_t rows,
+    size_t columns,
+    numerus_matrix **matrix
+)
+{
+    size_t count;
+    size_t bytes;
+    size_t index;
+    double *values;
+    numerus_matrix_status status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+    if (!numerus_size_multiply(rows, columns, &count) ||
+        !numerus_size_multiply(count, sizeof(*values), &bytes)) {
+        return NUMERUS_MATRIX_OVERFLOW;
+    }
+
+    values = numerus_multiply_alloc(bytes);
+    if (values == NULL) {
+        return NUMERUS_MATRIX_OUT_OF_MEMORY;
+    }
+    for (index = 0; index < count; index++) {
+        values[index] = 0.0;
+    }
+
+    status = numerus_matrix_create_dense(rows, columns, values, matrix);
+    numerus_multiply_free(values);
+    return status;
+}
+
 /*
  * The current multiplication loop evaluates zero-times-value terms. Only
  * nonnegative finite values make identity/zero shortcuts preserve those
@@ -190,7 +224,7 @@ int numerus_matrix_multiply(
         if (matches) {
             status = matrix_is_finite_nonnegative(left, &eligible);
             if (status != NUMERUS_MATRIX_SUCCESS) return status;
-            if (eligible) return numerus_matrix_create_zero(rows, columns, matrix);
+            if (eligible) return create_dense_zero_result(rows, columns, matrix);
         }
 
         status = matrix_matches_zero(left, &matches);
