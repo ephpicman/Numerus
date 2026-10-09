@@ -2738,10 +2738,10 @@ numerus_storage_kind numerus_matrix_storage_kind(
  */
 
 /*
- * The inverse cache owns an independent materialized Matrix. The cache is
- * logically transparent, bounded to one result per Matrix, and destroyed with
- * its owner. Cache population is not thread-safe; concurrent mutation of one
- * Matrix's lazy caches is outside the current API contract.
+ * The inverse cache owns a bounded copy of dense values. The cache is logically
+ * transparent, contains no parent references, and is destroyed with its owner.
+ * Cache population is not thread-safe; concurrent mutation of one Matrix's
+ * lazy caches is outside the current API contract.
  */
 numerus_matrix_status numerus_matrix_get_cached_inverse(
     const numerus_matrix *matrix,
