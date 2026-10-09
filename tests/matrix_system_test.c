@@ -61,6 +61,7 @@ static void test_inconsistent_and_multiple_rhs(void)
     const double inconsistent_rhs_values[] = {1, 2};
     const double multiple_rhs_values[] = {1, 1, 0, 1};
     const double single_rhs_values[] = {1, 0};
+    const double unique_column_values[] = {1, 0};
     numerus_matrix *matrix = NULL;
     numerus_matrix *rhs = NULL;
     numerus_matrix_solution_kind kind = NUMERUS_MATRIX_SOLUTION_UNIQUE;
@@ -83,7 +84,7 @@ static void test_inconsistent_and_multiple_rhs(void)
     numerus_matrix_destroy(rhs);
     numerus_matrix_destroy(matrix);
 
-    assert(numerus_matrix_create_dense(2, 1, column_values, &matrix) ==
+    assert(numerus_matrix_create_dense(2, 1, unique_column_values, &matrix) ==
         NUMERUS_MATRIX_SUCCESS);
     assert(numerus_matrix_create_dense(2, 1, single_rhs_values, &rhs) ==
         NUMERUS_MATRIX_SUCCESS);
