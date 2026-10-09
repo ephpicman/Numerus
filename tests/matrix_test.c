@@ -304,6 +304,27 @@ static numerus_matrix_status invalid_coordinates(
     return NUMERUS_MATRIX_INVALID_ARGUMENT;
 }
 
+static numerus_matrix_status counting_identity_coordinates(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    size_t *calls = (size_t *) context;
+
+    assert(calls != NULL);
+    assert(parent_row != NULL);
+    assert(parent_column != NULL);
+
+    (*calls)++;
+    *parent_row = row;
+    *parent_column = column;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
 static numerus_matrix_status out_of_bounds_coordinates(
     size_t row,
     size_t column,
@@ -1027,6 +1048,49 @@ static void test_join_error_propagation_and_horizontal_overflow(void)
 }
 
 
+static void test_flag_cache_and_shared_symmetry_scan(void)
+{
+    const double values[] = {
+        1, 2, 3,
+        2, 4, 5,
+        3, 5, 6
+    };
+    numerus_matrix *root = NULL;
+    numerus_matrix *matrix = NULL;
+    numerus_matrix_flags flags = {0};
+    size_t calls = 0;
+
+    assert(numerus_matrix_create_dense(3, 3, values, &root) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_from_parent_with_transforms(
+        root, 3, 3, counting_identity_coordinates, NULL, &calls, &matrix
+    ) == NUMERUS_MATRIX_SUCCESS);
+
+    assert(numerus_matrix_get_flags(matrix, &flags) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(flags.square);
+    assert(flags.symmetric);
+    assert(!flags.zero);
+    assert(!flags.diagonal);
+    assert(!flags.upper_triangular);
+    assert(!flags.lower_triangular);
+    assert(!flags.identity);
+
+    /*
+     * Nine reads for the full scan plus one reverse-coordinate read for
+     * each of the three off-diagonal pairs. The old separate symmetry pass
+     * needed six additional reads.
+     */
+    assert(calls == 12);
+
+    assert(numerus_matrix_get_flags(matrix, &flags) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(calls == 12);
+
+    numerus_matrix_destroy(matrix);
+    numerus_matrix_destroy(root);
+}
+
 static void test_cached_analysis(void)
 {
     const double general[] = {1, 2, 3, 4};
@@ -1219,6 +1283,7 @@ int main(void)
     test_join_error_propagation_and_horizontal_overflow();
     test_validation();
     test_cached_analysis();
+    test_flag_cache_and_shared_symmetry_scan();
 
     puts("Matrix tests passed.");
     return 0;
