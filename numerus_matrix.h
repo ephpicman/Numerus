@@ -298,6 +298,30 @@ int numerus_matrix_create_negate(
     numerus_matrix **matrix
 );
 
+/**
+ * Create a lazy element-wise sum of two equally sized Matrices.
+ *
+ * Both parent references are non-owning and must remain alive for the result's
+ * lifetime. Addition follows IEEE-754 double semantics.
+ */
+int numerus_matrix_create_add(
+    numerus_matrix *left,
+    numerus_matrix *right,
+    numerus_matrix **matrix
+);
+
+/**
+ * Create a lazy element-wise difference of two equally sized Matrices.
+ *
+ * Both parent references are non-owning and must remain alive for the result's
+ * lifetime. Subtraction follows IEEE-754 double semantics.
+ */
+int numerus_matrix_create_subtract(
+    numerus_matrix *left,
+    numerus_matrix *right,
+    numerus_matrix **matrix
+);
+
 /** Create a dense Matrix. */
 int numerus_matrix_create_dense(
     size_t rows,
