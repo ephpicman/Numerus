@@ -133,13 +133,15 @@ return `NUMERUS_MATRIX_DIMENSION_MISMATCH`; overflow returns
 
 ## Element-wise addition and subtraction
 
-`numerus_matrix_create_add()` and `numerus_matrix_create_subtract()` create
-lazy two-parent nodes. Both parents must have identical row and column counts;
-otherwise the constructor returns `NUMERUS_MATRIX_DIMENSION_MISMATCH` and leaves
-the output pointer NULL. Each read obtains the corresponding value from both
-parents, propagates either parent's read failure, then applies ordinary IEEE-754
-`double` addition or subtraction. The operation does not mutate or materialize
-either input. Both parents must outlive the result.
+`numerus_matrix_create_add()`, `numerus_matrix_create_subtract()`, and
+`numerus_matrix_create_hadamard_product()` create lazy two-parent nodes. Both
+parents must have identical row and column counts; otherwise the constructor
+returns `NUMERUS_MATRIX_DIMENSION_MISMATCH` and leaves the output pointer NULL.
+Each read obtains the corresponding value from both parents, propagates either
+parent's read failure, then applies ordinary IEEE-754 `double` addition,
+subtraction, or multiplication. Hadamard multiplication is element-wise and is
+not the dot-product-based matrix multiplication operation. These operations do
+not mutate or materialize either input. Both parents must outlive the result.
 
 ## Ownership and lifetime
 
@@ -234,9 +236,10 @@ determinism requirements.
 
 The native Matrix tests cover storage-backed constructors, orientation
 transforms, row/column removal and swaps, composed views, lazy scalar
-multiplication and negation, element-wise addition and subtraction, callback
-error propagation, joins, dimension mismatch and overflow handling, cached
-structural flags, determinant calculations, and output-value preservation after failures.
+multiplication and negation, element-wise addition and subtraction, Hadamard
+products, callback error propagation, joins, dimension mismatch and overflow
+handling, cached structural flags, determinant calculations, and output-value
+preservation after failures.
 
 Run them from the repository root:
 
@@ -258,6 +261,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_binary_test tests/matrix_binary_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c
 ./tests/matrix_binary_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_hadamard_test tests/matrix_hadamard_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c
+./tests/matrix_hadamard_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds
