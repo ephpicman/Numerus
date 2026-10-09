@@ -23,6 +23,10 @@ struct numerus_matrix {
     numerus_coordinate_transform_fn coordinate_transform;
     numerus_value_transform_fn value_transform;
     const void *transform_context;
+    unsigned int cached_flags;
+    int flags_cached;
+    int determinant_state;
+    double cached_determinant;
 };
 
 static numerus_matrix_status identity_coordinate_transform(
@@ -234,6 +238,10 @@ static int allocate_matrix(numerus_matrix **matrix)
     (*matrix)->coordinate_transform = NULL;
     (*matrix)->value_transform = NULL;
     (*matrix)->transform_context = NULL;
+    (*matrix)->cached_flags = 0;
+    (*matrix)->flags_cached = 0;
+    (*matrix)->determinant_state = 0;
+    (*matrix)->cached_determinant = 0.0;
 
     return NUMERUS_MATRIX_SUCCESS;
 }
@@ -965,6 +973,224 @@ numerus_matrix_status numerus_matrix_get(
     }
 
     return numerus_matrix_get_unchecked(matrix, row, column, value);
+}
+
+
+numerus_matrix_status numerus_matrix_get_flags(
+    numerus_matrix *matrix,
+    unsigned int *flags
+)
+{
+    unsigned int result = 0;
+    int is_zero = 1, is_diagonal = 1, is_upper = 1;
+    int is_lower = 1, is_symmetric = 1, is_identity = 1;
+    size_t row, column;
+
+    if (matrix == NULL || flags == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    if (matrix->flags_cached) {
+        *flags = matrix->cached_flags;
+        return NUMERUS_MATRIX_SUCCESS;
+    }
+    if (matrix->rows == matrix->columns) {
+        result |= NUMERUS_MATRIX_FLAG_SQUARE;
+    }
+
+    for (row = 0; row < matrix->rows; row++) {
+        for (column = 0; column < matrix->columns; column++) {
+            double value;
+            numerus_matrix_status status = numerus_matrix_get(
+                matrix, row, column, &value
+            );
+            if (status != NUMERUS_MATRIX_SUCCESS) {
+                return status;
+            }
+            if (value != 0.0) is_zero = 0;
+            if (row != column && value != 0.0) is_diagonal = 0;
+            if (row > column && value != 0.0) is_upper = 0;
+            if (row < column && value != 0.0) is_lower = 0;
+            if ((row == column && value != 1.0) ||
+                (row != column && value != 0.0)) {
+                is_identity = 0;
+            }
+        }
+    }
+
+    if (is_zero) result |= NUMERUS_MATRIX_FLAG_ZERO;
+    if (matrix->rows == matrix->columns) {
+        if (is_diagonal) result |= NUMERUS_MATRIX_FLAG_DIAGONAL;
+        if (is_upper) result |= NUMERUS_MATRIX_FLAG_UPPER_TRIANGULAR;
+        if (is_lower) result |= NUMERUS_MATRIX_FLAG_LOWER_TRIANGULAR;
+        if (is_identity) result |= NUMERUS_MATRIX_FLAG_IDENTITY;
+
+        for (row = 0; row < matrix->rows && is_symmetric; row++) {
+            for (column = row + 1; column < matrix->columns; column++) {
+                double upper_value, lower_value;
+                numerus_matrix_status status = numerus_matrix_get(
+                    matrix, row, column, &upper_value
+                );
+                if (status != NUMERUS_MATRIX_SUCCESS) return status;
+                status = numerus_matrix_get(
+                    matrix, column, row, &lower_value
+                );
+                if (status != NUMERUS_MATRIX_SUCCESS) return status;
+                if (upper_value != lower_value) {
+                    is_symmetric = 0;
+                    break;
+                }
+            }
+        }
+        if (is_symmetric) result |= NUMERUS_MATRIX_FLAG_SYMMETRIC;
+    }
+
+    matrix->cached_flags = result;
+    matrix->flags_cached = 1;
+    *flags = result;
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status matrix_determinant_from_triangular(
+    numerus_matrix *matrix,
+    double *determinant
+)
+{
+    double result = 1.0;
+    size_t index;
+    for (index = 0; index < matrix->rows; index++) {
+        double diagonal_value;
+        numerus_matrix_status status = numerus_matrix_get(
+            matrix, index, index, &diagonal_value
+        );
+        if (status != NUMERUS_MATRIX_SUCCESS) return status;
+        result *= diagonal_value;
+    }
+    *determinant = result;
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+numerus_matrix_status numerus_matrix_determinant(
+    numerus_matrix *matrix,
+    double *determinant
+)
+{
+    size_t size, element_count, row, column;
+    double result = 1.0, *values;
+    int sign = 1;
+    numerus_matrix_status status;
+
+    if (matrix == NULL || determinant == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    if (matrix->rows != matrix->columns) {
+        return NUMERUS_MATRIX_NOT_SQUARE;
+    }
+    if (matrix->determinant_state == 2) {
+        *determinant = matrix->cached_determinant;
+        return NUMERUS_MATRIX_SUCCESS;
+    }
+    if (matrix->determinant_state == 1) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    matrix->determinant_state = 1;
+    size = matrix->rows;
+    if (matrix->flags_cached) {
+        if (matrix->cached_flags & NUMERUS_MATRIX_FLAG_ZERO) {
+            result = 0.0;
+            goto cache_result;
+        }
+        if (matrix->cached_flags & NUMERUS_MATRIX_FLAG_IDENTITY) {
+            result = 1.0;
+            goto cache_result;
+        }
+        if (matrix->cached_flags &
+            (NUMERUS_MATRIX_FLAG_UPPER_TRIANGULAR |
+             NUMERUS_MATRIX_FLAG_LOWER_TRIANGULAR)) {
+            status = matrix_determinant_from_triangular(matrix, &result);
+            if (status != NUMERUS_MATRIX_SUCCESS) {
+                matrix->determinant_state = 0;
+                return status;
+            }
+            goto cache_result;
+        }
+    }
+
+    if (size > SIZE_MAX / size) {
+        matrix->determinant_state = 0;
+        return NUMERUS_MATRIX_OVERFLOW;
+    }
+    element_count = size * size;
+    if (element_count > SIZE_MAX / sizeof(*values)) {
+        matrix->determinant_state = 0;
+        return NUMERUS_MATRIX_OVERFLOW;
+    }
+    values = numerus_matrix_alloc(element_count * sizeof(*values));
+    if (values == NULL) {
+        matrix->determinant_state = 0;
+        return NUMERUS_MATRIX_OUT_OF_MEMORY;
+    }
+
+    for (row = 0; row < size; row++) {
+        for (column = 0; column < size; column++) {
+            status = numerus_matrix_get(
+                matrix, row, column, &values[row * size + column]
+            );
+            if (status != NUMERUS_MATRIX_SUCCESS) {
+                numerus_matrix_free(values);
+                matrix->determinant_state = 0;
+                return status;
+            }
+        }
+    }
+
+    for (column = 0; column < size; column++) {
+        size_t pivot_row = column, candidate_row;
+        double pivot_magnitude = values[column * size + column];
+        if (pivot_magnitude < 0.0) pivot_magnitude = -pivot_magnitude;
+        for (candidate_row = column + 1; candidate_row < size; candidate_row++) {
+            double magnitude = values[candidate_row * size + column];
+            if (magnitude < 0.0) magnitude = -magnitude;
+            if (magnitude > pivot_magnitude) {
+                pivot_magnitude = magnitude;
+                pivot_row = candidate_row;
+            }
+        }
+        if (values[pivot_row * size + column] == 0.0) {
+            result = 0.0;
+            break;
+        }
+        if (pivot_row != column) {
+            size_t swap_column;
+            for (swap_column = 0; swap_column < size; swap_column++) {
+                double temporary = values[column * size + swap_column];
+                values[column * size + swap_column] =
+                    values[pivot_row * size + swap_column];
+                values[pivot_row * size + swap_column] = temporary;
+            }
+            sign = -sign;
+        }
+        {
+            double pivot = values[column * size + column];
+            result *= pivot;
+            for (row = column + 1; row < size; row++) {
+                double factor = values[row * size + column] / pivot;
+                for (candidate_row = column + 1;
+                     candidate_row < size; candidate_row++) {
+                    values[row * size + candidate_row] -=
+                        factor * values[column * size + candidate_row];
+                }
+            }
+        }
+    }
+    numerus_matrix_free(values);
+    if (sign < 0) result = -result;
+
+cache_result:
+    matrix->cached_determinant = result;
+    matrix->determinant_state = 2;
+    *determinant = result;
+    return NUMERUS_MATRIX_SUCCESS;
 }
 
 size_t numerus_matrix_rows(const numerus_matrix *matrix)
