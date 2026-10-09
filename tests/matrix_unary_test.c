@@ -72,8 +72,6 @@ static void test_scalar_multiplication_and_negation_views(void)
 
     numerus_matrix_destroy(nested);
     numerus_matrix_destroy(negated_view);
-    numerus_matrix_destroy(scaled_view);
-    numerus_matrix_destroy(root);
 
     scaled_view = root;
     assert(numerus_matrix_create_scale(NULL, 2.0, &scaled_view) ==
@@ -84,9 +82,10 @@ static void test_scalar_multiplication_and_negation_views(void)
     assert(scaled_view == NULL);
     assert(numerus_matrix_create_scale(NULL, 2.0, NULL) ==
         NUMERUS_MATRIX_INVALID_ARGUMENT);
+
+    numerus_matrix_destroy(scaled_view);
+    numerus_matrix_destroy(root);
 }
-
-
 
 int main(void)
 {
