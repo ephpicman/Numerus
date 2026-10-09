@@ -156,7 +156,7 @@ Exit criteria: factorization reconstruction tests, numerical edge-case coverage,
 - [x] 5.1 Define singularity and failure semantics. Singular and near-singular inputs use scale-aware numerical rank; failures return statuses and no result. (Implemented and merged in PR #45.)
 - [x] 5.2 Inverse via LU solves. Materialize the inverse as independent Storage-backed Matrix; no adjugate/determinant path. (Merged in PR #45.)
 - [x] 5.3 Inverse via Gauss–Jordan. Added as `numerus_matrix_inverse_gauss_jordan()` for algorithm comparison and education; LU remains the recommended default. Tests cover pivoting, singular/non-finite inputs, and scale. (Merged in PR #92.)
-- [ ] 5.4 Reference/cofactor inverse for small matrices. Optional, primarily as a reference/test oracle for tiny matrices, not a default production algorithm. Do not present it as generally stable or fast.
+- [x] 5.4 Reference/cofactor inverse for small matrices. Added an independent test-only cofactor/adjugate oracle for 1×1–3×3 matrices and cross-checked the LU inverse. It is intentionally not a production API because the method scales poorly. (Merged in PR #96.)
 - [ ] 5.5 Cache inverse results. Choose a cache ownership design first: a retained immutable result with clear destruction, or a separate reusable factorization/result object. Never store a raw pointer to a Matrix whose lifetime is not owned. Bound memory and avoid cycles.
 - [x] 5.6 Solve Ax=b. Matrix RHS supports multiple columns sharing one LU factorization; no inverse-times-vector default path. (Merged in PR #46.)
 - [ ] 5.7 Reuse cached factorization. Share LU among determinant, inverse, and repeated solves only after a coherent factorization cache is designed and benchmarked.
