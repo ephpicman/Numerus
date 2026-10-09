@@ -348,6 +348,18 @@ int numerus_matrix_create_divide(
     numerus_matrix **matrix
 );
 
+/**
+ * Materialize the logical values of a Matrix into independent dense Storage.
+ *
+ * Works for roots, nested views, joins, and binary arithmetic nodes. The result
+ * owns its Storage and does not retain the source or its parents. On failure,
+ * the output pointer remains NULL.
+ */
+int numerus_matrix_materialize(
+    const numerus_matrix *source,
+    numerus_matrix **matrix
+);
+
 /** Create a dense Matrix. */
 int numerus_matrix_create_dense(
     size_t rows,
