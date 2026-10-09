@@ -74,6 +74,14 @@ jobs:
             -o tests/matrix_binary_test tests/matrix_binary_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_binary_test
 
+      - name: Run native Matrix element-wise min/max/clamp tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_elementwise_test tests/matrix_elementwise_test.c numerus_matrix_elementwise.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+          ./tests/matrix_elementwise_test
+
       - name: Run native Matrix Hadamard tests
         run: |
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \

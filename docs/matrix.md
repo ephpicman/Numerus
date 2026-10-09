@@ -303,6 +303,21 @@ NaN inputs propagate. These numeric results do not become Matrix status errors.
 The operations do not mutate or materialize either input. Both parents must
 outlive the result.
 
+## Element-wise minimum, maximum, and clamp
+
+`numerus_matrix_create_elementwise_min()` and
+`numerus_matrix_create_elementwise_max()` require equal shapes and produce
+independent dense matrices. NaN propagates if either corresponding operand is
+NaN; this deliberately differs from C `fmin()`/`fmax()` behavior. Otherwise
+ordinary floating-point ordering applies, including infinities.
+
+`numerus_matrix_create_clamp(source, lower, upper, &result)` returns an
+independent dense matrix with each non-NaN value limited to the inclusive
+interval `[lower, upper]`. NaN values propagate. NaN bounds and
+`lower > upper` return `NUMERUS_MATRIX_INVALID_ARGUMENT`; infinite bounds are
+allowed. Source-read failures propagate and output pointers remain NULL on
+failure. Successful results do not depend on input lifetimes.
+
 ## Ownership and lifetime
 
 Ownership is deliberately simple but important:
