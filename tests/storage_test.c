@@ -1,4 +1,5 @@
 #include "../numerus_storage.h"
+#include "../numerus_size.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -273,6 +274,43 @@ static void test_validation_and_immutable_copies(void)
     ) == NUMERUS_STORAGE_OVERFLOW);
 }
 
+
+static void test_checked_size_arithmetic(void)
+{
+    size_t result = 77;
+
+    assert(numerus_size_add(2, 3, &result));
+    assert(result == 5);
+    assert(numerus_size_add(0, 0, &result));
+    assert(result == 0);
+    result = 77;
+    assert(!numerus_size_add(SIZE_MAX, 1, &result));
+    assert(result == 77);
+    assert(!numerus_size_add(1, 1, NULL));
+
+    assert(numerus_size_multiply(6, 7, &result));
+    assert(result == 42);
+    assert(numerus_size_multiply(0, SIZE_MAX, &result));
+    assert(result == 0);
+    result = 77;
+    assert(!numerus_size_multiply(SIZE_MAX, 2, &result));
+    assert(result == 77);
+    assert(!numerus_size_multiply(1, 1, NULL));
+
+    assert(numerus_size_triangular_count(0, &result));
+    assert(result == 0);
+    assert(numerus_size_triangular_count(1, &result));
+    assert(result == 1);
+    assert(numerus_size_triangular_count(4, &result));
+    assert(result == 10);
+    assert(numerus_size_triangular_count(5, &result));
+    assert(result == 15);
+    result = 77;
+    assert(!numerus_size_triangular_count(SIZE_MAX, &result));
+    assert(result == 77);
+    assert(!numerus_size_triangular_count(3, NULL));
+}
+
 int main(void)
 {
     test_basic_storages();
@@ -281,6 +319,7 @@ int main(void)
     test_symmetric_and_banded();
     test_bounds();
     test_validation_and_immutable_copies();
+    test_checked_size_arithmetic();
 
     puts("Storage tests passed.");
     return 0;
