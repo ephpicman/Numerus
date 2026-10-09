@@ -246,7 +246,7 @@ This inventory captures the broader feature set discussed for Numerus. It is not
 ### Arithmetic and element-wise
 - [x] Element-wise minimum, maximum, and clamp (Phase 9.1).
 - [x] Addition and subtraction (Phase 1)
-- [ ] Scalar addition/subtraction (if useful; distinguish from matrix-wide scalar transform)
+- [x] Scalar addition/subtraction. Added lazy `A + c` and `A - c` views, distinct from matrix/matrix arithmetic and scalar multiplication. (Merged in PR #94.)
 - [x] Scalar multiplication and division (Phases 1 and 2)
 - [x] Unary negation (Phase 2)
 - [x] Matrix multiplication (Phase 1)
