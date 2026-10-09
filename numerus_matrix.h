@@ -497,6 +497,13 @@ numerus_matrix_status numerus_matrix_is_equal(
  * unequal, and equal infinities compare equal. The output is unchanged if a
  * Matrix read fails.
  */
+numerus_matrix_status numerus_matrix_all_close(
+    const numerus_matrix *left, const numerus_matrix *right, bool *close
+);
+numerus_matrix_status numerus_matrix_any_close(
+    const numerus_matrix *left, const numerus_matrix *right, bool *close
+);
+
 numerus_matrix_status numerus_matrix_is_close(
     const numerus_matrix *left,
     const numerus_matrix *right,

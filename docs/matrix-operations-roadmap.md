@@ -207,7 +207,7 @@ Exit criteria: convergence tests, residual checks, explicit real-only limitation
 - [x] 9.2 Map/apply. Lazy map borrows deterministic callback/context and parent; eager apply materializes independent dense Storage and propagates callback/read failures.
 - [x] 9.3 Normalize. Supports global, row, and column axes with L1/L2/infinity norms; rejects non-finite inputs and zero-norm vectors without publishing partial output.
 - [x] 9.4 Variance and standard deviation. Population/sample semantics are explicit; one-pass Welford accumulation rejects non-finite values and preserves outputs on failure.
-- [ ] 9.5 All-close / any-close. Use established comparison policy and provide exact equality separately.
+- [x] 9.5 All-close / any-close. Reuses the established approximate comparison policy; exact equality remains separate.
 - [ ] 9.6 Kronecker sum and selected structured products. Add only when built on stable product primitives.
 - [ ] 9.7 Matrix polynomial evaluation. Use Horner's method with matrix multiplication; document coefficient order.
 
@@ -250,7 +250,7 @@ This inventory captures the broader feature set discussed for Numerus. It is not
 - [ ] Matrix multiplication
 - [ ] Hadamard product
 - [ ] Element-wise division
-- [ ] Exact equality and approximate equality
+- [x] Exact equality and approximate equality, including all-close and any-close predicates
 - [ ] Non-negative and negative integer matrix powers
 - [ ] Kronecker product and Kronecker sum
 - [ ] Matrix polynomial
