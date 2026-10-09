@@ -66,6 +66,29 @@ The narrow identity/zero paths added next are guarded by exact structure checks
 and a finite, nonnegative operand precondition. Negative values, signed zero,
 NaN, and infinities retain the generic implementation's IEEE-754 behavior.
 
+
+## Specialized constructor scope decision
+
+The current API already has row/column permutation views and structured
+Storage for diagonal, triangular, symmetric, banded, identity, constant, zero,
+and sparse matrices. No current algorithm or test suite consumes Toeplitz,
+Hankel, Vandermonde, or Hilbert matrices as named concepts.
+
+- **Toeplitz/Hankel:** defer until a convolution, signal-processing, or structured
+  solver use case needs the API; dense construction alone does not exploit the
+  structure.
+- **Vandermonde/Hilbert:** defer. They are useful in specific numerical methods,
+  but can be badly conditioned and would expand the API without a current
+  consumer or a dedicated stability story.
+- **Permutation matrix:** defer the separate constructor. Existing row/column
+  permutation views cover the immediate operation; a standalone constructor
+  would currently materialize dense values unless a new Storage kind were
+  designed. Add it when a factorization or decomposition needs it directly.
+
+This closes the scope review, not an implementation commitment. Revisit each
+constructor when a concrete consumer and tests can justify its API and Storage
+cost.
+
 ## Recommended sequence
 
 1. Expand the standalone benchmark to compare generic multiplication against candidate paths for identity, zero, diagonal, triangular, sparse, symmetric, and banded operands across small and medium shapes.
