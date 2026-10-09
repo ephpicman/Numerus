@@ -195,7 +195,7 @@ Exit criteria: reconstruction and orthogonality tests, convergence/error reporti
 - [x] 8.3 Spectral radius and spectral norm. General spectral norm reuses SVD; symmetric spectral radius reuses symmetric eigendecomposition. General nonsymmetric spectral radius remains deferred until the real/complex eigenvalue contract is implemented. (Merged in PR #61.)
 - [ ] 8.4 Diagonalizability checks. Define numerical rather than symbolic semantics.
 - [x] 8.5 Matrix power for negative integer exponents. Builds on one LU-based inverse and exponentiation by squaring. (Merged in PR #62.)
-- [ ] 8.6 Matrix exponential. Prefer a numerically appropriate scaling-and-squaring method with Padé approximation rather than naïve Taylor summation as the only production path.
+- [x] 8.6 Matrix exponential. Added a degree-13 Padé approximant with 1-norm scaling-and-squaring, finite-intermediate checks, linear-solve error propagation, and native tests for diagonal, zero, nilpotent, rotation, scaling, non-finite, and overflow cases. (Merged in PR #102.)
 - [ ] 8.7 Matrix square root and logarithm. Specify supported input classes and failure behavior.
 - [ ] 8.8 Matrix sine/cosine and polynomial functions. Add after matrix exponential and multiplication semantics are stable.
 
