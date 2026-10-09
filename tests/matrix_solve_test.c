@@ -130,8 +130,50 @@ static void test_row_pivoting_and_errors(void)
     numerus_matrix_destroy(matrix);
 }
 
+
+static void test_lu_cache_reuse_and_source_lifetime(void)
+{
+    const double matrix_values[] = {4, 1, 2, 3};
+    const double rhs_values[] = {1, 2};
+    numerus_matrix *matrix = NULL;
+    numerus_matrix *rhs = NULL;
+    numerus_matrix *first = NULL;
+    numerus_matrix *second = NULL;
+    double a, b;
+
+    assert(numerus_matrix_create_dense(2, 2, matrix_values, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(2, 1, rhs_values, &rhs) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    /* Determinant, solve and inverse share the source's retained LU factors. */
+    {
+        double determinant;
+        assert(numerus_matrix_determinant(matrix, &determinant) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(fabs(determinant - 10.0) < 1e-12);
+    }
+    assert(numerus_matrix_solve(matrix, rhs, &first) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_inverse(matrix, &second) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get(first, 0, 0, &a) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get(first, 1, 0, &b) == NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(a - 0.1) < 1e-12);
+    assert(fabs(b - 0.6) < 1e-12);
+
+    numerus_matrix_destroy(matrix);
+    assert(numerus_matrix_get(first, 0, 0, &a) == NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(a - 0.1) < 1e-12);
+    assert(numerus_matrix_get(second, 0, 0, &a) == NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(a - 0.3) < 1e-12);
+
+    numerus_matrix_destroy(first);
+    numerus_matrix_destroy(second);
+    numerus_matrix_destroy(rhs);
+}
+
 int main(void)
 {
+    test_lu_cache_reuse_and_source_lifetime();
     test_multiple_right_hand_sides();
     test_row_pivoting_and_errors();
     puts("Matrix linear solve tests passed.");
