@@ -62,7 +62,7 @@ Source: [CI benchmark run](https://github.com/ephpicman/Numerus/actions/runs/379
 These measurements show no useful speedup from the generic loop on structured
 operands; sparse reads are noticeably slower. They justify testing identity and
 zero fast paths, but not assuming diagonal or triangular shortcuts will win.
-The narrow identity/zero paths added next are guarded by exact structure checks
+The implemented identity/zero and sparse-right paths are guarded by exact structure checks
 and a finite, nonnegative operand precondition. Negative values, signed zero,
 NaN, and infinities retain the generic implementation's IEEE-754 behavior.
 
@@ -88,6 +88,32 @@ Hankel, Vandermonde, or Hilbert matrices as named concepts.
 This closes the scope review, not an implementation commitment. Revisit each
 constructor when a concrete consumer and tests can justify its API and Storage
 cost.
+
+## Results after guarded fast paths
+
+A later PHP 8.5 CI run measured the implemented paths with the same 64×64
+workloads, five samples of three products each. These are medians from one run;
+the dense×dense workload is the generic-loop reference in this same run.
+
+| Workload | Median seconds / 3 products | Median allocations | Median requested bytes |
+| --- | ---: | ---: | ---: |
+| Dense × dense (generic reference) | 0.012838 | 12 | 197,520 |
+| Dense × identity | 0.000355 | 12 | 197,520 |
+| Identity × dense | 0.000355 | 12 | 197,520 |
+| Dense × zero | 0.000247 | 12 | 197,520 |
+| Dense × sparse (row-compressed path) | 0.000645 | 21 | 202,152 |
+| Dense × diagonal (generic path) | 0.012137 | 12 | 197,520 |
+| Dense × upper triangular (generic path) | 0.013245 | 12 | 197,520 |
+
+Source: [CI benchmark run after specialization](https://github.com/ephpicman/Numerus/actions/runs/37988391181).
+
+Within this run, identity multiplication is about 36× faster than the dense
+reference, zero multiplication about 52× faster, and the sparse-right path
+about 20× faster. Sparse scratch allocation is only 4,632 bytes above the
+generic case after sizing temporary arrays to the actual nonzero count. These
+numbers validate the fast paths on this workload; they are not a universal
+performance guarantee. Diagonal and triangular multiplication remain generic
+because no comparably compelling specialized algorithm has been validated.
 
 ## Recommended sequence
 
