@@ -158,10 +158,10 @@ numerus_matrix_status numerus_matrix_inverse(
     status = (numerus_matrix_status) numerus_matrix_create_dense(
         size, size, values, inverse
     );
-    free(values);
     if (status == NUMERUS_MATRIX_SUCCESS) {
         numerus_matrix_store_inverse_cache(matrix, values);
     }
+    free(values);
     return status;
 
 failure:
