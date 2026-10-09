@@ -37,10 +37,13 @@ Manager.
 - Three 64×64 generic matrix multiplications for dense×dense, dense×identity,
   identity×dense, dense×zero, dense×diagonal, dense×upper-triangular, and
   dense×sparse operands. These establish comparison points before any
-  Storage-specific fast path is introduced.\n- Three 32×32 LU-based inverses and condition estimates. The inverse input is diagonally dominant to avoid benchmarking a singular matrix.\n- One maximum residual check, `max|A*A⁻¹-I|`, outside the timed interval.
+  Storage-specific fast path is introduced. Each workload runs five samples
+  of three multiplications and reports median, minimum, maximum, and median
+  allocation metrics.\n- Three 32×32 LU-based inverses and condition estimates. The inverse input is diagonally dominant to avoid benchmarking a singular matrix.\n- One maximum residual check, `max|A*A⁻¹-I|`, outside the timed interval.
 
 The source matrices are constructed before counters and timers are reset for
-each measured case. Read workloads perform full checked-coordinate scans;
+each measured case. Multiplication workloads use five samples and report the
+median and range to reduce the influence of a single noisy timing sample. Read workloads perform full checked-coordinate scans;
 operation workloads create and destroy each result inside the timed interval. Inverse residual validation is deliberately outside the timed interval.
 A volatile sink prevents the read results from being trivially discarded.
 
