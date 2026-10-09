@@ -131,6 +131,20 @@ Dimension addition is checked for `size_t` overflow. Incompatible dimensions
 return `NUMERUS_MATRIX_DIMENSION_MISMATCH`; overflow returns
 `NUMERUS_MATRIX_OVERFLOW`. Nested joins remain lazy.
 
+## Materialization
+
+`numerus_matrix_materialize(source, &result)` copies the logical values exposed
+by any Matrix node into a new dense, Storage-backed Matrix. It supports roots,
+nested coordinate/value views, joins, and lazy binary arithmetic nodes. The
+result owns its Storage and does not retain the source or its parents.
+
+The operation checks both element-count and byte-count arithmetic before
+allocation. It reads through the checked getter and propagates callback/parent
+errors. If allocation or any read fails, the temporary buffer is released and
+the output pointer remains NULL; a partially populated result is never
+published. Materialization has O(rows × columns) time and O(rows × columns)
+temporary memory, in addition to the independent dense result Storage.
+
 ## Element-wise addition and subtraction
 
 `numerus_matrix_create_add()`, `numerus_matrix_create_subtract()`,
@@ -243,10 +257,10 @@ determinism requirements.
 
 The native Matrix tests cover storage-backed constructors, orientation
 transforms, row/column removal and swaps, composed views, lazy scalar
-multiplication and negation, element-wise addition/subtraction, Hadamard
-products, division edge cases, callback error propagation, joins, dimension
-mismatch and overflow handling, cached structural flags, determinant
-calculations, and output-value preservation after failures.
+multiplication and negation, element-wise arithmetic, materialization of nested
+views/joins/binary nodes, callback error propagation, dimension mismatch and
+overflow handling, cached structural flags, determinant calculations, and
+output-value preservation after failures.
 
 Run them from the repository root:
 
@@ -280,6 +294,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_division_test tests/matrix_division_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c
 ./tests/matrix_division_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_materialize_test tests/matrix_materialize_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_storage.c
+./tests/matrix_materialize_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds

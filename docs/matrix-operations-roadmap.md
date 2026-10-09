@@ -98,7 +98,7 @@ Exit criteria: documented contracts, robust size checks, reusable tests, and a d
 - [x] 1.1 Scalar multiplication and unary negation. Return a lazy value-transform view when safe; preserve dimensions and parent lifetime. (Merged in PR #13.)
 - [x] 1.2 Element-wise addition and subtraction. Require equal dimensions. Use a safe two-parent elementwise node if needed; do not hide parent pointers in a fragile borrowed callback context. (Merged in PR #14.)
 - [x] 1.3 Hadamard product. Element-wise multiplication with equal-dimension validation. (Merged in PR #15.)
-- [ ] 1.4 Element-wise division. Define division-by-zero and non-finite behavior before implementation; do not silently invent a rule.
+- [x] 1.4 Element-wise division. Define division-by-zero and non-finite behavior before implementation; do not silently invent a rule. IEEE-754 infinities/NaN are successful numeric results, not status errors. (Merged in PR #16.)
 - [ ] 1.5 Materialization API. Copy any logical Matrix (including nested views/joins) into independent Storage. Check allocation overflow and callback errors.
 - [ ] 1.6 Matrix multiplication. Validate inner dimensions and overflow. Default to materializing the result because a naive lazy getter repeats each dot product on every read; benchmark dense and specialized inputs before adding optimized paths.
 - [ ] 1.7 Scalar division. Reject a zero divisor according to the documented numeric contract.
