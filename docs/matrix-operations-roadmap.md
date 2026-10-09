@@ -141,9 +141,9 @@ Exit criteria: documented semantics for NaN/infinity and approximate predicates;
 
 # Phase 4 — Determinant, rank, and foundational elimination
 
-- [ ] 4.1 Determinant contract and edge cases. Preserve existing behavior and tests; add singular, pivoting, triangular, zero, identity, small/large-scale, and near-singular cases. (Regression coverage proposed; merge pending.)
-- [ ] 4.2 Factorization infrastructure. Design reusable internal work buffers and pivot arrays without exposing mutable matrix data.
-- [ ] 4.3 LU with partial pivoting. Use an internal factorization/result structure with explicit permutation and lifetime rules. Test reconstruction PA ≈ LU.
+- [x] 4.1 Determinant contract and edge cases. Singular, pivoting, triangular, zero, identity, small/large-scale, and near-singular cases are covered. (Merged in PR #40.) (Regression coverage proposed; merge pending.)
+- [ ] 4.2 Factorization infrastructure. Design reusable internal work buffers and pivot arrays without exposing mutable matrix data. (Implemented with LU in PR; merge pending.)
+- [ ] 4.3 LU with partial pivoting. Use an internal factorization/result structure with explicit permutation and lifetime rules. Test reconstruction PA ≈ LU. (Implemented in PR; merge pending.)
 - [ ] 4.4 Reuse LU for determinant. Use LU when it improves reuse/clarity, retaining specialized paths when demonstrably better.
 - [ ] 4.5 Numerical rank. Implement via stable factorization/QR or SVD with scale-aware threshold semantics. Do not equate fixed absolute epsilon with numerical rank.
 - [ ] 4.6 REF and RREF. Use independent work buffers; document pivot tolerance and result representation. Materialize the result.
