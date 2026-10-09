@@ -39,7 +39,8 @@ Manager.
   dense×sparse operands. These establish comparison points before any
   Storage-specific fast path is introduced. Each workload runs five samples
   of three multiplications and reports median, minimum, maximum, and median
-  allocation metrics.\n- Three 32×32 LU-based inverses and condition estimates. The inverse input is diagonally dominant to avoid benchmarking a singular matrix.\n- One maximum residual check, `max|A*A⁻¹-I|`, outside the timed interval.
+  allocation metrics.\n- Three 32×32 LU-based inverses and condition estimates. The inverse input is diagonally dominant to avoid benchmarking a singular matrix.
+- 128 first-use versus repeated-use reads for cached structural flags and determinants. Independent matrices are prepared outside the timed interval for cache-miss measurements; repeated calls use one already-computed Matrix for cache-hit measurements.\n- One maximum residual check, `max|A*A⁻¹-I|`, outside the timed interval.
 
 The source matrices are constructed before counters and timers are reset for
 each measured case. Multiplication workloads use five samples and report the
