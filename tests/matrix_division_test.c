@@ -7,7 +7,7 @@
 static void test_ieee754_elementwise_division(void)
 {
     const double numerator_values[] = {1.0, -1.0, 0.0, INFINITY, NAN, 8.0};
-    const double denominator_values[] = {0.0, -0.0, 0.0, INFINITY, 2.0, 2.0};
+    const double denominator_values[] = {0.0, 0.0, -0.0, INFINITY, 2.0, 2.0};
     numerus_matrix *numerator = NULL;
     numerus_matrix *denominator = NULL;
     numerus_matrix *quotient = NULL;
@@ -20,7 +20,7 @@ static void test_ieee754_elementwise_division(void)
     assert(numerus_matrix_create_divide(numerator, denominator, &quotient) ==
         NUMERUS_MATRIX_SUCCESS);
 
-    /* Division by signed zero is a numeric result, not a status error. */
+    /* Division by zero is a numeric result, not a status error. */
     assert(numerus_matrix_get(quotient, 0, 0, &value) ==
         NUMERUS_MATRIX_SUCCESS);
     assert(isinf(value) && value > 0.0);
