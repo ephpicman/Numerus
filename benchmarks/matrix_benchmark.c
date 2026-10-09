@@ -1,6 +1,7 @@
 #include "../numerus_matrix.h"
 
-#include <math.h>\n#include <stdint.h>
+#include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -440,7 +441,10 @@ int main(void)
     benchmark_reads("binary view read", sum, READ_ITERATIONS);
     benchmark_scale_view_creation(dense, 1000);
     benchmark_materialize(transpose, OPERATION_ITERATIONS);
-    benchmark_multiplication(small, small, OPERATION_ITERATIONS);\n    benchmark_inverse(small, OPERATION_ITERATIONS);\n    benchmark_condition_estimate(small, OPERATION_ITERATIONS);\n    verify_inverse_residual(small);
+    benchmark_multiplication(small, small, OPERATION_ITERATIONS);
+    benchmark_inverse(small, OPERATION_ITERATIONS);
+    benchmark_condition_estimate(small, OPERATION_ITERATIONS);
+    verify_inverse_residual(small);
 
     numerus_matrix_destroy(small);
     numerus_matrix_destroy(sum);
