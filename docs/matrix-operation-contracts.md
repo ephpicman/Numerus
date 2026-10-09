@@ -98,3 +98,16 @@ inverses are returned normally but are not retained. This bounds each entry,
 though total cache memory still scales with the number of eligible Matrix
 instances. Use the benchmark's cold-vs-hit comparison when deciding whether to
 keep or revise this policy.
+
+
+## LU factorization cache
+
+A Matrix may retain one LU factorization for reuse by determinant, inverse, and
+solve operations. LU factorization storage is reference-counted: the source
+Matrix owns one reference, while each active operation owns its own reference.
+The factorization contains only packed numeric values and a permutation, never
+a pointer to the source Matrix. Cache entries are retained only when the packed
+values plus permutation fit within the same 64 KiB per-entry payload limit.
+Allocation or retention failure skips caching rather than failing the numerical
+operation. As with other lazy caches, concurrent cache population is not
+thread-safe.

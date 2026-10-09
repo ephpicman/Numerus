@@ -6,6 +6,7 @@
 #define NUMERUS_MATRIX_INTERNAL_H
 
 #include "numerus_matrix.h"
+#include "numerus_matrix_lu.h"
 
 typedef enum {
     NUMERUS_MATRIX_SELECTION_NONE = 0,
@@ -20,6 +21,24 @@ typedef enum {
     NUMERUS_MATRIX_BINARY_HADAMARD,
     NUMERUS_MATRIX_BINARY_DIVIDE
 } numerus_matrix_binary_operation;
+
+/** Obtain a retained LU factorization, computing and caching it on a miss. */
+numerus_matrix_status numerus_matrix_get_or_factorize_lu(
+    const numerus_matrix *matrix,
+    numerus_matrix_lu_factorization **factorization
+);
+
+/** Internal LU-cache lookup; a successful miss returns *factorization == NULL. */
+numerus_matrix_status numerus_matrix_get_cached_lu(
+    const numerus_matrix *matrix,
+    numerus_matrix_lu_factorization **factorization
+);
+
+/** Retain an eligible LU factorization in the source Matrix, if possible. */
+void numerus_matrix_store_lu_cache(
+    const numerus_matrix *matrix,
+    numerus_matrix_lu_factorization *factorization
+);
 
 /** Internal inverse-cache lookup; a successful miss returns *inverse == NULL. */
 numerus_matrix_status numerus_matrix_get_cached_inverse(

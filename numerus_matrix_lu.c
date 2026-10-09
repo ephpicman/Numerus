@@ -21,13 +21,32 @@ struct numerus_matrix_lu_factorization {
     size_t *permutation;
     double *values;
     int permutation_sign;
+    size_t reference_count;
 };
+
+numerus_matrix_status numerus_matrix_lu_retain(
+    numerus_matrix_lu_factorization *factorization
+)
+{
+    if (factorization == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    if (factorization->reference_count == SIZE_MAX) {
+        return NUMERUS_MATRIX_OVERFLOW;
+    }
+    factorization->reference_count++;
+    return NUMERUS_MATRIX_SUCCESS;
+}
 
 void numerus_matrix_lu_destroy(
     numerus_matrix_lu_factorization *factorization
 )
 {
     if (factorization == NULL) {
+        return;
+    }
+    if (factorization->reference_count > 1) {
+        factorization->reference_count--;
         return;
     }
 
@@ -74,6 +93,7 @@ numerus_matrix_status numerus_matrix_lu_factorize(
     }
     result->size = size;
     result->rank = 0;
+    result->reference_count = 1;
     result->permutation = NULL;
     result->values = NULL;
     result->permutation_sign = 1;
