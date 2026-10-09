@@ -51,6 +51,18 @@ typedef enum {
     NUMERUS_MATRIX_NO_CONVERGENCE
 } numerus_matrix_status;
 
+typedef enum {
+    NUMERUS_MATRIX_NORMALIZE_WHOLE = 0,
+    NUMERUS_MATRIX_NORMALIZE_ROWS,
+    NUMERUS_MATRIX_NORMALIZE_COLUMNS
+} numerus_matrix_normalize_axis;
+
+typedef enum {
+    NUMERUS_MATRIX_NORMALIZE_L1 = 0,
+    NUMERUS_MATRIX_NORMALIZE_L2,
+    NUMERUS_MATRIX_NORMALIZE_INFINITY
+} numerus_matrix_normalize_norm;
+
 /**
  * Numerical classification of the solutions to A X = B.
  */
