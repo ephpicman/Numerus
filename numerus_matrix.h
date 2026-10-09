@@ -400,6 +400,23 @@ int numerus_matrix_create_clamp(
 );
 
 /**
+ * Create a lazy map view. Callback and context must remain deterministic and
+ * logically unchanged for the view lifetime; parent is borrowed and must live.
+ */
+int numerus_matrix_create_map(
+    const numerus_matrix *parent, numerus_value_transform_fn transform,
+    const void *context, numerus_matrix **matrix
+);
+/**
+ * Eagerly apply a deterministic callback into independent dense Storage.
+ * Callback context is borrowed for the duration of this call only.
+ */
+int numerus_matrix_apply(
+    const numerus_matrix *source, numerus_value_transform_fn transform,
+    const void *context, numerus_matrix **matrix
+);
+
+/**
  * Materialize the logical values of a Matrix into independent dense Storage.
  *
  * Works for roots, nested views, joins, and binary arithmetic nodes. The result
