@@ -33,6 +33,14 @@ int numerus_matrix_create_binary_view(
     numerus_matrix **matrix
 );
 
+/** Private checked constructor for a row-major reshape view. */
+int numerus_matrix_create_reshape_view(
+    numerus_matrix *parent,
+    size_t rows,
+    size_t columns,
+    numerus_matrix **matrix
+);
+
 /** Private checked constructor for a lazy index-selection view. */
 int numerus_matrix_create_selection_view(
     numerus_matrix *parent,
