@@ -457,12 +457,22 @@ dense 1×columns Matrix. These functions materialize their small output vectors
 and propagate parent read errors; on failure the output Matrix pointer remains
 NULL.
 
+## Matrix norms
+
+`numerus_matrix_frobenius_norm()` uses a scaled sum-of-squares algorithm to
+avoid avoidable intermediate overflow and underflow. The induced 1-norm is the
+maximum absolute column sum; the induced infinity-norm is the maximum absolute
+row sum. All three propagate NaN if any element is NaN, return infinity when
+appropriate, and leave the scalar output unchanged if an element read fails.
+A mathematically finite Frobenius norm can still overflow if the true result
+exceeds the representable `double` range.
+
 ## Native tests
 
 The native Matrix tests cover storage-backed constructors, orientation
 transforms, row/column removal and swaps, composed views, lazy scalar
 multiplication, powers, Kronecker products, range slices, indexed row/column
-selection, reshape/flatten, padding, repetition, block-diagonal, and block-grid, diagonal, permutation views, trace and aggregate analysis, scalar division, equality, vector constructors,
+selection, reshape/flatten, padding, repetition, block-diagonal, and block-grid, diagonal, permutation views, trace, aggregate, and norm analysis, scalar division, equality, vector constructors,
 element-wise arithmetic, materialization, and overflow/read-failure handling.
 
 Run them from the repository root:
@@ -591,14 +601,20 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_trace_test tests/matrix_trace_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c
+  -o tests/matrix_trace_test tests/matrix_trace_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm
 ./tests/matrix_trace_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_aggregate_test tests/matrix_aggregate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c
+  -o tests/matrix_aggregate_test tests/matrix_aggregate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm
 ./tests/matrix_aggregate_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_norm_test tests/matrix_norm_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm
+./tests/matrix_norm_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds
