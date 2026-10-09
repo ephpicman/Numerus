@@ -163,7 +163,14 @@ static void test_signed_power(void)
     power = NULL;
     assert(numerus_matrix_multiply(base, inverse_once, &product) ==
         NUMERUS_MATRIX_SUCCESS);
-    assert_2x2(product, 1, 0, 0, 1);
+    assert(numerus_matrix_get(product, 0, 0, &value) == NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value - 1.0) < 1e-12);
+    assert(numerus_matrix_get(product, 0, 1, &value) == NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value) < 1e-12);
+    assert(numerus_matrix_get(product, 1, 0, &value) == NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value) < 1e-12);
+    assert(numerus_matrix_get(product, 1, 1, &value) == NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value - 1.0) < 1e-12);
     numerus_matrix_destroy(product);
     product = NULL;
 
