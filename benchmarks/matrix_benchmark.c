@@ -203,7 +203,6 @@ static void benchmark_multiplication(
     );
 }
 
-
 static void benchmark_inverse(
     const numerus_matrix *matrix,
     size_t iterations
@@ -223,12 +222,12 @@ static void benchmark_inverse(
         int status = numerus_matrix_inverse(matrix, &inverse);
 
         if (status != NUMERUS_MATRIX_SUCCESS) {
-            fprintf(stderr, "inverse benchmark failed: %d\\n", status);
+            fprintf(stderr, "inverse benchmark failed: %d\n", status);
             exit(EXIT_FAILURE);
         }
         status = numerus_matrix_get(inverse, 0, 0, &value);
         if (status != NUMERUS_MATRIX_SUCCESS) {
-            fprintf(stderr, "inverse result read failed: %d\\n", status);
+            fprintf(stderr, "inverse result read failed: %d\n", status);
             numerus_matrix_destroy(inverse);
             exit(EXIT_FAILURE);
         }
@@ -260,7 +259,7 @@ static void benchmark_condition_estimate(
         );
 
         if (status != NUMERUS_MATRIX_SUCCESS) {
-            fprintf(stderr, "condition estimate benchmark failed: %d\\n", status);
+            fprintf(stderr, "condition estimate benchmark failed: %d\n", status);
             exit(EXIT_FAILURE);
         }
         benchmark_sink += condition_estimate;
@@ -281,7 +280,7 @@ static void verify_inverse_residual(const numerus_matrix *matrix)
     int status = numerus_matrix_inverse(matrix, &inverse);
 
     if (status != NUMERUS_MATRIX_SUCCESS) {
-        fprintf(stderr, "inverse residual check failed: %d\\n", status);
+        fprintf(stderr, "inverse residual check failed: %d\n", status);
         exit(EXIT_FAILURE);
     }
 
@@ -310,12 +309,12 @@ static void verify_inverse_residual(const numerus_matrix *matrix)
         }
     }
 
-    printf("LU inverse residual: max|A*A^-1-I|=%.6e\\n", maximum_residual);
+    printf("LU inverse residual: max|A*A^-1-I|=%.6e\n", maximum_residual);
     numerus_matrix_destroy(inverse);
     return;
 
 failure:
-    fprintf(stderr, "inverse residual read failed: %d\\n", status);
+    fprintf(stderr, "inverse residual read failed: %d\n", status);
     numerus_matrix_destroy(inverse);
     exit(EXIT_FAILURE);
 }
