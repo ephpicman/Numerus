@@ -158,9 +158,9 @@ Exit criteria: factorization reconstruction tests, numerical edge-case coverage,
 - [ ] 5.3 Inverse via Gauss–Jordan. Implement as a separate selectable algorithm only if it adds educational value or a measured trade-off; test independently.
 - [ ] 5.4 Reference/cofactor inverse for small matrices. Optional, primarily as a reference/test oracle for tiny matrices, not a default production algorithm. Do not present it as generally stable or fast.
 - [ ] 5.5 Cache inverse results. Choose a cache ownership design first: a retained immutable result with clear destruction, or a separate reusable factorization/result object. Never store a raw pointer to a Matrix whose lifetime is not owned. Bound memory and avoid cycles.
-- [ ] 5.6 Solve Ax=b. Support a matrix right-hand side so multiple right-hand sides can share one factorization. The solution is a Matrix; do not compute inverse times b as the default implementation. (Implementation proposed; merge pending.)
+- [x] 5.6 Solve Ax=b. Matrix RHS supports multiple columns sharing one LU factorization; no inverse-times-vector default path. (Merged in PR #46.)
 - [ ] 5.7 Reuse cached factorization. Share LU among determinant, inverse, and repeated solves only after a coherent factorization cache is designed and benchmarked.
-- [ ] 5.8 Condition estimate. Help users identify unreliable results; distinguish estimate from exact property.
+- [ ] 5.8 Condition estimate. Help users identify unreliable results; distinguish estimate from exact property. (One-norm estimate proposed; merge pending.)
 - [ ] 5.9 Inverse algorithm benchmarks. Compare LU-based inverse, Gauss–Jordan, and optional small-matrix path on time, allocations, residual norm, and ill-conditioned inputs. Do not choose solely by raw speed.
 
 Exit criteria: independent inverse Storage, explicit singular/error behavior, residual and stability tests, documented caching/lifetime policy.
