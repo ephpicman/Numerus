@@ -134,7 +134,7 @@ static void test_validation_overflow_and_read_failure(void)
     assert(numerus_matrix_create_repeat(
         failing, 2, 2, &repeated
     ) == NUMERUS_MATRIX_SUCCESS);
-    assert(numerus_matrix_get(repeated, 2, 0, &value) ==
+    assert(numerus_matrix_get(repeated, 3, 0, &value) ==
         NUMERUS_MATRIX_INVALID_ARGUMENT);
     assert(value == 1234.5);
 
