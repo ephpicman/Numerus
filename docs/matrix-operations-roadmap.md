@@ -170,8 +170,8 @@ Exit criteria: independent inverse Storage, explicit singular/error behavior, re
 - [x] 6.1 Null space basis. Column-pivoted Householder QR returns a numerical basis; NULL plus nullity=0 represents the trivial null space. (Merged in PR #51.)
 - [x] 6.2 Column-space and row-space bases. Column basis vectors are columns; row basis vectors are rows. Both use the documented scale-aware numerical-rank threshold. (Merged in PR #52.)
 - [x] 6.3 Consistency and solution classification. Pivoted QR and an RHS-relative residual distinguish inconsistent, unique, and infinitely many solutions. (Merged in PR #53.)
-- [ ] 6.4 Least-squares solve. Column-pivoted QR solves full-column-rank overdetermined and square systems without normal equations; rank-deficient/minimum-norm cases are deferred to SVD/pseudoinverse work. (Implementation proposed in PR #54; merge pending.)
-- [ ] 6.5 Weighted least squares. Add after the ordinary least-squares contract is stable.
+- [x] 6.4 Least-squares solve. Column-pivoted QR solves full-column-rank overdetermined and square systems without normal equations; rank-deficient/minimum-norm cases are deferred to SVD/pseudoinverse work. (Merged in PR #54.)
+- [ ] 6.5 Weighted least squares. Finite nonnegative weights are applied by row scaling with sqrt(weight), then solved by pivoted QR. (Implementation proposed in PR #55; merge pending.)
 - [ ] 6.6 Moore–Penrose pseudoinverse. Prefer SVD-based implementation and test all four Moore–Penrose conditions within a documented tolerance.
 
 Exit criteria: rectangular and rank-deficient test suites; residual-based validation; documented numerical thresholds.

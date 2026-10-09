@@ -357,6 +357,21 @@ It returns `NUMERUS_MATRIX_NOT_SQUARE` for non-square (A),
 `NUMERUS_MATRIX_NON_FINITE` for non-finite inputs or intermediates. On
 failure, the output pointer remains NULL.
 
+## Weighted least-squares solve
+
+`numerus_matrix_weighted_least_squares(A, B, weights, count, &X)` minimizes
+the weighted squared residual sum. The weight count must equal rows(A), and
+each weight must be finite and nonnegative. Zero-weight rows are excluded by
+multiplying each row of A and B by sqrt(weight); the resulting problem is
+solved by the same pivoted-QR least-squares path. This avoids normal equations.
+
+The current implementation materializes the scaled inputs, so temporary
+memory is O(m*n + m*p) for m rows, n coefficients, and p RHS columns. If the
+weighted design matrix loses numerical column rank, the call returns
+`NUMERUS_MATRIX_RANK_DEFICIENT`. Invalid negative weights, non-finite values,
+and source read failures return explicit statuses; on failure, the output
+pointer remains NULL.
+
 ## Least-squares solve
 
 `numerus_matrix_least_squares(A, B, &X)` computes a minimizer of
@@ -919,6 +934,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_least_squares_test tests/matrix_least_squares_test.c numerus_matrix_least_squares.c numerus_matrix_qr.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
 ./tests/matrix_least_squares_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_weighted_least_squares_test tests/matrix_weighted_least_squares_test.c numerus_matrix_weighted_least_squares.c numerus_matrix_least_squares.c numerus_matrix_qr.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+./tests/matrix_weighted_least_squares_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \

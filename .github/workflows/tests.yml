@@ -210,6 +210,14 @@ jobs:
             -o tests/matrix_permutation_test tests/matrix_permutation_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_permutation_test
 
+      - name: Run native Matrix weighted least-squares tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_weighted_least_squares_test tests/matrix_weighted_least_squares_test.c numerus_matrix_weighted_least_squares.c numerus_matrix_least_squares.c numerus_matrix_qr.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+          ./tests/matrix_weighted_least_squares_test
+
       - name: Run native Matrix least-squares tests
         run: |
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
