@@ -1,0 +1,96 @@
+#include "../numerus_matrix.h"
+
+#include <assert.h>
+#include <math.h>
+#include <stdio.h>
+
+static int matrix_value_equals(
+    const numerus_matrix *matrix,
+    size_t row,
+    size_t column,
+    double expected
+)
+{
+    double actual = 0.0;
+
+    return numerus_matrix_get(
+        matrix, row, column, &actual
+    ) == NUMERUS_MATRIX_SUCCESS && actual == expected;
+}
+
+static void test_scalar_multiplication_and_negation_views(void)
+{
+    const double source[] = {1.5, -2.0, 0.0, 4.0, NAN, INFINITY};
+    const double scaled[] = {3.0, -4.0, 0.0, 8.0, NAN, INFINITY};
+    const double negated[] = {-1.5, 2.0, -0.0, -4.0, NAN, -INFINITY};
+    numerus_matrix *root = NULL;
+    numerus_matrix *scaled_view = NULL;
+    numerus_matrix *negated_view = NULL;
+    numerus_matrix *nested = NULL;
+    double value = 123.0;
+
+    assert(numerus_matrix_create_dense(2, 3, source, &root) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    assert(numerus_matrix_create_scale(root, 2.0, &scaled_view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(matrix_value_equals(scaled_view, 0, 0, scaled[0]));
+    assert(matrix_value_equals(scaled_view, 0, 1, scaled[1]));
+    assert(matrix_value_equals(scaled_view, 0, 2, scaled[2]));
+    assert(matrix_value_equals(scaled_view, 1, 0, scaled[3]));
+    assert(numerus_matrix_get(scaled_view, 1, 1, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(isnan(value));
+    assert(numerus_matrix_get(scaled_view, 1, 2, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(isinf(value) && value > 0.0);
+    assert(matrix_value_equals(root, 0, 0, 1.5));
+    assert(matrix_value_equals(root, 1, 0, 4.0));
+
+    assert(numerus_matrix_create_negate(root, &negated_view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(matrix_value_equals(negated_view, 0, 0, negated[0]));
+    assert(matrix_value_equals(negated_view, 0, 1, negated[1]));
+    assert(matrix_value_equals(negated_view, 0, 2, negated[2]));
+    assert(matrix_value_equals(negated_view, 1, 0, negated[3]));
+    assert(numerus_matrix_get(negated_view, 1, 1, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(isnan(value));
+    assert(numerus_matrix_get(negated_view, 1, 2, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(isinf(value) && value < 0.0);
+    assert(matrix_value_equals(root, 0, 1, -2.0));
+
+    /* Nested lazy transforms compose without materializing or borrowing stack data. */
+    assert(numerus_matrix_create_scale(scaled_view, 0.5, &nested) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(matrix_value_equals(nested, 0, 0, 1.5));
+    assert(matrix_value_equals(nested, 1, 0, 4.0));
+    assert(numerus_matrix_get(nested, 1, 1, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(isnan(value));
+
+    numerus_matrix_destroy(nested);
+    numerus_matrix_destroy(negated_view);
+    numerus_matrix_destroy(scaled_view);
+    numerus_matrix_destroy(root);
+
+    scaled_view = root;
+    assert(numerus_matrix_create_scale(NULL, 2.0, &scaled_view) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(scaled_view == NULL);
+    assert(numerus_matrix_create_negate(NULL, &scaled_view) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(scaled_view == NULL);
+    assert(numerus_matrix_create_scale(NULL, 2.0, NULL) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+}
+
+
+
+int main(void)
+{
+    test_scalar_multiplication_and_negation_views();
+    puts("Matrix unary operation tests passed.");
+    return 0;
+}
