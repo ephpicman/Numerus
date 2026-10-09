@@ -317,6 +317,14 @@ jobs:
             -o tests/matrix_spectral_test tests/matrix_spectral_test.c numerus_matrix_spectral.c numerus_matrix_svd.c numerus_matrix_symmetric_eigen.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
           ./tests/matrix_spectral_test
 
+      - name: Run native Matrix symmetric function tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_symmetric_functions_test tests/matrix_symmetric_functions_test.c numerus_matrix_symmetric_functions.c numerus_matrix_symmetric_eigen.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+          ./tests/matrix_symmetric_functions_test
+
       - name: Run native Matrix symmetric eigen tests
         run: |
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
