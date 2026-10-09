@@ -273,3 +273,139 @@ numerus_matrix_status numerus_matrix_column_means(
 {
     return matrix_axis_aggregates(matrix, false, true, means);
 }
+
+numerus_matrix_status numerus_matrix_frobenius_norm(
+    const numerus_matrix *matrix,
+    double *norm
+)
+{
+    double scale = 0.0;
+    double sum_squares = 1.0;
+    bool saw_nan = false;
+    bool saw_infinity = false;
+    size_t row;
+    size_t column;
+
+    if (matrix == NULL || norm == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    for (row = 0; row < numerus_matrix_rows(matrix); row++) {
+        for (column = 0; column < numerus_matrix_columns(matrix); column++) {
+            double value;
+            double absolute_value;
+            double ratio;
+            numerus_matrix_status status = numerus_matrix_get(
+                matrix, row, column, &value
+            );
+
+            if (status != NUMERUS_MATRIX_SUCCESS) {
+                return status;
+            }
+
+            absolute_value = fabs(value);
+            if (isnan(absolute_value)) {
+                saw_nan = true;
+                continue;
+            }
+            if (isinf(absolute_value)) {
+                saw_infinity = true;
+                continue;
+            }
+            if (absolute_value == 0.0) {
+                continue;
+            }
+
+            if (scale < absolute_value) {
+                ratio = scale / absolute_value;
+                sum_squares = 1.0 + sum_squares * ratio * ratio;
+                scale = absolute_value;
+            } else {
+                ratio = absolute_value / scale;
+                sum_squares += ratio * ratio;
+            }
+        }
+    }
+
+    if (saw_nan) {
+        *norm = NAN;
+    } else if (saw_infinity) {
+        *norm = INFINITY;
+    } else if (scale == 0.0) {
+        *norm = 0.0;
+    } else {
+        *norm = scale * sqrt(sum_squares);
+    }
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status matrix_induced_norm(
+    const numerus_matrix *matrix,
+    bool by_columns,
+    double *norm
+)
+{
+    double maximum_sum = 0.0;
+    bool saw_nan = false;
+    size_t outer_count;
+    size_t inner_count;
+    size_t outer;
+    size_t inner;
+
+    if (matrix == NULL || norm == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    outer_count = by_columns
+        ? numerus_matrix_columns(matrix)
+        : numerus_matrix_rows(matrix);
+    inner_count = by_columns
+        ? numerus_matrix_rows(matrix)
+        : numerus_matrix_columns(matrix);
+
+    for (outer = 0; outer < outer_count; outer++) {
+        double sum = 0.0;
+
+        for (inner = 0; inner < inner_count; inner++) {
+            size_t row = by_columns ? inner : outer;
+            size_t column = by_columns ? outer : inner;
+            double value;
+            numerus_matrix_status status = numerus_matrix_get(
+                matrix, row, column, &value
+            );
+
+            if (status != NUMERUS_MATRIX_SUCCESS) {
+                return status;
+            }
+
+            if (isnan(value)) {
+                saw_nan = true;
+            }
+            sum += fabs(value);
+        }
+
+        if (sum > maximum_sum) {
+            maximum_sum = sum;
+        }
+    }
+
+    *norm = saw_nan ? NAN : maximum_sum;
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+numerus_matrix_status numerus_matrix_one_norm(
+    const numerus_matrix *matrix,
+    double *norm
+)
+{
+    return matrix_induced_norm(matrix, true, norm);
+}
+
+numerus_matrix_status numerus_matrix_infinity_norm(
+    const numerus_matrix *matrix,
+    double *norm
+)
+{
+    return matrix_induced_norm(matrix, false, norm);
+}
