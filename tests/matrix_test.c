@@ -873,15 +873,30 @@ static void test_cached_analysis(void)
     const double upper[] = {2, 3, 4};
     const double singular[] = {1, 2, 2, 4};
     numerus_matrix *matrix = NULL;
-    unsigned int flags = 0;
+    numerus_matrix_flags flags = {0};
     double determinant = 123.0;
 
     assert(numerus_matrix_create_dense(2, 2, general, &matrix) == NUMERUS_MATRIX_SUCCESS);
     assert(numerus_matrix_get_flags(matrix, &flags) == NUMERUS_MATRIX_SUCCESS);
-    assert(flags & NUMERUS_MATRIX_FLAG_SQUARE);
-    assert(!(flags & NUMERUS_MATRIX_FLAG_ZERO));
-    assert(!(flags & NUMERUS_MATRIX_FLAG_DIAGONAL));
-    assert(!(flags & NUMERUS_MATRIX_FLAG_SYMMETRIC));
+    assert(flags.square);
+    assert(!flags.zero);
+    assert(!flags.diagonal);
+    assert(!flags.symmetric);
+    assert(!flags.upper_triangular);
+    assert(!flags.lower_triangular);
+    assert(!flags.identity);
+    /* A second read must return the same cached property set. */
+    {
+        numerus_matrix_flags cached = {0};
+        assert(numerus_matrix_get_flags(matrix, &cached) == NUMERUS_MATRIX_SUCCESS);
+        assert(cached.square == flags.square);
+        assert(cached.zero == flags.zero);
+        assert(cached.diagonal == flags.diagonal);
+        assert(cached.upper_triangular == flags.upper_triangular);
+        assert(cached.lower_triangular == flags.lower_triangular);
+        assert(cached.symmetric == flags.symmetric);
+        assert(cached.identity == flags.identity);
+    }
     assert(numerus_matrix_determinant(matrix, &determinant) == NUMERUS_MATRIX_SUCCESS);
     assert(determinant == -2.0);
     determinant = 0.0;
@@ -891,33 +906,49 @@ static void test_cached_analysis(void)
 
     assert(numerus_matrix_create_dense(2, 2, symmetric, &matrix) == NUMERUS_MATRIX_SUCCESS);
     assert(numerus_matrix_get_flags(matrix, &flags) == NUMERUS_MATRIX_SUCCESS);
-    assert(flags & NUMERUS_MATRIX_FLAG_SYMMETRIC);
+    assert(flags.symmetric);
+    assert(!flags.zero);
+    assert(!flags.diagonal);
+    assert(!flags.upper_triangular);
+    assert(!flags.lower_triangular);
+    assert(!flags.identity);
     assert(numerus_matrix_determinant(matrix, &determinant) == NUMERUS_MATRIX_SUCCESS);
     assert(determinant == -3.0);
     numerus_matrix_destroy(matrix);
 
     assert(numerus_matrix_create_upper_triangular(2, upper, &matrix) == NUMERUS_MATRIX_SUCCESS);
     assert(numerus_matrix_get_flags(matrix, &flags) == NUMERUS_MATRIX_SUCCESS);
-    assert(flags & NUMERUS_MATRIX_FLAG_UPPER_TRIANGULAR);
-    assert(!(flags & NUMERUS_MATRIX_FLAG_LOWER_TRIANGULAR));
+    assert(flags.upper_triangular);
+    assert(!flags.lower_triangular);
+    assert(!flags.zero);
+    assert(!flags.diagonal);
+    assert(!flags.symmetric);
+    assert(!flags.identity);
     assert(numerus_matrix_determinant(matrix, &determinant) == NUMERUS_MATRIX_SUCCESS);
     assert(determinant == 8.0);
     numerus_matrix_destroy(matrix);
 
     assert(numerus_matrix_create_zero(2, 2, &matrix) == NUMERUS_MATRIX_SUCCESS);
     assert(numerus_matrix_get_flags(matrix, &flags) == NUMERUS_MATRIX_SUCCESS);
-    assert(flags & NUMERUS_MATRIX_FLAG_ZERO);
-    assert(flags & NUMERUS_MATRIX_FLAG_DIAGONAL);
-    assert(flags & NUMERUS_MATRIX_FLAG_UPPER_TRIANGULAR);
-    assert(flags & NUMERUS_MATRIX_FLAG_LOWER_TRIANGULAR);
-    assert(flags & NUMERUS_MATRIX_FLAG_SYMMETRIC);
+    assert(flags.zero);
+    assert(flags.diagonal);
+    assert(flags.upper_triangular);
+    assert(flags.lower_triangular);
+    assert(flags.symmetric);
+    assert(!flags.identity);
     assert(numerus_matrix_determinant(matrix, &determinant) == NUMERUS_MATRIX_SUCCESS);
     assert(determinant == 0.0);
     numerus_matrix_destroy(matrix);
 
     assert(numerus_matrix_create_identity(3, &matrix) == NUMERUS_MATRIX_SUCCESS);
     assert(numerus_matrix_get_flags(matrix, &flags) == NUMERUS_MATRIX_SUCCESS);
-    assert(flags & NUMERUS_MATRIX_FLAG_IDENTITY);
+    assert(flags.identity);
+    assert(flags.square);
+    assert(flags.diagonal);
+    assert(flags.upper_triangular);
+    assert(flags.lower_triangular);
+    assert(flags.symmetric);
+    assert(!flags.zero);
     assert(numerus_matrix_determinant(matrix, &determinant) == NUMERUS_MATRIX_SUCCESS);
     assert(determinant == 1.0);
     numerus_matrix_destroy(matrix);
@@ -941,7 +972,7 @@ static void test_cached_analysis(void)
         const double one_value[] = {7};
         numerus_matrix *root = NULL;
         numerus_matrix *failing = NULL;
-        unsigned int original_flags = 123u;
+        numerus_matrix_flags original_flags = {.square = true};
 
         assert(numerus_matrix_create_dense(1, 1, one_value, &root) ==
             NUMERUS_MATRIX_SUCCESS);
@@ -950,7 +981,7 @@ static void test_cached_analysis(void)
         ) == NUMERUS_MATRIX_SUCCESS);
         assert(numerus_matrix_get_flags(failing, &original_flags) ==
             NUMERUS_MATRIX_INVALID_ARGUMENT);
-        assert(original_flags == 123u);
+        assert(original_flags.square);
         determinant = 123.0;
         assert(numerus_matrix_determinant(failing, &determinant) ==
             NUMERUS_MATRIX_INVALID_ARGUMENT);
@@ -986,9 +1017,26 @@ static void test_cached_analysis(void)
         numerus_matrix_destroy(matrix);
     }
 
-    flags = 123u;
+    {
+        numerus_matrix_flags rectangular_flags = {0};
+
+        assert(numerus_matrix_create_zero(2, 3, &matrix) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(numerus_matrix_get_flags(matrix, &rectangular_flags) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(!rectangular_flags.square);
+        assert(rectangular_flags.zero);
+        assert(!rectangular_flags.diagonal);
+        assert(!rectangular_flags.upper_triangular);
+        assert(!rectangular_flags.lower_triangular);
+        assert(!rectangular_flags.symmetric);
+        assert(!rectangular_flags.identity);
+        numerus_matrix_destroy(matrix);
+    }
+
+    flags = (numerus_matrix_flags) {.square = true};
     assert(numerus_matrix_get_flags(NULL, &flags) == NUMERUS_MATRIX_INVALID_ARGUMENT);
-    assert(flags == 123u);
+    assert(flags.square);
     assert(numerus_matrix_determinant(NULL, &determinant) == NUMERUS_MATRIX_INVALID_ARGUMENT);
 }
 
