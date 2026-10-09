@@ -48,6 +48,7 @@ struct numerus_matrix {
     int determinant_state;
     double cached_determinant;
     double *cached_inverse_values;
+    numerus_matrix_lu_factorization *cached_lu_factorization;
     double transform_scalar;
     size_t transform_row_offset;
     size_t transform_column_offset;
@@ -563,6 +564,7 @@ static int allocate_matrix(numerus_matrix **matrix)
     (*matrix)->determinant_state = 0;
     (*matrix)->cached_determinant = 0.0;
     (*matrix)->cached_inverse_values = NULL;
+    (*matrix)->cached_lu_factorization = NULL;
     (*matrix)->transform_scalar = 0.0;
     (*matrix)->transform_row_offset = 0;
     (*matrix)->transform_column_offset = 0;
@@ -2673,7 +2675,7 @@ numerus_matrix_status numerus_matrix_determinant(
         }
     }
 
-    status = numerus_matrix_lu_factorize(matrix, &factorization);
+    status = numerus_matrix_get_or_factorize_lu(matrix, &factorization);
     if (status != NUMERUS_MATRIX_SUCCESS) {
         matrix->determinant_state = 0;
         return status;
@@ -2796,6 +2798,92 @@ void numerus_matrix_store_inverse_cache(
     mutable_matrix->cached_inverse_values = copy;
 }
 
+numerus_matrix_status numerus_matrix_get_or_factorize_lu(
+    const numerus_matrix *matrix,
+    numerus_matrix_lu_factorization **factorization
+)
+{
+    numerus_matrix_status status;
+
+    if (factorization == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *factorization = NULL;
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    status = numerus_matrix_get_cached_lu(matrix, factorization);
+    if (status != NUMERUS_MATRIX_SUCCESS || *factorization != NULL) {
+        return status;
+    }
+
+    status = numerus_matrix_lu_factorize(matrix, factorization);
+    if (status == NUMERUS_MATRIX_SUCCESS) {
+        numerus_matrix_store_lu_cache(matrix, *factorization);
+    }
+    return status;
+}
+
+numerus_matrix_status numerus_matrix_get_cached_lu(
+    const numerus_matrix *matrix,
+    numerus_matrix_lu_factorization **factorization
+)
+{
+    numerus_matrix_status status;
+
+    if (factorization == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *factorization = NULL;
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    if (matrix->cached_lu_factorization == NULL) {
+        return NUMERUS_MATRIX_SUCCESS;
+    }
+
+    status = numerus_matrix_lu_retain(matrix->cached_lu_factorization);
+    if (status == NUMERUS_MATRIX_SUCCESS) {
+        *factorization = matrix->cached_lu_factorization;
+    }
+    return status;
+}
+
+void numerus_matrix_store_lu_cache(
+    const numerus_matrix *matrix,
+    numerus_matrix_lu_factorization *factorization
+)
+{
+    numerus_matrix *mutable_matrix;
+    size_t size;
+    size_t element_count;
+    size_t values_bytes;
+    size_t permutation_bytes;
+    size_t total_bytes;
+
+    if (matrix == NULL || factorization == NULL ||
+        matrix->rows != matrix->columns ||
+        !numerus_size_multiply(matrix->rows, matrix->columns, &element_count) ||
+        !numerus_size_multiply(element_count, sizeof(double), &values_bytes) ||
+        !numerus_size_multiply(matrix->rows, sizeof(size_t), &permutation_bytes) ||
+        !numerus_size_add(values_bytes, permutation_bytes, &total_bytes) ||
+        total_bytes > NUMERUS_MATRIX_INVERSE_CACHE_MAX_BYTES) {
+        return;
+    }
+
+    mutable_matrix = (numerus_matrix *) matrix;
+    if (mutable_matrix->cached_lu_factorization != NULL) {
+        return;
+    }
+    size = numerus_matrix_lu_size(factorization);
+    if (size != matrix->rows ||
+        numerus_matrix_lu_retain(factorization) != NUMERUS_MATRIX_SUCCESS) {
+        return;
+    }
+    mutable_matrix->cached_lu_factorization = factorization;
+}
+
 void numerus_matrix_destroy(numerus_matrix *matrix)
 {
     if (matrix == NULL) {
@@ -2806,6 +2894,7 @@ void numerus_matrix_destroy(numerus_matrix *matrix)
         numerus_storage_destroy(matrix->storage);
     }
 
+    numerus_matrix_lu_destroy(matrix->cached_lu_factorization);
     numerus_matrix_free(matrix->cached_inverse_values);
     numerus_matrix_free(matrix->selection_indices);
     numerus_matrix_free(matrix->block_matrices);
