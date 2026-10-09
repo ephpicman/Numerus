@@ -360,10 +360,10 @@ failure, the output pointer remains NULL.
 ## Reduced Householder QR decomposition
 
 `numerus_matrix_qr_decompose(A, &Q, &R)` computes a reduced Householder
-factorization with (A approx QR). If (m) is the row count, (n) the
-column count, and (k = min(m,n)), then (Q) has shape (m 	imes k) and
-(R) has shape (k 	imes n). The columns of (Q) are orthonormal within
-floating-point error; (R) is upper trapezoidal.
+factorization with A approximately equal to Q times R. If m is the row count,
+n the column count, and k = min(m, n), then Q has shape m-by-k and R has
+shape k-by-n. The columns of Q are orthonormal within floating-point error;
+R is upper trapezoidal.
 
 The implementation uses unpivoted Householder reflectors and materializes
 both outputs as independent dense Matrices. It supports tall, wide,
@@ -373,7 +373,7 @@ concerns. Non-finite inputs or intermediates return
 `NUMERUS_MATRIX_NON_FINITE`; source read failures propagate unchanged. Both
 output pointers are NULL on failure.
 
-The algorithm costs (O(mnk)) arithmetic and (O(mn + mk + kn)) temporary
+The algorithm costs O(m*n*k) arithmetic and O(m*n + m*k + k*n) temporary
 storage, in addition to the two output Matrices.
 
 ## Condition estimate
