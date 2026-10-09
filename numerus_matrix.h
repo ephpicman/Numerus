@@ -821,6 +821,21 @@ numerus_matrix_status numerus_matrix_reduced_row_echelon_form(
  * an estimate of numerical conditioning, not a proof of forward accuracy.
  * The output is unchanged on failure.
  */
+/**
+ * Compute a reduced Householder QR factorization A = Q R.
+ *
+ * Q has shape rows(A) × min(rows(A), columns(A)); R has shape
+ * min(rows(A), columns(A)) × columns(A). Q has orthonormal columns up to
+ * floating-point error. This is unpivoted QR and does not provide a
+ * rank-revealing permutation. Both outputs own independent dense Storage.
+ * On failure, both output pointers remain NULL.
+ */
+numerus_matrix_status numerus_matrix_qr_decompose(
+    const numerus_matrix *matrix,
+    numerus_matrix **q,
+    numerus_matrix **r
+);
+
 numerus_matrix_status numerus_matrix_condition_estimate_one(
     const numerus_matrix *matrix,
     double *condition_estimate
