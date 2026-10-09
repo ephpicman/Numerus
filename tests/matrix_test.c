@@ -1,4 +1,5 @@
 #include "../numerus_matrix.h"
+#include "../numerus_numeric.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -1048,6 +1049,53 @@ static void test_join_error_propagation_and_horizontal_overflow(void)
 }
 
 
+static void test_epsilon_comparisons(void)
+{
+    assert(numerus_double_equals(1.0, 1.0 + 5e-10));
+    assert(numerus_double_equals(1e12, 1e12 + 500.0));
+    assert(!numerus_double_equals(1.0, 1.0 + 2e-9));
+    assert(numerus_double_is_zero(5e-10));
+    assert(!numerus_double_is_zero(2e-9));
+    assert(numerus_double_is_one(1.0 + 5e-10));
+    assert(!numerus_double_is_one(1.0 + 2e-9));
+    assert(!numerus_double_equals(NAN, NAN));
+    assert(numerus_double_equals(INFINITY, INFINITY));
+    assert(!numerus_double_equals(INFINITY, -INFINITY));
+    assert(!numerus_double_is_zero(INFINITY));
+    assert(!numerus_double_is_one(NAN));
+}
+
+static void test_epsilon_matrix_flags(void)
+{
+    const double values[] = {
+        1.0 + 5e-10, 2.0,
+        2.0 + 5e-10, 5e-10
+    };
+    const double non_symmetric[] = {
+        1.0, 2.0,
+        2.0 + 2e-9, 1.0
+    };
+    numerus_matrix *matrix = NULL;
+    numerus_matrix_flags flags = {0};
+
+    assert(numerus_matrix_create_dense(2, 2, values, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get_flags(matrix, &flags) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(flags.symmetric);
+    assert(!flags.zero);
+    assert(!flags.diagonal);
+    assert(!flags.identity);
+    numerus_matrix_destroy(matrix);
+
+    assert(numerus_matrix_create_dense(2, 2, non_symmetric, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get_flags(matrix, &flags) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(!flags.symmetric);
+    numerus_matrix_destroy(matrix);
+}
+
 static void test_flag_cache_and_shared_symmetry_scan(void)
 {
     const double values[] = {
@@ -1284,6 +1332,8 @@ int main(void)
     test_validation();
     test_cached_analysis();
     test_flag_cache_and_shared_symmetry_scan();
+    test_epsilon_comparisons();
+    test_epsilon_matrix_flags();
 
     puts("Matrix tests passed.");
     return 0;

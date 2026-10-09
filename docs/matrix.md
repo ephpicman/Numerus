@@ -184,6 +184,10 @@ tolerance is applied. A square zero Matrix is also diagonal, upper-triangular,
 lower-triangular, and symmetric.
 
 `numerus_matrix_determinant()` caches a successfully computed determinant.
+Structural flags use `NUMERUS_EPSILON` (`1e-9`) with an absolute tolerance
+near zero and a scale-aware relative tolerance for comparing two nonzero values.
+The determinant elimination pivot check remains exact-zero: applying a fixed
+epsilon there would incorrectly classify small but valid matrices as singular.
 The general path uses Gaussian elimination with partial pivoting. If flags
 have already been computed, zero, identity, and triangular matrices can use
 cheaper paths. A determinant of zero is a valid cached result. Allocation
