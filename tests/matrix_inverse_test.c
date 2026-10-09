@@ -4,7 +4,7 @@
 #include <math.h>
 #include <stdio.h>
 
-static double determinant_small(const double values[3][3], size_t size)
+static double determinant_small(double values[3][3], size_t size)
 {
     if (size == 1) {
         return values[0][0];
@@ -30,7 +30,7 @@ static double determinant_small(const double values[3][3], size_t size)
  * LU path; this is deliberately limited to 1x1..3x3 matrices.
  */
 static void cofactor_inverse_reference(
-    const double input[3][3],
+    double input[3][3],
     size_t size,
     double output[3][3]
 )
