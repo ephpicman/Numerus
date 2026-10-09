@@ -33,6 +33,9 @@ static void assert_determinant(
 
     assert(numerus_matrix_determinant(matrix, &determinant) ==
         NUMERUS_MATRIX_SUCCESS);
+    if (determinant != expected) {
+        fprintf(stderr, "determinant mismatch: got %.17g, expected %.17g\n", determinant, expected);
+    }
     assert(determinant == expected);
 }
 
