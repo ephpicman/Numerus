@@ -194,7 +194,7 @@ Exit criteria: reconstruction and orthogonality tests, convergence/error reporti
 - [ ] 8.2 General real-matrix eigenvalues. Deferred: complex numbers are an explicit non-goal, and the current API exposes only real symmetric eigendecomposition. Do not silently discard imaginary components; revisit only after a complex-value representation and error contract are designed.
 - [x] 8.3 Spectral radius and spectral norm. General spectral norm reuses SVD; symmetric spectral radius reuses symmetric eigendecomposition. General nonsymmetric spectral radius remains deferred until the real/complex eigenvalue contract is implemented. (Merged in PR #61.)
 - [ ] 8.4 Diagonalizability checks. Define numerical rather than symbolic semantics.
-- [x] 8.5 Matrix power for negative integer exponents. Builds on one LU-based inverse and exponentiation by squaring. (Merged in PR #62.) (Implementation proposed; merge pending.)
+- [x] 8.5 Matrix power for negative integer exponents. Builds on one LU-based inverse and exponentiation by squaring. (Merged in PR #62.)
 - [ ] 8.6 Matrix exponential. Prefer a numerically appropriate scaling-and-squaring method with Padé approximation rather than naïve Taylor summation as the only production path.
 - [ ] 8.7 Matrix square root and logarithm. Specify supported input classes and failure behavior.
 - [ ] 8.8 Matrix sine/cosine and polynomial functions. Add after matrix exponential and multiplication semantics are stable.
