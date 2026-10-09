@@ -426,8 +426,8 @@ numerus_matrix_status numerus_matrix_svd(
     );
     if (status != NUMERUS_MATRIX_SUCCESS) goto cleanup;
 
-    status = (numerus_matrix_status) numerus_matrix_create_column_vector(
-        k, singular_values_data, singular_values
+    status = (numerus_matrix_status) numerus_matrix_create_dense(
+        k, 1, singular_values_data, singular_values
     );
     if (status != NUMERUS_MATRIX_SUCCESS) {
         numerus_matrix_destroy(*u);
