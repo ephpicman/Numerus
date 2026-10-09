@@ -4,6 +4,16 @@
 #include <math.h>
 #include <stdlib.h>
 
+#ifndef NUMERUS_MATRIX_USE_LIBC_ALLOC
+# include "php.h"
+# include "Zend/zend_alloc.h"
+# define numerus_exponential_alloc(size) emalloc(size)
+# define numerus_exponential_free(ptr) efree(ptr)
+#else
+# define numerus_exponential_alloc(size) malloc(size)
+# define numerus_exponential_free(ptr) free(ptr)
+#endif
+
 #define NUMERUS_PADE_THETA_13 5.371920351148152
 #define NUMERUS_PADE_COEFFICIENT_0 64764752532480000.0
 #define NUMERUS_PADE_COEFFICIENT_1 32382376266240000.0
@@ -93,7 +103,7 @@ static numerus_matrix_status matrix_scale_copy(
         !numerus_size_multiply(count, sizeof(*values), &bytes)) {
         return NUMERUS_MATRIX_OVERFLOW;
     }
-    values = malloc(bytes);
+    values = numerus_exponential_alloc(bytes);
     if (values == NULL) {
         return NUMERUS_MATRIX_OUT_OF_MEMORY;
     }
@@ -104,16 +114,16 @@ static numerus_matrix_status matrix_scale_copy(
             status = (numerus_matrix_status)
                 numerus_matrix_get(source, row, column, &value);
             if (status != NUMERUS_MATRIX_SUCCESS) {
-                free(values);
+                numerus_exponential_free(values);
                 return status;
             }
             if (!isfinite(value)) {
-                free(values);
+                numerus_exponential_free(values);
                 return NUMERUS_MATRIX_NON_FINITE;
             }
             value = scalbn(value, exponent);
             if (!isfinite(value)) {
-                free(values);
+                numerus_exponential_free(values);
                 return NUMERUS_MATRIX_NON_FINITE;
             }
             values[row * columns + column] = value;
@@ -123,7 +133,7 @@ static numerus_matrix_status matrix_scale_copy(
     status = (numerus_matrix_status) numerus_matrix_create_dense(
         rows, columns, values, result
     );
-    free(values);
+    numerus_exponential_free(values);
     return status;
 }
 
@@ -170,7 +180,7 @@ static numerus_matrix_status matrix_linear_combination(
         }
     }
 
-    values = malloc(bytes);
+    values = numerus_exponential_alloc(bytes);
     if (values == NULL) {
         return NUMERUS_MATRIX_OUT_OF_MEMORY;
     }
@@ -184,16 +194,16 @@ static numerus_matrix_status matrix_linear_combination(
                     matrices[term], row, column, &value
                 );
                 if (status != NUMERUS_MATRIX_SUCCESS) {
-                    free(values);
+                    numerus_exponential_free(values);
                     return status;
                 }
                 if (!isfinite(value)) {
-                    free(values);
+                    numerus_exponential_free(values);
                     return NUMERUS_MATRIX_NON_FINITE;
                 }
                 sum += coefficients[term] * value;
                 if (!isfinite(sum)) {
-                    free(values);
+                    numerus_exponential_free(values);
                     return NUMERUS_MATRIX_NON_FINITE;
                 }
             }
@@ -204,7 +214,7 @@ static numerus_matrix_status matrix_linear_combination(
     status = (numerus_matrix_status) numerus_matrix_create_dense(
         rows, columns, values, result
     );
-    free(values);
+    numerus_exponential_free(values);
     return status;
 }
 
