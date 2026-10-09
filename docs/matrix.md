@@ -357,6 +357,21 @@ It returns `NUMERUS_MATRIX_NOT_SQUARE` for non-square (A),
 `NUMERUS_MATRIX_NON_FINITE` for non-finite inputs or intermediates. On
 failure, the output pointer remains NULL.
 
+## Row-space and column-space bases
+
+`numerus_matrix_column_space_basis(A, &basis, &dimension)` returns selected
+independent columns of A, so the basis is shaped rows(A)-by-rank(A).
+`numerus_matrix_row_space_basis(A, &basis, &dimension)` returns selected
+independent rows, shaped rank(A)-by-columns(A). Both use column-pivoted
+Householder QR; the row-space implementation factors a lazy transpose view.
+The same scale-aware numerical-rank threshold is used for both operations.
+
+A zero numerical rank is represented by success with `basis == NULL` and
+`dimension == 0`; otherwise the basis is independent dense Storage. Failures
+leave the dimension output unchanged and return a NULL basis. These are
+numerical subspaces, so results near the threshold depend on the documented
+floating-point tolerance.
+
 ## Numerical null-space basis
 
 `numerus_matrix_null_space(A, &basis, &nullity)` returns columns that span
@@ -854,6 +869,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_null_space_test tests/matrix_null_space_test.c numerus_matrix_null_space.c numerus_matrix_qr.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
 ./tests/matrix_null_space_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_spaces_test tests/matrix_spaces_test.c numerus_matrix_spaces.c numerus_matrix_qr.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+./tests/matrix_spaces_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
