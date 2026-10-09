@@ -426,12 +426,22 @@ main or offset diagonal, and all other cells read as zero. Its side length is
 the vector length plus the absolute offset, with overflow checked. Both APIs
 borrow their parent and propagate parent read errors.
 
+## Row and column permutations
+
+`numerus_matrix_create_permute_rows()` and
+`numerus_matrix_create_permute_columns()` reorder every row or column using
+a full zero-based permutation. The list length must match the corresponding
+parent dimension; every index must be in range and appear exactly once.
+Repeated indices are rejected here (unlike selection views, which intentionally
+allow duplicates). The index list is copied, the view remains lazy, and the
+parent must outlive it.
+
 ## Native tests
 
 The native Matrix tests cover storage-backed constructors, orientation
 transforms, row/column removal and swaps, composed views, lazy scalar
 multiplication, powers, Kronecker products, range slices, indexed row/column
-selection, reshape/flatten, padding, repetition, block-diagonal, and block-grid and diagonal views, scalar division, equality, vector constructors,
+selection, reshape/flatten, padding, repetition, block-diagonal, and block-grid, diagonal, and permutation views, scalar division, equality, vector constructors,
 element-wise arithmetic, materialization, and overflow/read-failure handling.
 
 Run them from the repository root:
@@ -550,6 +560,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_diagonal_test tests/matrix_diagonal_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
 ./tests/matrix_diagonal_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_permutation_test tests/matrix_permutation_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+./tests/matrix_permutation_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds
