@@ -47,7 +47,7 @@ struct numerus_matrix {
     uint32_t flags_computed;
     int determinant_state;
     double cached_determinant;
-    numerus_matrix *cached_inverse;
+    double *cached_inverse_values;
     double transform_scalar;
     size_t transform_row_offset;
     size_t transform_column_offset;
@@ -562,7 +562,7 @@ static int allocate_matrix(numerus_matrix **matrix)
     (*matrix)->flags_computed = 0;
     (*matrix)->determinant_state = 0;
     (*matrix)->cached_determinant = 0.0;
-    (*matrix)->cached_inverse = NULL;
+    (*matrix)->cached_inverse_values = NULL;
     (*matrix)->transform_scalar = 0.0;
     (*matrix)->transform_row_offset = 0;
     (*matrix)->transform_column_offset = 0;
@@ -2755,45 +2755,45 @@ numerus_matrix_status numerus_matrix_get_cached_inverse(
     if (matrix == NULL) {
         return NUMERUS_MATRIX_INVALID_ARGUMENT;
     }
-    if (matrix->cached_inverse == NULL) {
+    if (matrix->cached_inverse_values == NULL) {
         return NUMERUS_MATRIX_SUCCESS;
     }
-    return (numerus_matrix_status) numerus_matrix_materialize(
-        matrix->cached_inverse, inverse
+    return (numerus_matrix_status) numerus_matrix_create_dense(
+        matrix->rows, matrix->columns, matrix->cached_inverse_values, inverse
     );
 }
 
 void numerus_matrix_store_inverse_cache(
     const numerus_matrix *matrix,
-    numerus_matrix *inverse
+    const double *values
 )
 {
     numerus_matrix *mutable_matrix;
     size_t element_count;
     size_t value_bytes;
+    size_t index;
+    double *copy;
 
-    if (inverse == NULL) {
-        return;
-    }
-    if (matrix == NULL ||
-        !numerus_size_multiply(
-            numerus_matrix_rows(matrix), numerus_matrix_columns(matrix),
-            &element_count
-        ) ||
-        !numerus_size_multiply(
-            element_count, sizeof(double), &value_bytes
-        ) ||
+    if (matrix == NULL || values == NULL ||
+        !numerus_size_multiply(matrix->rows, matrix->columns, &element_count) ||
+        !numerus_size_multiply(element_count, sizeof(*values), &value_bytes) ||
         value_bytes > NUMERUS_MATRIX_INVERSE_CACHE_MAX_BYTES) {
-        numerus_matrix_destroy(inverse);
         return;
     }
 
     mutable_matrix = (numerus_matrix *) matrix;
-    if (mutable_matrix->cached_inverse == NULL) {
-        mutable_matrix->cached_inverse = inverse;
-    } else {
-        numerus_matrix_destroy(inverse);
+    if (mutable_matrix->cached_inverse_values != NULL) {
+        return;
     }
+
+    copy = numerus_matrix_alloc(value_bytes);
+    if (copy == NULL) {
+        return;
+    }
+    for (index = 0; index < element_count; index++) {
+        copy[index] = values[index];
+    }
+    mutable_matrix->cached_inverse_values = copy;
 }
 
 void numerus_matrix_destroy(numerus_matrix *matrix)
@@ -2806,7 +2806,7 @@ void numerus_matrix_destroy(numerus_matrix *matrix)
         numerus_storage_destroy(matrix->storage);
     }
 
-    numerus_matrix_destroy(matrix->cached_inverse);
+    numerus_matrix_free(matrix->cached_inverse_values);
     numerus_matrix_free(matrix->selection_indices);
     numerus_matrix_free(matrix->block_matrices);
     numerus_matrix_free(matrix->block_row_offsets);
