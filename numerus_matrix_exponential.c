@@ -421,6 +421,10 @@ int numerus_matrix_exponential(
     if (status != NUMERUS_MATRIX_SUCCESS) {
         goto cleanup;
     }
+    status = matrix_one_norm(result, &norm);
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        goto cleanup;
+    }
 
     for (step = 0; step < scaling; step++) {
         status = matrix_multiply_finite(result, result, &squared);
