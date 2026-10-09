@@ -17,6 +17,13 @@ static int matrix_value_equals(
     ) == NUMERUS_MATRIX_SUCCESS && actual == expected;
 }
 
+static void assert_matrix_values(
+    const numerus_matrix *matrix,
+    size_t rows,
+    size_t columns,
+    const double *expected
+);
+
 static void test_factory_and_dimensions(void)
 {
     const double values[] = {1, 2, 3, 4, 5, 6};
