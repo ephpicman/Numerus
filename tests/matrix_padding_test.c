@@ -67,8 +67,8 @@ static void test_constant_padding_and_nested_views(void)
     assert(numerus_matrix_rows(nested) == 6);
     assert(numerus_matrix_columns(nested) == 5);
     assert(matrix_value_equals(nested, 0, 0, 99.0));
-    assert(matrix_value_equals(nested, 2, 2, 1.0));
-    assert(matrix_value_equals(nested, 3, 3, 4.0));
+    assert(matrix_value_equals(nested, 2, 1, 1.0));
+    assert(matrix_value_equals(nested, 3, 2, 4.0));
     assert(matrix_value_equals(nested, 5, 4, 99.0));
 
     numerus_matrix_destroy(nested);
