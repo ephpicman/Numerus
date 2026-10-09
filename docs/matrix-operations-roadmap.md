@@ -96,7 +96,7 @@ Exit criteria: documented contracts, robust size checks, reusable tests, and a d
 # Phase 1 — Essential matrix-valued operations
 
 - [x] 1.1 Scalar multiplication and unary negation. Return a lazy value-transform view when safe; preserve dimensions and parent lifetime. (Merged in PR #13.)
-- [ ] 1.2 Element-wise addition and subtraction. Require equal dimensions. Use a safe two-parent elementwise node if needed; do not hide parent pointers in a fragile borrowed callback context.
+- [x] 1.2 Element-wise addition and subtraction. Require equal dimensions. Use a safe two-parent elementwise node if needed; do not hide parent pointers in a fragile borrowed callback context. (Merged in PR #14.)
 - [ ] 1.3 Hadamard product. Element-wise multiplication with equal-dimension validation.
 - [ ] 1.4 Element-wise division. Define division-by-zero and non-finite behavior before implementation; do not silently invent a rule.
 - [ ] 1.5 Materialization API. Copy any logical Matrix (including nested views/joins) into independent Storage. Check allocation overflow and callback errors.

@@ -37,3 +37,22 @@ int numerus_matrix_create_subtract(
         matrix
     );
 }
+
+/**
+ * Create a lazy Hadamard (element-wise) product.
+ *
+ * Both parents are borrowed and must outlive the result.
+ */
+int numerus_matrix_create_hadamard_product(
+    numerus_matrix *left,
+    numerus_matrix *right,
+    numerus_matrix **matrix
+)
+{
+    return numerus_matrix_create_binary_view(
+        left,
+        right,
+        NUMERUS_MATRIX_BINARY_HADAMARD,
+        matrix
+    );
+}
