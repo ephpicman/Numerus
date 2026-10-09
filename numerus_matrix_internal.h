@@ -27,4 +27,14 @@ int numerus_matrix_create_binary_view(
     numerus_matrix **matrix
 );
 
+/** Private checked constructor for a lazy range slice. */
+int numerus_matrix_create_slice_view(
+    numerus_matrix *parent,
+    size_t row_start,
+    size_t row_count,
+    size_t column_start,
+    size_t column_count,
+    numerus_matrix **matrix
+);
+
 #endif
