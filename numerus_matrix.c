@@ -43,6 +43,7 @@ struct numerus_matrix {
     uint32_t flags_computed;
     int determinant_state;
     double cached_determinant;
+    double transform_scalar;
 };
 
 static numerus_matrix_status identity_coordinate_transform(
@@ -83,6 +84,27 @@ static numerus_matrix_status passthrough_value_transform(
 
     *result = parent_value;
 
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status scale_value_transform(
+    size_t row,
+    size_t column,
+    double parent_value,
+    double *result,
+    const void *context
+)
+{
+    const double *scalar = context;
+
+    (void) row;
+    (void) column;
+
+    if (scalar == NULL || result == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *result = parent_value * *scalar;
     return NUMERUS_MATRIX_SUCCESS;
 }
 
@@ -356,6 +378,7 @@ static int allocate_matrix(numerus_matrix **matrix)
     (*matrix)->flags_computed = 0;
     (*matrix)->determinant_state = 0;
     (*matrix)->cached_determinant = 0.0;
+    (*matrix)->transform_scalar = 0.0;
 
     return NUMERUS_MATRIX_SUCCESS;
 }
@@ -581,6 +604,56 @@ int numerus_matrix_create_from_parent_with_transforms(
     *matrix = result;
 
     return NUMERUS_MATRIX_SUCCESS;
+}
+
+int numerus_matrix_create_scale(
+    numerus_matrix *parent,
+    double scalar,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix *view = NULL;
+    numerus_matrix_status status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+
+    if (parent == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    status = numerus_matrix_create_from_parent_with_transforms(
+        parent,
+        numerus_matrix_rows(parent),
+        numerus_matrix_columns(parent),
+        NULL,
+        scale_value_transform,
+        NULL,
+        &view
+    );
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        return status;
+    }
+
+    /*
+     * The callback context points into the stable, heap-allocated view.
+     * This avoids borrowing a stack scalar or allocating a separate context.
+     */
+    view->transform_scalar = scalar;
+    view->transform_context = &view->transform_scalar;
+    *matrix = view;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+int numerus_matrix_create_negate(
+    numerus_matrix *parent,
+    numerus_matrix **matrix
+)
+{
+    return numerus_matrix_create_scale(parent, -1.0, matrix);
 }
 
 int numerus_matrix_create_transpose(

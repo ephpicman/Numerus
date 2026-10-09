@@ -69,6 +69,8 @@ Supported convenience views:
 | `numerus_matrix_create_remove_column(parent, column, ...)` | Omits one zero-based column; result has one fewer column |
 | `numerus_matrix_create_swap_rows(parent, row1, row2, ...)` | Exchanges two zero-based row positions |
 | `numerus_matrix_create_swap_columns(parent, column1, column2, ...)` | Exchanges two zero-based column positions |
+| `numerus_matrix_create_scale(parent, scalar, ...)` | Multiplies each logical value by a copied scalar |
+| `numerus_matrix_create_negate(parent, ...)` | Negates each logical value |
 
 Row/column removal and swaps are coordinate transforms. They do not mutate the
 parent or copy element data. Removing the only row or only column is rejected
@@ -105,6 +107,12 @@ the logical immutability contract.
 A custom transform can be logically mutable if its callback depends on mutable
 external state; that violates the API contract even though the Matrix object's
 fields themselves are opaque.
+
+The scalar multiplication and negation convenience views store their scalar inside
+the view itself, so they do not borrow a caller-owned scalar or callback context.
+Their parent Matrix is still non-owning and must outlive the view. They use normal
+IEEE-754 `double` multiplication semantics: zero, signed zero, NaN, and infinities
+are not converted into status errors.
 
 ## Joins
 
@@ -213,9 +221,9 @@ determinism requirements.
 
 The native Matrix tests cover storage-backed constructors, orientation
 transforms, row/column removal and swaps, composed views, custom value
-transforms, callback error propagation, joins, dimension mismatch and overflow
-handling, cached structural flags, determinant calculations, and
-output-value preservation after failures.
+transforms, lazy scalar multiplication and negation, callback error propagation,
+joins, dimension mismatch and overflow handling, cached structural flags,
+determinant calculations, and output-value preservation after failures.
 
 Run them from the repository root:
 
@@ -225,6 +233,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_test tests/matrix_test.c numerus_matrix.c numerus_storage.c
 ./tests/matrix_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_unary_test tests/matrix_unary_test.c numerus_matrix.c numerus_storage.c
+./tests/matrix_unary_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds

@@ -2,6 +2,7 @@
 #include "../numerus_numeric.h"
 
 #include <assert.h>
+#include <math.h>
 #include <stdio.h>
 
 static int matrix_value_equals(
