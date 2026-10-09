@@ -173,6 +173,20 @@ the output pointer remains NULL; a partially populated result is never
 published. Materialization has O(rows × columns) time and O(rows × columns)
 temporary memory, in addition to the independent dense result Storage.
 
+## Non-negative integer matrix powers
+
+`numerus_matrix_power(base, exponent, &result)` requires a square Matrix.
+Exponent zero returns an identity Matrix without reading the base values;
+exponent one returns an independent dense materialization. Larger exponents use
+exponentiation by squaring and matrix multiplication, producing independent
+dense Storage rather than a lazy node that recomputes powers on reads.
+
+The operation propagates materialization/multiplication failures and leaves the
+output pointer NULL on failure. Its arithmetic inherits the numerical behavior
+of the multiplication implementation. For exponent n, it uses O(log n) matrix
+multiplications; the total time is O(n³ log exponent) for an n×n dense matrix,
+with O(n²) auxiliary/result storage.
+
 ## Exact and approximate equality
 
 `numerus_matrix_is_equal()` compares corresponding values with exact C
@@ -312,9 +326,9 @@ determinism requirements.
 
 The native Matrix tests cover storage-backed constructors, orientation
 transforms, row/column removal and swaps, composed views, lazy scalar
-multiplication, scalar division, exact/approximate equality, vector constructors,
-element-wise arithmetic, nested-view materialization, rectangular products,
-overflow and read-failure handling, and cached structural flags.
+multiplication and powers, scalar division, exact/approximate equality, vector
+constructors, element-wise arithmetic, nested-view materialization, rectangular
+products, overflow/read-failure handling, and cached structural flags.
 
 Run them from the repository root:
 
@@ -378,6 +392,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_vector_constructor_test tests/matrix_vector_constructor_test.c numerus_matrix.c numerus_matrix_constructors.c numerus_storage.c
 ./tests/matrix_vector_constructor_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_power_test tests/matrix_power_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_power.c numerus_storage.c
+./tests/matrix_power_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds

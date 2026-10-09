@@ -438,6 +438,19 @@ int numerus_matrix_create_column_vector(
     numerus_matrix **matrix
 );
 
+/**
+ * Compute base raised to a non-negative integer exponent.
+ *
+ * The base must be square. Exponent zero returns an identity Matrix; exponent
+ * one returns an independent materialized copy. Larger powers use
+ * exponentiation by squaring and return independent dense Storage.
+ */
+int numerus_matrix_power(
+    const numerus_matrix *base,
+    size_t exponent,
+    numerus_matrix **matrix
+);
+
 /** Create a dense Matrix. */
 int numerus_matrix_create_dense(
     size_t rows,
