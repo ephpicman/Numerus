@@ -903,6 +903,71 @@ int numerus_matrix_create_selection_view(
     return NUMERUS_MATRIX_SUCCESS;
 }
 
+int numerus_matrix_create_permutation_view(
+    numerus_matrix *parent,
+    const size_t *permutation,
+    size_t count,
+    numerus_matrix_selection_axis axis,
+    numerus_matrix **matrix
+)
+{
+    bool *seen;
+    size_t seen_bytes;
+    size_t expected_count;
+    size_t index;
+    int status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+
+    if (parent == NULL || permutation == NULL || count == 0 ||
+        (axis != NUMERUS_MATRIX_SELECTION_ROWS &&
+         axis != NUMERUS_MATRIX_SELECTION_COLUMNS)) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    expected_count = axis == NUMERUS_MATRIX_SELECTION_ROWS
+        ? numerus_matrix_rows(parent)
+        : numerus_matrix_columns(parent);
+    if (count != expected_count) {
+        return NUMERUS_MATRIX_DIMENSION_MISMATCH;
+    }
+
+    if (!numerus_size_multiply(count, sizeof(*seen), &seen_bytes)) {
+        return NUMERUS_MATRIX_OVERFLOW;
+    }
+
+    seen = numerus_matrix_alloc(seen_bytes);
+    if (seen == NULL) {
+        return NUMERUS_MATRIX_OUT_OF_MEMORY;
+    }
+    for (index = 0; index < count; index++) {
+        seen[index] = false;
+    }
+
+    for (index = 0; index < count; index++) {
+        size_t selected = permutation[index];
+
+        if (selected >= count) {
+            numerus_matrix_free(seen);
+            return NUMERUS_MATRIX_OUT_OF_BOUNDS;
+        }
+        if (seen[selected]) {
+            numerus_matrix_free(seen);
+            return NUMERUS_MATRIX_INVALID_ARGUMENT;
+        }
+        seen[selected] = true;
+    }
+
+    numerus_matrix_free(seen);
+    status = numerus_matrix_create_selection_view(
+        parent, permutation, count, axis, matrix
+    );
+    return status;
+}
+
 int numerus_matrix_create_reshape_view(
     numerus_matrix *parent,
     size_t rows,

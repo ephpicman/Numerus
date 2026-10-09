@@ -190,3 +190,29 @@ int numerus_matrix_create_diagonal_from_vector(
         vector, offset, matrix
     );
 }
+
+/** Permute all rows using a copied full permutation. */
+int numerus_matrix_create_permute_rows(
+    numerus_matrix *parent,
+    const size_t *permutation,
+    size_t count,
+    numerus_matrix **matrix
+)
+{
+    return numerus_matrix_create_permutation_view(
+        parent, permutation, count, NUMERUS_MATRIX_SELECTION_ROWS, matrix
+    );
+}
+
+/** Permute all columns using a copied full permutation. */
+int numerus_matrix_create_permute_columns(
+    numerus_matrix *parent,
+    const size_t *permutation,
+    size_t count,
+    numerus_matrix **matrix
+)
+{
+    return numerus_matrix_create_permutation_view(
+        parent, permutation, count, NUMERUS_MATRIX_SELECTION_COLUMNS, matrix
+    );
+}

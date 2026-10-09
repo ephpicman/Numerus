@@ -84,6 +84,15 @@ int numerus_matrix_create_block_grid_view(
     numerus_matrix **matrix
 );
 
+/** Private checked constructor for a full row/column permutation view. */
+int numerus_matrix_create_permutation_view(
+    numerus_matrix *parent,
+    const size_t *permutation,
+    size_t count,
+    numerus_matrix_selection_axis axis,
+    numerus_matrix **matrix
+);
+
 /** Private checked constructor for a row-vector diagonal extraction view. */
 int numerus_matrix_create_diagonal_extract_view(
     numerus_matrix *parent,

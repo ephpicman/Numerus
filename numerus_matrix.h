@@ -632,6 +632,34 @@ int numerus_matrix_create_diagonal_from_vector(
     numerus_matrix **matrix
 );
 
+/**
+ * Permute all rows using a full zero-based permutation.
+ *
+ * The index count must equal the parent row count; every index must be in
+ * range and appear exactly once. The index list is copied and the parent is
+ * borrowed.
+ */
+int numerus_matrix_create_permute_rows(
+    numerus_matrix *parent,
+    const size_t *permutation,
+    size_t count,
+    numerus_matrix **matrix
+);
+
+/**
+ * Permute all columns using a full zero-based permutation.
+ *
+ * The index count must equal the parent column count; every index must be in
+ * range and appear exactly once. The index list is copied and the parent is
+ * borrowed.
+ */
+int numerus_matrix_create_permute_columns(
+    numerus_matrix *parent,
+    const size_t *permutation,
+    size_t count,
+    numerus_matrix **matrix
+);
+
 /** Create a dense Matrix. */
 int numerus_matrix_create_dense(
     size_t rows,
