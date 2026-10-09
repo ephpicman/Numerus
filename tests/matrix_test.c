@@ -870,7 +870,7 @@ static void test_cached_analysis(void)
 {
     const double general[] = {1, 2, 3, 4};
     const double symmetric[] = {1, 2, 2, 1};
-    const double upper[] = {2, 3, 0, 4};
+    const double upper[] = {2, 3, 4};
     const double singular[] = {1, 2, 2, 4};
     numerus_matrix *matrix = NULL;
     unsigned int flags = 0;
