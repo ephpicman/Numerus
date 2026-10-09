@@ -45,6 +45,8 @@ struct numerus_matrix {
     int determinant_state;
     double cached_determinant;
     double transform_scalar;
+    size_t transform_row_offset;
+    size_t transform_column_offset;
 };
 
 static numerus_matrix_status identity_coordinate_transform(
@@ -106,6 +108,25 @@ static numerus_matrix_status scale_value_transform(
     }
 
     *result = parent_value * *scalar;
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status slice_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    const numerus_matrix *view = context;
+
+    if (view == NULL || parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = view->transform_row_offset + row;
+    *parent_column = view->transform_column_offset + column;
     return NUMERUS_MATRIX_SUCCESS;
 }
 
@@ -402,6 +423,8 @@ static int allocate_matrix(numerus_matrix **matrix)
     (*matrix)->determinant_state = 0;
     (*matrix)->cached_determinant = 0.0;
     (*matrix)->transform_scalar = 0.0;
+    (*matrix)->transform_row_offset = 0;
+    (*matrix)->transform_column_offset = 0;
 
     return NUMERUS_MATRIX_SUCCESS;
 }
@@ -677,6 +700,61 @@ int numerus_matrix_create_negate(
 )
 {
     return numerus_matrix_create_scale(parent, -1.0, matrix);
+}
+
+int numerus_matrix_create_slice_view(
+    numerus_matrix *parent,
+    size_t row_start,
+    size_t row_count,
+    size_t column_start,
+    size_t column_count,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix *view = NULL;
+    size_t parent_rows;
+    size_t parent_columns;
+    numerus_matrix_status status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+
+    if (parent == NULL || row_count == 0 || column_count == 0) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    parent_rows = numerus_matrix_rows(parent);
+    parent_columns = numerus_matrix_columns(parent);
+
+    if (row_start > parent_rows || column_start > parent_columns) {
+        return NUMERUS_MATRIX_OUT_OF_BOUNDS;
+    }
+    if (row_count > parent_rows - row_start ||
+        column_count > parent_columns - column_start) {
+        return NUMERUS_MATRIX_OUT_OF_BOUNDS;
+    }
+
+    status = numerus_matrix_create_from_parent_with_transforms(
+        parent,
+        row_count,
+        column_count,
+        slice_coordinate_transform,
+        NULL,
+        NULL,
+        &view
+    );
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        return status;
+    }
+
+    view->transform_row_offset = row_start;
+    view->transform_column_offset = column_start;
+    view->transform_context = view;
+    *matrix = view;
+
+    return NUMERUS_MATRIX_SUCCESS;
 }
 
 int numerus_matrix_create_divide_scalar(
