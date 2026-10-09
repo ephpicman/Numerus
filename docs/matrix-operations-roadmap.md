@@ -144,8 +144,8 @@ Exit criteria: documented semantics for NaN/infinity and approximate predicates;
 - [x] 4.1 Determinant contract and edge cases. Singular, pivoting, triangular, zero, identity, small/large-scale, and near-singular cases are covered. (Merged in PR #40.)
 - [x] 4.2 Factorization infrastructure. Reusable owned work buffers and pivot arrays are isolated behind a private read-only interface. (Merged in PR #41.)
 - [x] 4.3 LU with partial pivoting. Private factorization exposes permutation and L/U accessors; reconstruction tests verify PA ≈ LU. (Merged in PR #41.)
-- [ ] 4.4 Reuse LU for determinant. Use LU when it improves reuse/clarity, retaining specialized paths when demonstrably better. (Implementation proposed; merge pending.)
-- [ ] 4.5 Numerical rank. Implement via stable factorization/QR or SVD with scale-aware threshold semantics. Do not equate fixed absolute epsilon with numerical rank.
+- [x] 4.4 Reuse LU for determinant. The general determinant path reuses LU while preserving zero/identity/triangular fast paths. (Merged in PR #42.) (Implementation proposed; merge pending.)
+- [ ] 4.5 Numerical rank. Implement via stable factorization/QR or SVD with scale-aware threshold semantics. Do not equate fixed absolute epsilon with numerical rank. (Complete-pivoting estimate proposed; merge pending.)
 - [ ] 4.6 REF and RREF. Use independent work buffers; document pivot tolerance and result representation. Materialize the result.
 - [ ] 4.7 Gaussian elimination and Gauss–Jordan. Reuse pivoting infrastructure; test row swaps, zero pivots, rank-deficient cases, and rectangular matrices where applicable.
 
