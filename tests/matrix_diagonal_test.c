@@ -98,8 +98,10 @@ static void test_construct_diagonal_from_vector(void)
     numerus_matrix *upper = NULL;
     numerus_matrix *lower = NULL;
     numerus_matrix *main_diagonal = NULL;
+    numerus_matrix *column_vector = NULL;
+    numerus_matrix *column_diagonal = NULL;
 
-    assert(numerus_matrix_create_row_vector(3, values, &vector) ==
+    assert(numerus_matrix_create_dense(1, 3, values, &vector) ==
         NUMERUS_MATRIX_SUCCESS);
     assert(numerus_matrix_create_diagonal_from_vector(
         vector, 1, &upper
@@ -129,6 +131,17 @@ static void test_construct_diagonal_from_vector(void)
     assert(matrix_value_equals(main_diagonal, 2, 2, 7.0));
     assert(matrix_value_equals(main_diagonal, 0, 1, 0.0));
 
+    assert(numerus_matrix_create_dense(3, 1, values, &column_vector) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_diagonal_from_vector(
+        column_vector, 0, &column_diagonal
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(matrix_value_equals(column_diagonal, 0, 0, 5.0));
+    assert(matrix_value_equals(column_diagonal, 1, 1, 6.0));
+    assert(matrix_value_equals(column_diagonal, 2, 2, 7.0));
+
+    numerus_matrix_destroy(column_diagonal);
+    numerus_matrix_destroy(column_vector);
     numerus_matrix_destroy(main_diagonal);
     numerus_matrix_destroy(lower);
     numerus_matrix_destroy(upper);
