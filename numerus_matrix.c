@@ -24,6 +24,8 @@ struct numerus_matrix {
     numerus_coordinate_transform_fn coordinate_transform;
     numerus_value_transform_fn value_transform;
     const void *transform_context;
+    size_t transform_index1;
+    size_t transform_index2;
     numerus_matrix_flags cached_flags;
     bool flags_cached;
     int determinant_state;
@@ -127,6 +129,102 @@ static numerus_matrix_status flip_columns_coordinate_transform(
 
     *parent_row = row;
     *parent_column = numerus_matrix_columns(parent) - 1 - column;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status remove_row_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    const numerus_matrix *view = context;
+
+    if (view == NULL || view->parent == NULL ||
+        parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = row >= view->transform_index1 ? row + 1 : row;
+    *parent_column = column;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status remove_column_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    const numerus_matrix *view = context;
+
+    if (view == NULL || view->parent == NULL ||
+        parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = row;
+    *parent_column = column >= view->transform_index1 ? column + 1 : column;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status swap_rows_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    const numerus_matrix *view = context;
+
+    if (view == NULL || view->parent == NULL ||
+        parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    if (row == view->transform_index1) {
+        row = view->transform_index2;
+    } else if (row == view->transform_index2) {
+        row = view->transform_index1;
+    }
+
+    *parent_row = row;
+    *parent_column = column;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status swap_columns_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    const numerus_matrix *view = context;
+
+    if (view == NULL || view->parent == NULL ||
+        parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    if (column == view->transform_index1) {
+        column = view->transform_index2;
+    } else if (column == view->transform_index2) {
+        column = view->transform_index1;
+    }
+
+    *parent_row = row;
+    *parent_column = column;
 
     return NUMERUS_MATRIX_SUCCESS;
 }
@@ -239,6 +337,8 @@ static int allocate_matrix(numerus_matrix **matrix)
     (*matrix)->coordinate_transform = NULL;
     (*matrix)->value_transform = NULL;
     (*matrix)->transform_context = NULL;
+    (*matrix)->transform_index1 = 0;
+    (*matrix)->transform_index2 = 0;
     (*matrix)->cached_flags = (numerus_matrix_flags) {0};
     (*matrix)->flags_cached = false;
     (*matrix)->determinant_state = 0;
@@ -528,6 +628,182 @@ int numerus_matrix_create_flip_columns(
         parent,
         matrix
     );
+}
+
+int numerus_matrix_create_remove_row(
+    numerus_matrix *parent,
+    size_t row,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix *view = NULL;
+    int status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+
+    if (parent == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    if (row >= numerus_matrix_rows(parent)) {
+        return NUMERUS_MATRIX_OUT_OF_BOUNDS;
+    }
+    if (numerus_matrix_rows(parent) == 1) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    status = numerus_matrix_create_from_parent_with_transforms(
+        parent,
+        numerus_matrix_rows(parent) - 1,
+        numerus_matrix_columns(parent),
+        remove_row_coordinate_transform,
+        NULL,
+        NULL,
+        &view
+    );
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        return status;
+    }
+
+    view->transform_index1 = row;
+    view->transform_context = view;
+    *matrix = view;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+int numerus_matrix_create_remove_column(
+    numerus_matrix *parent,
+    size_t column,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix *view = NULL;
+    int status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+
+    if (parent == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    if (column >= numerus_matrix_columns(parent)) {
+        return NUMERUS_MATRIX_OUT_OF_BOUNDS;
+    }
+    if (numerus_matrix_columns(parent) == 1) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    status = numerus_matrix_create_from_parent_with_transforms(
+        parent,
+        numerus_matrix_rows(parent),
+        numerus_matrix_columns(parent) - 1,
+        remove_column_coordinate_transform,
+        NULL,
+        NULL,
+        &view
+    );
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        return status;
+    }
+
+    view->transform_index1 = column;
+    view->transform_context = view;
+    *matrix = view;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+int numerus_matrix_create_swap_rows(
+    numerus_matrix *parent,
+    size_t row1,
+    size_t row2,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix *view = NULL;
+    int status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+
+    if (parent == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    if (row1 >= numerus_matrix_rows(parent) ||
+        row2 >= numerus_matrix_rows(parent)) {
+        return NUMERUS_MATRIX_OUT_OF_BOUNDS;
+    }
+
+    status = numerus_matrix_create_from_parent_with_transforms(
+        parent,
+        numerus_matrix_rows(parent),
+        numerus_matrix_columns(parent),
+        swap_rows_coordinate_transform,
+        NULL,
+        NULL,
+        &view
+    );
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        return status;
+    }
+
+    view->transform_index1 = row1;
+    view->transform_index2 = row2;
+    view->transform_context = view;
+    *matrix = view;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+int numerus_matrix_create_swap_columns(
+    numerus_matrix *parent,
+    size_t column1,
+    size_t column2,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix *view = NULL;
+    int status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+
+    if (parent == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    if (column1 >= numerus_matrix_columns(parent) ||
+        column2 >= numerus_matrix_columns(parent)) {
+        return NUMERUS_MATRIX_OUT_OF_BOUNDS;
+    }
+
+    status = numerus_matrix_create_from_parent_with_transforms(
+        parent,
+        numerus_matrix_rows(parent),
+        numerus_matrix_columns(parent),
+        swap_columns_coordinate_transform,
+        NULL,
+        NULL,
+        &view
+    );
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        return status;
+    }
+
+    view->transform_index1 = column1;
+    view->transform_index2 = column2;
+    view->transform_context = view;
+    *matrix = view;
+
+    return NUMERUS_MATRIX_SUCCESS;
 }
 
 int numerus_matrix_create_rotate_90_clockwise(

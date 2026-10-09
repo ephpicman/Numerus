@@ -206,6 +206,36 @@ int numerus_matrix_create_flip_columns(
     numerus_matrix **matrix
 );
 
+/** Create a lazy view that omits one row. */
+int numerus_matrix_create_remove_row(
+    numerus_matrix *parent,
+    size_t row,
+    numerus_matrix **matrix
+);
+
+/** Create a lazy view that omits one column. */
+int numerus_matrix_create_remove_column(
+    numerus_matrix *parent,
+    size_t column,
+    numerus_matrix **matrix
+);
+
+/** Create a lazy view that swaps two rows. */
+int numerus_matrix_create_swap_rows(
+    numerus_matrix *parent,
+    size_t row1,
+    size_t row2,
+    numerus_matrix **matrix
+);
+
+/** Create a lazy view that swaps two columns. */
+int numerus_matrix_create_swap_columns(
+    numerus_matrix *parent,
+    size_t column1,
+    size_t column2,
+    numerus_matrix **matrix
+);
+
 /** Create a lazy 90-degree clockwise rotation view. */
 int numerus_matrix_create_rotate_90_clockwise(
     numerus_matrix *parent,

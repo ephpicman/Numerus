@@ -17,6 +17,13 @@ static int matrix_value_equals(
     ) == NUMERUS_MATRIX_SUCCESS && actual == expected;
 }
 
+static void assert_matrix_values(
+    const numerus_matrix *matrix,
+    size_t rows,
+    size_t columns,
+    const double *expected
+);
+
 static void test_factory_and_dimensions(void)
 {
     const double values[] = {1, 2, 3, 4, 5, 6};
@@ -670,6 +677,160 @@ static void test_matrix_joins(void)
     numerus_matrix_destroy(left);
 }
 
+static void test_remove_row_and_column_transforms(void)
+{
+    const double source[] = {
+        1, 2, 3,
+        4, 5, 6,
+        7, 8, 9
+    };
+    const double remove_middle_row[] = {1, 2, 3, 7, 8, 9};
+    const double remove_first_row[] = {4, 5, 6, 7, 8, 9};
+    const double remove_last_row[] = {1, 2, 3, 4, 5, 6};
+    const double remove_middle_column[] = {1, 3, 4, 6, 7, 9};
+    const double remove_first_column[] = {2, 3, 5, 6, 8, 9};
+    const double remove_last_column[] = {1, 2, 4, 5, 7, 8};
+    numerus_matrix *root = NULL;
+    numerus_matrix *view = NULL;
+
+    assert(numerus_matrix_create_dense(3, 3, source, &root) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    assert(numerus_matrix_create_remove_row(root, 1, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert_matrix_values(view, 2, 3, remove_middle_row);
+    numerus_matrix_destroy(view);
+
+    assert(numerus_matrix_create_remove_row(root, 0, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert_matrix_values(view, 2, 3, remove_first_row);
+    numerus_matrix_destroy(view);
+
+    assert(numerus_matrix_create_remove_row(root, 2, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert_matrix_values(view, 2, 3, remove_last_row);
+    numerus_matrix_destroy(view);
+
+    assert(numerus_matrix_create_remove_column(root, 1, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert_matrix_values(view, 3, 2, remove_middle_column);
+    numerus_matrix_destroy(view);
+
+    assert(numerus_matrix_create_remove_column(root, 0, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert_matrix_values(view, 3, 2, remove_first_column);
+    numerus_matrix_destroy(view);
+
+    assert(numerus_matrix_create_remove_column(root, 2, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert_matrix_values(view, 3, 2, remove_last_column);
+    numerus_matrix_destroy(view);
+
+    /* The views must not change the immutable parent. */
+    assert_matrix_values(root, 3, 3, source);
+
+    view = root;
+    assert(numerus_matrix_create_remove_row(root, 3, &view) ==
+        NUMERUS_MATRIX_OUT_OF_BOUNDS);
+    assert(view == NULL);
+    view = root;
+    assert(numerus_matrix_create_remove_column(root, 3, &view) ==
+        NUMERUS_MATRIX_OUT_OF_BOUNDS);
+    assert(view == NULL);
+
+    {
+        const double one_row_values[] = {1, 2};
+        const double one_column_values[] = {1, 2};
+        numerus_matrix *one_row = NULL;
+        numerus_matrix *one_column = NULL;
+
+        assert(numerus_matrix_create_dense(1, 2, one_row_values, &one_row) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(numerus_matrix_create_remove_row(one_row, 0, &view) ==
+            NUMERUS_MATRIX_INVALID_ARGUMENT);
+        assert(view == NULL);
+
+        assert(numerus_matrix_create_dense(2, 1, one_column_values, &one_column) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(numerus_matrix_create_remove_column(one_column, 0, &view) ==
+            NUMERUS_MATRIX_INVALID_ARGUMENT);
+        assert(view == NULL);
+
+        numerus_matrix_destroy(one_column);
+        numerus_matrix_destroy(one_row);
+    }
+
+    assert(numerus_matrix_create_remove_row(NULL, 0, &view) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(numerus_matrix_create_remove_column(root, 0, NULL) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+
+    numerus_matrix_destroy(root);
+}
+
+static void test_swap_row_and_column_transforms(void)
+{
+    const double source[] = {
+        1, 2, 3,
+        4, 5, 6,
+        7, 8, 9
+    };
+    const double swap_rows[] = {
+        7, 8, 9,
+        4, 5, 6,
+        1, 2, 3
+    };
+    const double swap_columns[] = {
+        3, 2, 1,
+        6, 5, 4,
+        9, 8, 7
+    };
+    numerus_matrix *root = NULL;
+    numerus_matrix *view = NULL;
+
+    assert(numerus_matrix_create_dense(3, 3, source, &root) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    assert(numerus_matrix_create_swap_rows(root, 0, 2, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert_matrix_values(view, 3, 3, swap_rows);
+    numerus_matrix_destroy(view);
+
+    assert(numerus_matrix_create_swap_columns(root, 0, 2, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert_matrix_values(view, 3, 3, swap_columns);
+    numerus_matrix_destroy(view);
+
+    /* Swapping an index with itself is a valid identity view. */
+    assert(numerus_matrix_create_swap_rows(root, 1, 1, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert_matrix_values(view, 3, 3, source);
+    numerus_matrix_destroy(view);
+
+    assert(numerus_matrix_create_swap_columns(root, 2, 2, &view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert_matrix_values(view, 3, 3, source);
+    numerus_matrix_destroy(view);
+
+    /* Index validation and output initialization are part of the API contract. */
+    view = root;
+    assert(numerus_matrix_create_swap_rows(root, 0, 3, &view) ==
+        NUMERUS_MATRIX_OUT_OF_BOUNDS);
+    assert(view == NULL);
+    view = root;
+    assert(numerus_matrix_create_swap_columns(root, 3, 0, &view) ==
+        NUMERUS_MATRIX_OUT_OF_BOUNDS);
+    assert(view == NULL);
+    assert(numerus_matrix_create_swap_rows(NULL, 0, 1, &view) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(numerus_matrix_create_swap_columns(root, 0, 1, NULL) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+
+    /* Swapping views are lazy and leave their parent unchanged. */
+    assert_matrix_values(root, 3, 3, source);
+    numerus_matrix_destroy(root);
+}
+
 static void test_validation(void)
 {
     numerus_matrix *matrix = NULL;
@@ -1050,6 +1211,8 @@ int main(void)
     test_transpose_constructor();
     test_orientation_transforms();
     test_orientation_transforms_exhaustively();
+    test_remove_row_and_column_transforms();
+    test_swap_row_and_column_transforms();
     test_value_transform();
     test_transform_error_propagation();
     test_matrix_joins();
