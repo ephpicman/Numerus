@@ -12,10 +12,10 @@ typedef struct numerus_matrix_lu_factorization numerus_matrix_lu_factorization;
 /**
  * Factor a square Matrix using Gaussian elimination with partial pivoting.
  *
- * The factorization owns a packed LU buffer and a row permutation. It does not
- * retain the source Matrix. A zero pivot is skipped rather than treated as an
- * API failure; rank counts non-zero pivots under this exact-zero policy.
- * On failure, *factorization remains NULL.
+ * The factorization owns a packed LU buffer and a row permutation and is
+ * reference-counted. It does not retain the source Matrix. A zero pivot is
+ * skipped rather than treated as an API failure; rank counts non-zero pivots
+ * under this exact-zero policy. On failure, *factorization remains NULL.
  */
 numerus_matrix_status numerus_matrix_lu_factorize(
     const numerus_matrix *matrix,
@@ -26,6 +26,7 @@ numerus_matrix_status numerus_matrix_lu_retain(
     numerus_matrix_lu_factorization *factorization
 );
 
+/** Release one owned reference to a factorization. */
 void numerus_matrix_lu_destroy(numerus_matrix_lu_factorization *factorization);
 
 /** Return factorization dimension, or zero for NULL. */
