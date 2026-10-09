@@ -129,7 +129,7 @@ Exit criteria: no input copies for pure views, correct composition of nested vie
 These operations correctly return scalar values/flags, not matrices.
 
 - [x] 3.1 Trace. Square matrices only; sum the main diagonal in documented order with IEEE-754 behavior. (Merged in PR #33.)
-- [ ] 3.2 Element aggregates. Minimum, maximum, sum, mean, row/column sums, and row/column means; define behavior for NaN and infinities.
+- [x] 3.2 Element aggregates. Scalar min/max/sum/mean and materialized row/column sums/means define NaN and infinity behavior. (Merged in PR #34.)
 - [ ] 3.3 Matrix norms. Frobenius, induced 1-norm, and induced infinity-norm.
 - [ ] 3.4 Finite-value inspection. Detect NaN and infinity; distinguish a predicate from an element-transform operation.
 - [ ] 3.5 Structural predicates. Expose/reuse square, zero, diagonal, triangular, symmetric, and identity flags.
