@@ -9,7 +9,7 @@ function-level contract is declared in [`numerus_matrix.h`](../numerus_matrix.h)
 
 ## Object model
 
-A Matrix has positive row and column counts and is one of three forms:
+A Matrix has positive row and column counts and is one of four forms:
 
 - **Root Matrix:** owns an immutable `numerus_storage`.
 - **Derived view:** refers to one parent Matrix and applies coordinate and/or
