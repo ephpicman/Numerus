@@ -193,12 +193,12 @@ static void benchmark_multiplication(
             int status = numerus_matrix_multiply(left, right, &result);
 
             if (status != NUMERUS_MATRIX_SUCCESS) {
-                fprintf(stderr, "multiplication benchmark failed: %d\\n", status);
+                fprintf(stderr, "multiplication benchmark failed: %d\n", status);
                 exit(EXIT_FAILURE);
             }
             status = numerus_matrix_get(result, 0, 0, &value);
             if (status != NUMERUS_MATRIX_SUCCESS) {
-                fprintf(stderr, "product read failed: %d\\n", status);
+                fprintf(stderr, "product read failed: %d\n", status);
                 numerus_matrix_destroy(result);
                 exit(EXIT_FAILURE);
             }
@@ -235,7 +235,7 @@ static void benchmark_multiplication(
     printf(
         "%-24s shape=%zux%zu samples=%d iterations_per_sample=%zu "
         "median_seconds=%.6f min_seconds=%.6f max_seconds=%.6f "
-        "median_allocations_per_sample=%zu median_allocated_bytes_per_sample=%zu sink=%.6f\\n",
+        "median_allocations_per_sample=%zu median_allocated_bytes_per_sample=%zu sink=%.6f\n",
         name, rows, columns, MULTIPLY_BENCHMARK_SAMPLES, iterations,
         seconds[MULTIPLY_BENCHMARK_SAMPLES / 2], seconds[0],
         seconds[MULTIPLY_BENCHMARK_SAMPLES - 1],
