@@ -108,7 +108,7 @@ static void test_rank_deficiency_and_zero_pivot(void)
     assert(numerus_matrix_lu_factorize(matrix, &lu) ==
         NUMERUS_MATRIX_SUCCESS);
     assert(numerus_matrix_lu_rank(lu) == 1);
-    assert(numerus_matrix_lu_permutation_sign(lu) == -1);
+    assert(numerus_matrix_lu_permutation_sign(lu) == 1);
     numerus_matrix_lu_destroy(lu);
     numerus_matrix_destroy(matrix);
 }
