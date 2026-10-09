@@ -303,6 +303,19 @@ NaN inputs propagate. These numeric results do not become Matrix status errors.
 The operations do not mutate or materialize either input. Both parents must
 outlive the result.
 
+## Map and apply
+
+`numerus_matrix_create_map(parent, callback, context, &result)` creates a lazy
+value-transform view. The parent is borrowed and must outlive the view; the
+callback and context must remain valid, deterministic, and logically unchanged
+for the view's lifetime. Reads propagate parent and callback errors.
+
+`numerus_matrix_apply(source, callback, context, &result)` evaluates the callback
+eagerly in row-major order and materializes independent dense Storage. Its
+context only needs to remain valid during the call. If a source read or callback
+fails, the partial buffer is discarded and the output pointer remains NULL.
+Callbacks must not mutate the source or depend on mutable external state.
+
 ## Element-wise minimum, maximum, and clamp
 
 `numerus_matrix_create_elementwise_min()` and

@@ -204,7 +204,7 @@ Exit criteria: convergence tests, residual checks, explicit real-only limitation
 # Phase 9 — Statistical, element-wise, and utility operations
 
 - [x] 9.1 Element-wise min/max and clamp. NaN propagates; clamp rejects NaN bounds and reversed intervals while permitting infinite bounds. Results are independent dense matrices and source-read failures propagate.
-- [ ] 9.2 Map/apply. Require deterministic callbacks and a clear context lifetime contract; distinguish lazy views from eager materialization.
+- [x] 9.2 Map/apply. Lazy map borrows deterministic callback/context and parent; eager apply materializes independent dense Storage and propagates callback/read failures.
 - [ ] 9.3 Normalize. Support explicitly named norms/axes; reject zero-norm normalization or define its behavior.
 - [ ] 9.4 Variance and standard deviation. Define population vs sample semantics and numerical accumulation strategy.
 - [ ] 9.5 All-close / any-close. Use established comparison policy and provide exact equality separately.
