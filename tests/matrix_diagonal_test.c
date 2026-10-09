@@ -156,6 +156,7 @@ static void test_validation_overflow_and_read_failure(void)
     numerus_matrix *failing = NULL;
     numerus_matrix *diagonal = NULL;
     numerus_matrix *huge_vector = NULL;
+    numerus_matrix *overflow_diagonal = NULL;
     double value = 4321.5;
 
     assert(numerus_matrix_create_dense(2, 2, values, &root) ==
@@ -186,6 +187,10 @@ static void test_validation_overflow_and_read_failure(void)
         huge_vector, 1, &non_vector
     ) == NUMERUS_MATRIX_OVERFLOW);
     assert(non_vector == NULL);
+    assert(numerus_matrix_create_diagonal_from_vector(
+        root, PTRDIFF_MAX, &overflow_diagonal
+    ) == NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(overflow_diagonal == NULL);
 
     numerus_matrix_destroy(huge_vector);
     numerus_matrix_destroy(diagonal);
