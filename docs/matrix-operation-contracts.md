@@ -55,3 +55,7 @@ Every operation PR should include:
 - benchmark results when performance determines whether to use a view, materialize a result, or cache an analysis.
 
 Benchmarks should compare representative sizes and storage kinds, report compiler/build context and allocations where feasible, and avoid unstable timing thresholds as hard CI gates until the harness is reliable.
+
+## Positive-definiteness classification
+
+`numerus_matrix_classify_definiteness()` requires a finite, real symmetric square Matrix. It reports two predicates through distinct output pointers and leaves both values unchanged on failure. Eigenvalues within `NUMERUS_EPSILON × n × max(|λᵢ|)` of zero are treated as zero. The zero matrix is positive semidefinite but not positive definite. This is a numerical classification, not a symbolic proof.

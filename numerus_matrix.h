@@ -1139,6 +1139,18 @@ numerus_matrix_status numerus_matrix_cholesky(
 );
 
 /**
+ * Classify a finite real symmetric Matrix as positive definite and/or positive
+ * semidefinite using eigenvalues and a scale-relative tolerance.
+ * Eigenvalues within NUMERUS_EPSILON × n × max(|lambda_i|) count as zero.
+ * Both outputs are unchanged on failure and must be distinct.
+ */
+numerus_matrix_status numerus_matrix_classify_definiteness(
+    const numerus_matrix *matrix,
+    int *positive_definite,
+    int *positive_semidefinite
+);
+
+/**
  * Compute reduced, unpivoted Householder QR: A = Q * R.
  * Q is rows(A)×min(rows(A), columns(A)); R is min(rows(A), columns(A))×columns(A).
  * This API is not rank-revealing. Both outputs remain NULL on failure.
