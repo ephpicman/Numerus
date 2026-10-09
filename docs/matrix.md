@@ -438,6 +438,20 @@ rank-deficient, zero, and near-singular inputs. Non-finite values and source
 read failures propagate their status; on failure, the basis is NULL and the
 nullity output is unchanged.
 
+## Cholesky decomposition
+
+`numerus_matrix_cholesky(A, &L)` computes a lower-triangular factor such
+that A is approximately L times its transpose. The input must be square,
+finite, and symmetric within a scale-aware tolerance. Each diagonal pivot must
+exceed a threshold based on the largest absolute input element, matrix size,
+and `NUMERUS_EPSILON`; semidefinite, indefinite, or numerically singular
+inputs return `NUMERUS_MATRIX_NOT_POSITIVE_DEFINITE`. Non-symmetric inputs
+return `NUMERUS_MATRIX_NOT_SYMMETRIC`. The factor is an independent dense
+Matrix, and the output remains NULL on failure.
+
+Cholesky is O(n³) time and O(n²) workspace. It is intended for symmetric
+positive-definite systems; use LU or QR for general matrices.
+
 ## Reduced Householder QR decomposition
 
 `numerus_matrix_qr_decompose(A, &Q, &R)` computes a reduced Householder
@@ -910,6 +924,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_qr_test tests/matrix_qr_test.c numerus_matrix_qr.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
 ./tests/matrix_qr_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_cholesky_test tests/matrix_cholesky_test.c numerus_matrix_cholesky.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+./tests/matrix_cholesky_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
