@@ -1304,6 +1304,7 @@ int numerus_matrix_create_diagonal_from_vector_view(
     size_t vector_length;
     size_t offset_magnitude;
     size_t size;
+    size_t element_count;
     numerus_matrix_status status;
 
     if (matrix == NULL) {
@@ -1327,7 +1328,8 @@ int numerus_matrix_create_diagonal_from_vector_view(
         ? (size_t) offset
         : (size_t) (-(offset + 1)) + 1;
 
-    if (!numerus_size_add(vector_length, offset_magnitude, &size)) {
+    if (!numerus_size_add(vector_length, offset_magnitude, &size) ||
+        !numerus_size_multiply(size, size, &element_count)) {
         return NUMERUS_MATRIX_OVERFLOW;
     }
 
