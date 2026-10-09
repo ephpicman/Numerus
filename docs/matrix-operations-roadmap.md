@@ -203,7 +203,7 @@ Exit criteria: convergence tests, residual checks, explicit real-only limitation
 
 # Phase 9 — Statistical, element-wise, and utility operations
 
-- [ ] 9.1 Element-wise min/max and clamp. Define NaN propagation and interval validation.
+- [x] 9.1 Element-wise min/max and clamp. NaN propagates; clamp rejects NaN bounds and reversed intervals while permitting infinite bounds. Results are independent dense matrices and source-read failures propagate.
 - [ ] 9.2 Map/apply. Require deterministic callbacks and a clear context lifetime contract; distinguish lazy views from eager materialization.
 - [ ] 9.3 Normalize. Support explicitly named norms/axes; reject zero-norm normalization or define its behavior.
 - [ ] 9.4 Variance and standard deviation. Define population vs sample semantics and numerical accumulation strategy.
@@ -242,6 +242,7 @@ Exit criteria: specialized paths are benchmarked against general paths and never
 This inventory captures the broader feature set discussed for Numerus. It is not a commitment to ship every advanced operation immediately; phase order and exit criteria determine implementation.
 
 ### Arithmetic and element-wise
+- [x] Element-wise minimum, maximum, and clamp (Phase 9.1).
 - [ ] Addition and subtraction
 - [ ] Scalar addition/subtraction (if useful; distinguish from matrix-wide scalar transform)
 - [ ] Scalar multiplication and division

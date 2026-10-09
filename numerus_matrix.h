@@ -378,6 +378,28 @@ int numerus_matrix_create_divide(
 );
 
 /**
+ * Create an independent dense Matrix containing element-wise minimum/maximum.
+ * Inputs must have equal dimensions. NaN propagates from either operand.
+ * The output pointer remains NULL on failure.
+ */
+int numerus_matrix_create_elementwise_min(
+    const numerus_matrix *left, const numerus_matrix *right,
+    numerus_matrix **matrix
+);
+int numerus_matrix_create_elementwise_max(
+    const numerus_matrix *left, const numerus_matrix *right,
+    numerus_matrix **matrix
+);
+/**
+ * Clamp values to [lower, upper] in an independent dense Matrix. NaN values
+ * propagate; NaN bounds or lower > upper are invalid. Infinite bounds are OK.
+ */
+int numerus_matrix_create_clamp(
+    const numerus_matrix *source, double lower, double upper,
+    numerus_matrix **matrix
+);
+
+/**
  * Materialize the logical values of a Matrix into independent dense Storage.
  *
  * Works for roots, nested views, joins, and binary arithmetic nodes. The result
