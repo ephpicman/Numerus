@@ -357,6 +357,21 @@ It returns `NUMERUS_MATRIX_NOT_SQUARE` for non-square (A),
 `NUMERUS_MATRIX_NON_FINITE` for non-finite inputs or intermediates. On
 failure, the output pointer remains NULL.
 
+## Condition estimate
+
+`numerus_matrix_condition_estimate_one()` estimates the 1-norm condition
+number `||A||₁ × ||A⁻¹||₁` using the implemented inverse. Values near one
+indicate a better-conditioned matrix; large values indicate that small
+perturbations may be amplified. A singular or numerically singular Matrix
+returns success with an infinite estimate. Non-square input and failures
+during inversion return statuses, leaving the output unchanged.
+
+This estimate is not a proof of forward accuracy, and its singularity decision
+inherits the scale-aware threshold used by `numerus_matrix_rank()`. The
+current implementation materializes an inverse, prioritizing a clear baseline
+over efficiency; a cheaper estimator can be considered if benchmarks justify
+the added algorithmic complexity.
+
 ## Matrix inverse
 
 `numerus_matrix_inverse()` computes the inverse through LU factorization and
@@ -772,6 +787,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_solve_test tests/matrix_solve_test.c numerus_matrix_solve.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
 ./tests/matrix_solve_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_condition_test tests/matrix_condition_test.c numerus_matrix_condition.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+./tests/matrix_condition_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
