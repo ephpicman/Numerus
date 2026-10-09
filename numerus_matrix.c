@@ -47,6 +47,7 @@ struct numerus_matrix {
     double transform_scalar;
     size_t transform_row_offset;
     size_t transform_column_offset;
+    size_t transform_parent_columns;
     size_t *selection_indices;
     numerus_matrix_selection_axis selection_axis;
 };
@@ -160,6 +161,34 @@ static numerus_matrix_status selection_coordinate_transform(
     }
 
     return NUMERUS_MATRIX_INVALID_ARGUMENT;
+}
+
+static numerus_matrix_status reshape_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    const numerus_matrix *view = context;
+    size_t linear_index;
+
+    if (view == NULL || parent_row == NULL || parent_column == NULL ||
+        view->transform_parent_columns == 0) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    /*
+     * Construction verifies rows * columns is representable. Coordinates
+     * reaching this callback are within those dimensions, so this linear
+     * index is bounded by the validated logical element count.
+     */
+    linear_index = row * view->columns + column;
+    *parent_row = linear_index / view->transform_parent_columns;
+    *parent_column = linear_index % view->transform_parent_columns;
+
+    return NUMERUS_MATRIX_SUCCESS;
 }
 
 static numerus_matrix_status divide_scalar_value_transform(
@@ -457,6 +486,7 @@ static int allocate_matrix(numerus_matrix **matrix)
     (*matrix)->transform_scalar = 0.0;
     (*matrix)->transform_row_offset = 0;
     (*matrix)->transform_column_offset = 0;
+    (*matrix)->transform_parent_columns = 0;
     (*matrix)->selection_indices = NULL;
     (*matrix)->selection_axis = NUMERUS_MATRIX_SELECTION_NONE;
 
@@ -814,6 +844,60 @@ int numerus_matrix_create_selection_view(
 
     view->selection_indices = owned_indices;
     view->selection_axis = axis;
+    view->transform_context = view;
+    *matrix = view;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+int numerus_matrix_create_reshape_view(
+    numerus_matrix *parent,
+    size_t rows,
+    size_t columns,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix *view = NULL;
+    size_t parent_count;
+    size_t view_count;
+    numerus_matrix_status status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+
+    if (parent == NULL || rows == 0 || columns == 0) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    if (!numerus_size_multiply(
+            numerus_matrix_rows(parent),
+            numerus_matrix_columns(parent),
+            &parent_count
+        ) ||
+        !numerus_size_multiply(rows, columns, &view_count)) {
+        return NUMERUS_MATRIX_OVERFLOW;
+    }
+
+    if (parent_count != view_count) {
+        return NUMERUS_MATRIX_DIMENSION_MISMATCH;
+    }
+
+    status = numerus_matrix_create_from_parent_with_transforms(
+        parent,
+        rows,
+        columns,
+        reshape_coordinate_transform,
+        NULL,
+        NULL,
+        &view
+    );
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        return status;
+    }
+
+    view->transform_parent_columns = numerus_matrix_columns(parent);
     view->transform_context = view;
     *matrix = view;
 
