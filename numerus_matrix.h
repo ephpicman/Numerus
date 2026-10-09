@@ -43,7 +43,9 @@ typedef enum {
     /** The Matrix is not symmetric within the numerical symmetry tolerance. */
     NUMERUS_MATRIX_NOT_SYMMETRIC,
     /** The Matrix is not numerically positive definite. */
-    NUMERUS_MATRIX_NOT_POSITIVE_DEFINITE
+    NUMERUS_MATRIX_NOT_POSITIVE_DEFINITE,
+    /** An unpivoted decomposition encountered a zero or numerically small pivot. */
+    NUMERUS_MATRIX_PIVOT_TOO_SMALL
 } numerus_matrix_status;
 
 /**
@@ -901,6 +903,21 @@ numerus_matrix_status numerus_matrix_null_space(
  * Positive definiteness uses a scale-aware pivot threshold. On failure,
  * *lower remains NULL.
  */
+/**
+ * Compute an unpivoted LDL^T factorization for a symmetric Matrix.
+ *
+ * A is approximately L * D * transpose(L), where L is unit lower triangular
+ * and D is diagonal. Symmetry and pivot checks use scale-aware tolerances.
+ * This implementation supports matrices whose leading pivots remain safely
+ * nonzero; it does not pivot and can reject nonsingular matrices that require
+ * symmetric pivoting. Both outputs remain NULL on failure.
+ */
+numerus_matrix_status numerus_matrix_ldlt_decompose(
+    const numerus_matrix *matrix,
+    numerus_matrix **lower,
+    numerus_matrix **diagonal
+);
+
 numerus_matrix_status numerus_matrix_cholesky(
     const numerus_matrix *matrix,
     numerus_matrix **lower
