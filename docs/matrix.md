@@ -73,6 +73,7 @@ Supported convenience views:
 | `numerus_matrix_create_swap_columns(parent, column1, column2, ...)` | Exchanges two zero-based column positions |
 | `numerus_matrix_create_scale(parent, scalar, ...)` | Multiplies each logical value by a copied scalar |
 | `numerus_matrix_create_negate(parent, ...)` | Negates each logical value |
+| `numerus_matrix_create_divide_scalar(parent, divisor, ...)` | Divides each logical value by a nonzero scalar |
 
 Row/column removal and swaps are coordinate transforms. They do not mutate the
 parent or copy element data. Removing the only row or only column is rejected
@@ -162,6 +163,17 @@ the output pointer remains NULL; a partially populated result is never
 published. Materialization has O(rows × columns) time and O(rows × columns)
 temporary memory, in addition to the independent dense result Storage.
 
+## Scalar division
+
+`numerus_matrix_create_divide_scalar(parent, divisor, &result)` returns a lazy
+value-transform view for `parent / divisor`. Unlike element-wise division,
+scalar division rejects positive or negative zero with
+`NUMERUS_MATRIX_DIVISION_BY_ZERO`; the output pointer remains NULL. Nonzero
+divisors, including NaN and infinities, follow IEEE-754 `double` semantics.
+This is direct division by the scalar, not multiplication by a precomputed
+reciprocal, so rounding follows the requested operation. The parent is
+non-owning and must outlive the view.
+
 ## Element-wise addition and subtraction
 
 `numerus_matrix_create_add()`, `numerus_matrix_create_subtract()`,
@@ -215,6 +227,7 @@ Relevant statuses:
 - `NUMERUS_MATRIX_OUT_OF_BOUNDS`
 - `NUMERUS_MATRIX_NOT_SQUARE`
 - `NUMERUS_MATRIX_DIMENSION_MISMATCH`
+- `NUMERUS_MATRIX_DIVISION_BY_ZERO`
 
 A numeric zero is a valid value, not an error signal.
 
@@ -274,9 +287,9 @@ determinism requirements.
 
 The native Matrix tests cover storage-backed constructors, orientation
 transforms, row/column removal and swaps, composed views, lazy scalar
-multiplication and negation, element-wise arithmetic, nested-view materialization,
-rectangular matrix products, overflow and read-failure handling, cached structural
-flags, determinant calculations, and output-value preservation after failures.
+multiplication, scalar division, element-wise arithmetic, nested-view
+materialization, rectangular matrix products, overflow and read-failure handling,
+cached structural flags, determinant calculations, and output preservation.
 
 Run them from the repository root:
 
@@ -322,6 +335,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_multiply_test tests/matrix_multiply_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_storage.c
 ./tests/matrix_multiply_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_scalar_division_test tests/matrix_scalar_division_test.c numerus_matrix.c numerus_storage.c
+./tests/matrix_scalar_division_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds

@@ -106,6 +106,14 @@ jobs:
             -o tests/matrix_multiply_test tests/matrix_multiply_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_storage.c
           ./tests/matrix_multiply_test
 
+      - name: Run native Matrix scalar division tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_scalar_division_test tests/matrix_scalar_division_test.c numerus_matrix.c numerus_storage.c
+          ./tests/matrix_scalar_division_test
+
       - name: Run non-gating Matrix benchmarks
         if: matrix.php == '8.5'
         run: |
