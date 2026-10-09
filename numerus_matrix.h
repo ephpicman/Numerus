@@ -279,6 +279,25 @@ int numerus_matrix_create_join_vertical(
     numerus_matrix **matrix
 );
 
+/**
+ * Create a lazy scalar-multiplication view.
+ *
+ * The scalar is copied into the view; the parent is borrowed and must outlive
+ * the result. IEEE-754 multiplication semantics apply, including NaN and
+ * infinities. The output pointer is set to NULL before work begins.
+ */
+int numerus_matrix_create_scale(
+    numerus_matrix *parent,
+    double scalar,
+    numerus_matrix **matrix
+);
+
+/** Create a lazy unary-negation view. */
+int numerus_matrix_create_negate(
+    numerus_matrix *parent,
+    numerus_matrix **matrix
+);
+
 /** Create a dense Matrix. */
 int numerus_matrix_create_dense(
     size_t rows,
