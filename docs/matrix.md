@@ -376,6 +376,17 @@ output pointers are NULL on failure.
 The algorithm costs O(m*n*k) arithmetic and O(m*n + m*k + k*n) temporary
 storage, in addition to the two output Matrices.
 
+## Inverse benchmark coverage
+
+The standalone diagnostic benchmark measures the current LU-based inverse and
+one-norm condition estimate on both a diagonally dominant 32×32 matrix and a
+diagonal matrix with condition number around 1e7. It reports CPU time and
+allocation calls/bytes and checks the maximum residual `max|A*A⁻¹-I|` outside
+the timed interval. These measurements are smoke diagnostics, not statistically
+reliable performance claims or CI thresholds. A second inverse algorithm is
+not added solely to create a comparison; it needs a clear educational or
+measured engineering benefit first.
+
 ## Condition estimate
 
 `numerus_matrix_condition_estimate_one()` estimates the 1-norm condition
