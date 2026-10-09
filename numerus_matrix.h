@@ -10,6 +10,7 @@
 #ifndef NUMERUS_MATRIX_H
 #define NUMERUS_MATRIX_H
 
+#include <stdbool.h>
 #include <stddef.h>
 
 #include "numerus_storage.h"
@@ -46,18 +47,18 @@ typedef enum {
 /**
  * @brief Cached structural properties of a Matrix.
  *
- * Flags use exact comparisons, not a numerical tolerance. A square zero
+ * Properties use exact comparisons, not a numerical tolerance. A square zero
  * Matrix is also diagonal, upper-triangular, lower-triangular, and symmetric.
  */
-typedef enum {
-    NUMERUS_MATRIX_FLAG_SQUARE = 1u << 0,
-    NUMERUS_MATRIX_FLAG_ZERO = 1u << 1,
-    NUMERUS_MATRIX_FLAG_DIAGONAL = 1u << 2,
-    NUMERUS_MATRIX_FLAG_UPPER_TRIANGULAR = 1u << 3,
-    NUMERUS_MATRIX_FLAG_LOWER_TRIANGULAR = 1u << 4,
-    NUMERUS_MATRIX_FLAG_SYMMETRIC = 1u << 5,
-    NUMERUS_MATRIX_FLAG_IDENTITY = 1u << 6
-} numerus_matrix_flag;
+typedef struct {
+    bool square;
+    bool zero;
+    bool diagonal;
+    bool upper_triangular;
+    bool lower_triangular;
+    bool symmetric;
+    bool identity;
+} numerus_matrix_flags;
 
 /**
  * @brief Parameters consumed by the general Matrix factory.
@@ -332,22 +333,22 @@ int numerus_matrix_create_banded(
 );
 
 /**
- * @brief Compute or retrieve cached structural flags.
+ * @brief Compute or retrieve cached structural properties.
  *
- * Flags describe the logical values exposed by this Matrix. The output is
- * unchanged if the scan fails.
+ * Properties describe the logical values exposed by this Matrix. The output
+ * is unchanged if the scan fails.
  */
 numerus_matrix_status numerus_matrix_get_flags(
     numerus_matrix *matrix,
-    unsigned int *flags
+    numerus_matrix_flags *flags
 );
 
 /**
  * @brief Compute or retrieve the cached determinant of a square Matrix.
  *
  * Uses partial-pivoted Gaussian elimination in the general case, with cheaper
- * paths for zero, identity, or triangular matrices when flags are already
- * cached. Successful results, including zero, are cached. Failures are not.
+ * paths for zero, identity, or triangular matrices when structural properties
+ * have already been cached. Successful results, including zero, are cached. Failures are not.
  * The output is unchanged on failure.
  */
 numerus_matrix_status numerus_matrix_determinant(
