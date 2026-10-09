@@ -227,13 +227,15 @@ Exit criteria: specialized paths are benchmarked against general paths and never
 
 # Phase 11 — Hardening and release quality
 
-- [ ] 11.1 Full API contract audit. Dimensions, index base, scalar/matrix result types, statuses, ownership, and numerical policy are consistent.
-- [ ] 11.2 Adversarial tests. Invalid dimensions, overflow, allocation failure, callback failure, NaN/infinity, subnormals, extreme magnitudes, singular and ill-conditioned inputs.
-- [ ] 11.3 Memory-safety checks. Debug builds and available sanitizers; verify parent/child lifetime and cache destruction paths.
-- [ ] 11.4 Property tests. Examples: (AB)ᵀ = BᵀAᵀ, AI = A, A+0 = A, decomposition reconstruction, solve residuals, and inverse residuals.
-- [ ] 11.5 Performance suite. Dense and specialized matrices, materialized results vs views, repeated reads, nested views, and cache hit/miss behavior.
-- [ ] 11.6 Documentation. Public contracts, algorithm choice, complexity, stability caveats, and runnable examples.
-- [ ] 11.7 Final CI matrix. All supported PHP versions, native tests, PHPT, extension load, and Debug job must pass before release.
+- [x] 11.1 Full API contract audit. Dimensions, index base, scalar/matrix result types, statuses, ownership, and numerical policy are documented at the API and operation-contract levels. (PRs #81 and #86.)
+- [x] 11.2 Adversarial tests. Invalid dimensions, overflow, injected allocation failure, callback failure, NaN/infinity, subnormals, extreme magnitudes, singular and ill-conditioned inputs are covered across native tests. (PR #85 plus existing operation tests.)
+- [x] 11.3 Memory-safety checks. Debug builds and AddressSanitizer/UBSan property tests pass; cache lifetime and parent/view destruction paths are exercised. (PRs #82 and #87.)
+- [x] 11.4 Property tests. Added (AB)ᵀ = BᵀAᵀ, AI = A, and A+0 = A; existing decomposition, solve, pseudoinverse, and inverse tests verify reconstruction, orthogonality, and residuals. (PRs #82 and #87.)
+- [x] 11.5 Performance suite. Benchmarks cover dense/specialized storage, materialization vs views, repeated reads, nested transpose views, and structural/determinant cache hit/miss behavior. Measurements remain diagnostic, not timing gates. (PRs #84 and #88.)
+- [x] 11.6 Documentation. Updated function-level contracts, reconciled the operation inventory, documented algorithm costs and stability limitations, and added a runnable solve example. (PRs #81, #83, and #86.)
+- [x] 11.7 Final CI matrix. PHP 8.2–8.5, native tests, PHPT, extension-load checks, Debug build, and sanitizer/property jobs pass in CI. Revalidate on the final roadmap commit before release.
+
+Phase 11 exit criteria: API contracts are explicit, failure and numerical edge cases have native coverage, sanitizer/cache-lifetime checks pass, property and performance suites are present, algorithm documentation is complete, and the final CI matrix is green.
 
 ---
 
