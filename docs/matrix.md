@@ -163,6 +163,21 @@ the output pointer remains NULL; a partially populated result is never
 published. Materialization has O(rows × columns) time and O(rows × columns)
 temporary memory, in addition to the independent dense result Storage.
 
+## Exact and approximate equality
+
+`numerus_matrix_is_equal()` compares corresponding values with exact C
+`double ==` semantics. `numerus_matrix_is_close()` uses
+`numerus_double_equals()` from `numerus_numeric.h`, with the established
+combined absolute/relative tolerance (`NUMERUS_EPSILON = 1e-9`). These are
+separate operations: approximate equality must not silently replace exact
+equality.
+
+For both operations, a shape mismatch is a successful comparison with a
+`false` result, not a status error. NaN compares unequal to itself in both
+modes; equal infinities compare equal, and positive/negative zero compare equal.
+If a parent read fails, the status is propagated and the caller's boolean
+output is unchanged. Null arguments return `NUMERUS_MATRIX_INVALID_ARGUMENT`.
+
 ## Scalar division
 
 `numerus_matrix_create_divide_scalar(parent, divisor, &result)` returns a lazy
@@ -287,9 +302,9 @@ determinism requirements.
 
 The native Matrix tests cover storage-backed constructors, orientation
 transforms, row/column removal and swaps, composed views, lazy scalar
-multiplication, scalar division, element-wise arithmetic, nested-view
-materialization, rectangular matrix products, overflow and read-failure handling,
-cached structural flags, determinant calculations, and output preservation.
+multiplication, scalar division, exact/approximate equality, element-wise
+arithmetic, nested-view materialization, rectangular products, overflow and
+read-failure handling, cached structural flags, and determinant calculations.
 
 Run them from the repository root:
 
@@ -341,6 +356,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_scalar_division_test tests/matrix_scalar_division_test.c numerus_matrix.c numerus_storage.c
 ./tests/matrix_scalar_division_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_compare_test tests/matrix_compare_test.c numerus_matrix.c numerus_matrix_compare.c numerus_storage.c
+./tests/matrix_compare_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds

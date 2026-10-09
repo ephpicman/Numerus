@@ -388,6 +388,32 @@ int numerus_matrix_create_divide_scalar(
     numerus_matrix **matrix
 );
 
+/**
+ * Compare two Matrices using exact C double equality.
+ *
+ * Shape mismatch is a successful comparison with result=false. NaN compares
+ * unequal; equal infinities and signed zero follow C double == semantics.
+ * The output is unchanged if a Matrix read fails.
+ */
+numerus_matrix_status numerus_matrix_is_equal(
+    const numerus_matrix *left,
+    const numerus_matrix *right,
+    bool *equal
+);
+
+/**
+ * Compare two Matrices using NUMERUS_EPSILON's combined tolerance.
+ *
+ * Shape mismatch is a successful comparison with result=false. NaN compares
+ * unequal, and equal infinities compare equal. The output is unchanged if a
+ * Matrix read fails.
+ */
+numerus_matrix_status numerus_matrix_is_close(
+    const numerus_matrix *left,
+    const numerus_matrix *right,
+    bool *close
+);
+
 /** Create a dense Matrix. */
 int numerus_matrix_create_dense(
     size_t rows,
