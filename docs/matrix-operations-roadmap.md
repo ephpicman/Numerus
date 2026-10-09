@@ -190,9 +190,9 @@ Exit criteria: reconstruction and orthogonality tests, convergence/error reporti
 
 # Phase 8 — Eigenvalues and matrix functions
 
-- [ ] 8.1 Symmetric-matrix eigenvalues/eigenvectors. Cyclic Jacobi rotations return descending real eigenvalues and orthonormal eigenvectors with reconstruction/convergence tests. (Implementation proposed in PR #60; merge pending.)
+- [x] 8.1 Symmetric-matrix eigenvalues/eigenvectors. Cyclic Jacobi rotations return descending real eigenvalues and orthonormal eigenvectors with reconstruction/convergence tests. (Merged in PR #60.)
 - [ ] 8.2 General real-matrix eigenvalues. Eigenvalues can be complex even for real matrices. Since complex values are out of scope, define an explicit limitation/error contract instead of silently discarding imaginary components.
-- [ ] 8.3 Spectral radius and spectral norm. Reuse relevant eigenvalue/SVD implementation.
+- [ ] 8.3 Spectral radius and spectral norm. General spectral norm reuses SVD; symmetric spectral radius reuses symmetric eigendecomposition. General nonsymmetric spectral radius remains deferred until the real/complex eigenvalue contract is implemented. (Implementation proposed in PR #61; merge pending.)
 - [ ] 8.4 Diagonalizability checks. Define numerical rather than symbolic semantics.
 - [ ] 8.5 Matrix power for negative integer exponents. Build on inverse and exponentiation by squaring.
 - [ ] 8.6 Matrix exponential. Prefer a numerically appropriate scaling-and-squaring method with Padé approximation rather than naïve Taylor summation as the only production path.
