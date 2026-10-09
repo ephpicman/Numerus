@@ -13,8 +13,6 @@ jobs:
   build:
     name: PHP ${{ matrix.php }}
     runs-on: ubuntu-latest
-    container:
-      image: php:${{ matrix.php }}-cli
 
     strategy:
       fail-fast: false
@@ -26,10 +24,15 @@ jobs:
           - "8.5"
 
     steps:
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+
       - name: Install build dependencies
         run: |
-          apt-get update
-          apt-get install -y --no-install-recommends autoconf build-essential pkg-config
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends autoconf build-essential pkg-config
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -469,14 +472,17 @@ jobs:
   debug:
     name: Debug build
     runs-on: ubuntu-latest
-    container:
-      image: php:8.5-cli
 
     steps:
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+
       - name: Install build dependencies
         run: |
-          apt-get update
-          apt-get install -y --no-install-recommends autoconf build-essential pkg-config
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends autoconf build-essential pkg-config
 
       - name: Checkout
         uses: actions/checkout@v4
