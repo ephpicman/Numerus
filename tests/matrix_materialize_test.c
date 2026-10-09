@@ -1,0 +1,151 @@
+#include "../numerus_matrix.h"
+
+#include <assert.h>
+#include <stdint.h>
+#include <stdio.h>
+
+static int matrix_value_equals(
+    const numerus_matrix *matrix,
+    size_t row,
+    size_t column,
+    double expected
+)
+{
+    double actual = 0.0;
+
+    return numerus_matrix_get(
+        matrix, row, column, &actual
+    ) == NUMERUS_MATRIX_SUCCESS && actual == expected;
+}
+
+static numerus_matrix_status fail_on_second_row(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    (void) context;
+
+    if (row == 1) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = row;
+    *parent_column = column;
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static void test_materialize_nested_views_and_joins(void)
+{
+    const double values[] = {1, 2, 3, 4};
+    const double expected[] = {
+        1, 3, 1, 2,
+        2, 4, 3, 4
+    };
+    numerus_matrix *root = NULL;
+    numerus_matrix *transpose = NULL;
+    numerus_matrix *joined = NULL;
+    numerus_matrix *copy = NULL;
+
+    assert(numerus_matrix_create_dense(2, 2, values, &root) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_transpose(root, &transpose) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_join_horizontal(transpose, root, &joined) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_materialize(joined, &copy) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    assert(numerus_matrix_rows(copy) == 2);
+    assert(numerus_matrix_columns(copy) == 4);
+    assert(numerus_matrix_storage_kind(copy) == NUMERUS_STORAGE_DENSE);
+    for (size_t row = 0; row < 2; row++) {
+        for (size_t column = 0; column < 4; column++) {
+            assert(matrix_value_equals(
+                copy, row, column, expected[row * 4 + column]
+            ));
+        }
+    }
+
+    /* The materialized copy no longer depends on the source or its parents. */
+    numerus_matrix_destroy(joined);
+    numerus_matrix_destroy(transpose);
+    numerus_matrix_destroy(root);
+    assert(matrix_value_equals(copy, 0, 1, 3.0));
+    assert(matrix_value_equals(copy, 1, 3, 4.0));
+    numerus_matrix_destroy(copy);
+}
+
+static void test_materialize_binary_node(void)
+{
+    const double values[] = {1, 2, 3, 4};
+    numerus_matrix *root = NULL;
+    numerus_matrix *sum = NULL;
+    numerus_matrix *copy = NULL;
+
+    assert(numerus_matrix_create_dense(2, 2, values, &root) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_add(root, root, &sum) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_materialize(sum, &copy) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    assert(numerus_matrix_storage_kind(copy) == NUMERUS_STORAGE_DENSE);
+    assert(matrix_value_equals(copy, 0, 0, 2.0));
+    assert(matrix_value_equals(copy, 0, 1, 4.0));
+    assert(matrix_value_equals(copy, 1, 0, 6.0));
+    assert(matrix_value_equals(copy, 1, 1, 8.0));
+
+    numerus_matrix_destroy(copy);
+    numerus_matrix_destroy(sum);
+    numerus_matrix_destroy(root);
+}
+
+static void test_materialize_failures(void)
+{
+    const double values[] = {1, 2, 3, 4};
+    numerus_matrix *root = NULL;
+    numerus_matrix *failing = NULL;
+    numerus_matrix *huge = NULL;
+    numerus_matrix *copy = NULL;
+
+    assert(numerus_matrix_create_dense(2, 2, values, &root) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_from_parent_with_transforms(
+        root, 2, 2, fail_on_second_row, NULL, NULL, &failing
+    ) == NUMERUS_MATRIX_SUCCESS);
+
+    copy = root;
+    assert(numerus_matrix_materialize(failing, &copy) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(copy == NULL);
+
+    assert(numerus_matrix_create_from_parent(
+        root, SIZE_MAX, 2, &huge
+    ) == NUMERUS_MATRIX_SUCCESS);
+    copy = root;
+    assert(numerus_matrix_materialize(huge, &copy) ==
+        NUMERUS_MATRIX_OVERFLOW);
+    assert(copy == NULL);
+
+    assert(numerus_matrix_materialize(NULL, &copy) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(copy == NULL);
+    assert(numerus_matrix_materialize(root, NULL) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+
+    numerus_matrix_destroy(huge);
+    numerus_matrix_destroy(failing);
+    numerus_matrix_destroy(root);
+}
+
+int main(void)
+{
+    test_materialize_nested_views_and_joins();
+    test_materialize_binary_node();
+    test_materialize_failures();
+    puts("Matrix materialization tests passed.");
+    return 0;
+}
