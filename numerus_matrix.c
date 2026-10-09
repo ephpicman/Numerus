@@ -56,6 +56,12 @@ struct numerus_matrix {
     double padding_value;
     bool repeat_view;
     bool block_diagonal_view;
+    bool block_grid_view;
+    numerus_matrix **block_matrices;
+    size_t *block_row_offsets;
+    size_t *block_column_offsets;
+    size_t block_row_count;
+    size_t block_column_count;
 };
 
 static numerus_matrix_status identity_coordinate_transform(
@@ -501,6 +507,12 @@ static int allocate_matrix(numerus_matrix **matrix)
     (*matrix)->padding_value = 0.0;
     (*matrix)->repeat_view = false;
     (*matrix)->block_diagonal_view = false;
+    (*matrix)->block_grid_view = false;
+    (*matrix)->block_matrices = NULL;
+    (*matrix)->block_row_offsets = NULL;
+    (*matrix)->block_column_offsets = NULL;
+    (*matrix)->block_row_count = 0;
+    (*matrix)->block_column_count = 0;
 
     return NUMERUS_MATRIX_SUCCESS;
 }
@@ -1045,6 +1057,144 @@ int numerus_matrix_create_block_diagonal_view(
 
     view->block_diagonal_view = true;
     *matrix = view;
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+int numerus_matrix_create_block_grid_view(
+    numerus_matrix *const *blocks,
+    size_t block_row_count,
+    size_t block_column_count,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix *view = NULL;
+    size_t block_count;
+    size_t block_bytes;
+    size_t row_offset_count;
+    size_t row_offset_bytes;
+    size_t column_offset_count;
+    size_t column_offset_bytes;
+    size_t total_rows = 0;
+    size_t total_columns = 0;
+    size_t row;
+    size_t column;
+    int status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+
+    if (blocks == NULL || block_row_count == 0 || block_column_count == 0) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    if (!numerus_size_multiply(
+            block_row_count, block_column_count, &block_count
+        ) ||
+        !numerus_size_multiply(
+            block_count, sizeof(*view->block_matrices), &block_bytes
+        ) ||
+        !numerus_size_add(block_row_count, 1, &row_offset_count) ||
+        !numerus_size_multiply(
+            row_offset_count, sizeof(*view->block_row_offsets), &row_offset_bytes
+        ) ||
+        !numerus_size_add(block_column_count, 1, &column_offset_count) ||
+        !numerus_size_multiply(
+            column_offset_count, sizeof(*view->block_column_offsets), &column_offset_bytes
+        )) {
+        return NUMERUS_MATRIX_OVERFLOW;
+    }
+
+    for (row = 0; row < block_row_count; row++) {
+        size_t block_height;
+        size_t next_total;
+
+        if (blocks[row * block_column_count] == NULL) {
+            return NUMERUS_MATRIX_INVALID_ARGUMENT;
+        }
+
+        block_height = numerus_matrix_rows(blocks[row * block_column_count]);
+        for (column = 1; column < block_column_count; column++) {
+            numerus_matrix *block = blocks[row * block_column_count + column];
+
+            if (block == NULL || numerus_matrix_rows(block) != block_height) {
+                return NUMERUS_MATRIX_DIMENSION_MISMATCH;
+            }
+        }
+
+        if (!numerus_size_add(total_rows, block_height, &next_total)) {
+            return NUMERUS_MATRIX_OVERFLOW;
+        }
+        total_rows = next_total;
+    }
+
+    for (column = 0; column < block_column_count; column++) {
+        size_t block_width;
+        size_t next_total;
+
+        if (blocks[column] == NULL) {
+            return NUMERUS_MATRIX_INVALID_ARGUMENT;
+        }
+
+        block_width = numerus_matrix_columns(blocks[column]);
+        for (row = 1; row < block_row_count; row++) {
+            numerus_matrix *block = blocks[row * block_column_count + column];
+
+            if (block == NULL || numerus_matrix_columns(block) != block_width) {
+                return NUMERUS_MATRIX_DIMENSION_MISMATCH;
+            }
+        }
+
+        if (!numerus_size_add(total_columns, block_width, &next_total)) {
+            return NUMERUS_MATRIX_OVERFLOW;
+        }
+        total_columns = next_total;
+    }
+
+    status = allocate_matrix(&view);
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        return status;
+    }
+
+    view->block_matrices = numerus_matrix_alloc(block_bytes);
+    view->block_row_offsets = numerus_matrix_alloc(row_offset_bytes);
+    view->block_column_offsets = numerus_matrix_alloc(column_offset_bytes);
+
+    if (view->block_matrices == NULL || view->block_row_offsets == NULL ||
+        view->block_column_offsets == NULL) {
+        numerus_matrix_free(view->block_matrices);
+        numerus_matrix_free(view->block_row_offsets);
+        numerus_matrix_free(view->block_column_offsets);
+        numerus_matrix_free(view);
+        return NUMERUS_MATRIX_OUT_OF_MEMORY;
+    }
+
+    for (row = 0; row < block_count; row++) {
+        view->block_matrices[row] = blocks[row];
+    }
+
+    view->block_row_offsets[0] = 0;
+    for (row = 0; row < block_row_count; row++) {
+        view->block_row_offsets[row + 1] =
+            view->block_row_offsets[row] +
+            numerus_matrix_rows(blocks[row * block_column_count]);
+    }
+
+    view->block_column_offsets[0] = 0;
+    for (column = 0; column < block_column_count; column++) {
+        view->block_column_offsets[column + 1] =
+            view->block_column_offsets[column] +
+            numerus_matrix_columns(blocks[column]);
+    }
+
+    view->rows = total_rows;
+    view->columns = total_columns;
+    view->block_grid_view = true;
+    view->block_row_count = block_row_count;
+    view->block_column_count = block_column_count;
+    *matrix = view;
+
     return NUMERUS_MATRIX_SUCCESS;
 }
 
@@ -1839,6 +1989,37 @@ numerus_matrix_status numerus_matrix_get_unchecked(
         );
     }
 
+    if (matrix->block_grid_view) {
+        size_t block_row = 0;
+        size_t block_column = 0;
+        size_t local_row;
+        size_t local_column;
+        numerus_matrix *block;
+
+        if (matrix->block_matrices == NULL ||
+            matrix->block_row_offsets == NULL ||
+            matrix->block_column_offsets == NULL) {
+            return NUMERUS_MATRIX_INVALID_ARGUMENT;
+        }
+
+        while (block_row + 1 < matrix->block_row_count &&
+            row >= matrix->block_row_offsets[block_row + 1]) {
+            block_row++;
+        }
+        while (block_column + 1 < matrix->block_column_count &&
+            column >= matrix->block_column_offsets[block_column + 1]) {
+            block_column++;
+        }
+
+        local_row = row - matrix->block_row_offsets[block_row];
+        local_column = column - matrix->block_column_offsets[block_column];
+        block = matrix->block_matrices[
+            block_row * matrix->block_column_count + block_column
+        ];
+
+        return numerus_matrix_get(block, local_row, local_column, value);
+    }
+
     if (matrix->parent2 != NULL &&
         matrix->binary_operation != NUMERUS_MATRIX_BINARY_NONE) {
         double left_value;
@@ -2248,5 +2429,8 @@ void numerus_matrix_destroy(numerus_matrix *matrix)
     }
 
     numerus_matrix_free(matrix->selection_indices);
+    numerus_matrix_free(matrix->block_matrices);
+    numerus_matrix_free(matrix->block_row_offsets);
+    numerus_matrix_free(matrix->block_column_offsets);
     numerus_matrix_free(matrix);
 }
