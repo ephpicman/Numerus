@@ -278,7 +278,7 @@ This inventory captures the broader feature set discussed for Numerus. It is not
 - [x] Zero/identity/diagonal/triangular/symmetric flags (already implemented)
 - [x] Skew-symmetric and orthogonal predicates (Phase 3)
 - [x] Finite/NaN/infinity checks (Phase 3)
-- [ ] Positive-definite and positive-semidefinite classification
+- [x] Positive-definite and positive-semidefinite classification (scale-relative symmetric eigenvalue classification; PR #90).
 
 ### Elimination, solving, and spaces
 - [x] Gaussian elimination (Phase 4)
@@ -323,4 +323,4 @@ This inventory captures the broader feature set discussed for Numerus. It is not
 
 ## 7. Current execution status
 
-Phases 0–10 are implemented to the extent explicitly marked above; deferred items are intentional non-goals until a concrete consumer or benchmark justifies them. The remaining release gate is Phase 11 (hardening and release quality). Do not restart Phase 0 or treat the full operation inventory as a second, independent backlog. Update this roadmap as Phase 11 work is completed, and do not mark a task complete without corresponding implementation, tests, documentation, and green CI where applicable.
+Phases 0–11 are complete to the extent explicitly marked above. The final Phase 11 CI matrix is green on `main`; positive-definiteness classification was subsequently added and verified in PR #90. Remaining unchecked items are intentionally deferred or conditional, not release blockers: they require a concrete consumer, a numerical/API design decision, or benchmark evidence before implementation. Continue with the highest-value generally useful operation only when it has a clear contract and testable benefit. Do not restart Phase 0 or treat the full operation inventory as a second, independent backlog. Never mark a task complete without merged implementation, tests, documentation, and green CI where applicable.
