@@ -33,6 +33,7 @@ static numerus_matrix_status symmetric_matrix_function_apply(
     size_t size;
     size_t count;
     size_t bytes;
+    size_t transformed_bytes;
     size_t row;
     size_t column;
     size_t k;
@@ -59,11 +60,12 @@ static numerus_matrix_status symmetric_matrix_function_apply(
 
     size = numerus_matrix_rows(matrix);
     if (!numerus_size_multiply(size, size, &count) ||
-        !numerus_size_multiply(count, sizeof(*values), &bytes)) {
+        !numerus_size_multiply(count, sizeof(*values), &bytes) ||
+        !numerus_size_multiply(size, sizeof(*transformed), &transformed_bytes)) {
         status = NUMERUS_MATRIX_OVERFLOW;
         goto cleanup;
     }
-    transformed = symmetric_function_alloc(size * sizeof(*transformed));
+    transformed = symmetric_function_alloc(transformed_bytes);
     values = symmetric_function_alloc(bytes);
     if (transformed == NULL || values == NULL) {
         status = NUMERUS_MATRIX_OUT_OF_MEMORY;
