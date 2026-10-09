@@ -77,14 +77,21 @@ Do not combine unrelated algorithms into one large PR. This roadmap is a sequenc
 
 # Phase 0 — Contracts and operation infrastructure
 
-- [ ] 0.1 Define operation contracts. Document shape rules, result type, error statuses, numerical behavior, and whether each operation returns a view or materialized Matrix.
-- [ ] 0.2 Add missing status codes only when needed. Decide how singular matrices, non-convergence, and numerically invalid inputs are represented; avoid collapsing all such cases into invalid argument.
-- [ ] 0.3 Add safe size arithmetic helpers. Check rows×columns, buffer sizes, output dimensions, and all allocation-size calculations for overflow.
+- [x] 0.1 Define operation contracts. Document shape rules, result type, error statuses, numerical behavior, and whether each operation returns a view or materialized Matrix.
+- [x] 0.2 Define error-status policy; add missing status codes only when needed. Decide how singular matrices, non-convergence, and numerically invalid inputs are represented; avoid collapsing all such cases into invalid argument.
+- [x] 0.3 Add shared safe size arithmetic helpers. Check rows×columns, buffer sizes, output dimensions, and all allocation-size calculations for overflow.
 - [ ] 0.4 Establish shared iteration helpers. Reuse validated dimensions and the unchecked accessor only after establishing preconditions; avoid abstractions that obscure hot loops.
-- [ ] 0.5 Establish test helpers. Matrix construction/assertion helpers, approximate comparisons, status assertions, and failure-path output-preservation tests.
+- [x] 0.5 Establish baseline test helpers. Matrix construction/assertion helpers, approximate comparisons, status assertions, and failure-path output-preservation tests.
 - [ ] 0.6 Establish benchmark baselines. Include dense, diagonal, triangular, sparse, view-backed, and joined matrices at small/medium sizes; record time and allocations without making noisy microbenchmarks CI gates initially.
 
-Exit criteria: documented contracts, robust size checks, reusable tests, baseline benchmark methodology. No numerical algorithm expansion in this phase.
+### Phase 0 decisions recorded
+
+- Matrix-valued operations return a Matrix; scalar analyses return scalar outputs, and multi-output decompositions use explicit result structures.
+- Dimension mismatch, bounds errors, invalid arguments, overflow, allocation failure, and non-square input retain distinct statuses. Future algorithm-specific statuses such as singularity or non-convergence are introduced only when an operation needs them; they must not be disguised as invalid arguments or valid numeric results.
+- Checked size arithmetic lives in `numerus_size.h`. Its add, multiply, and triangular-count helpers leave output parameters unchanged on failure. Storage maps helper failures to its existing overflow status; Matrix uses the helpers for determinant workspace sizing.
+- Native tests already use assertion helpers and explicit output-preservation checks. The shared arithmetic helpers now have boundary and overflow tests.
+
+Exit criteria: documented contracts, robust size checks, reusable tests, and baseline benchmark methodology. No numerical algorithm expansion in this phase.
 
 # Phase 1 — Essential matrix-valued operations
 
