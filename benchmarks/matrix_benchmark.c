@@ -358,6 +358,7 @@ int main(void)
     static double upper_values[MATRIX_SIZE * (MATRIX_SIZE + 1) / 2];
     static numerus_storage_sparse_entry sparse_entries[MATRIX_SIZE];
     static double small_values[SMALL_SIZE * SMALL_SIZE];
+    static double ill_conditioned_values[SMALL_SIZE * SMALL_SIZE];
 
     numerus_matrix *dense = NULL;
     numerus_matrix *diagonal = NULL;
@@ -368,6 +369,7 @@ int main(void)
     numerus_matrix *scaled = NULL;
     numerus_matrix *sum = NULL;
     numerus_matrix *small = NULL;
+    numerus_matrix *ill_conditioned = NULL;
     size_t row;
     size_t column;
     size_t packed_index = 0;
@@ -402,6 +404,15 @@ int main(void)
         }
     }
 
+    for (row = 0; row < SMALL_SIZE; row++) {
+        for (column = 0; column < SMALL_SIZE; column++) {
+            ill_conditioned_values[row * SMALL_SIZE + column] =
+                row == column
+                    ? (row == SMALL_SIZE - 1 ? 1e-7 : 1.0)
+                    : 0.0;
+        }
+    }
+
     status = numerus_matrix_create_dense(
         MATRIX_SIZE, MATRIX_SIZE, dense_values, &dense
     );
@@ -432,6 +443,11 @@ int main(void)
     );
     if (status != NUMERUS_MATRIX_SUCCESS) goto fail;
 
+    status = numerus_matrix_create_dense(
+        SMALL_SIZE, SMALL_SIZE, ill_conditioned_values, &ill_conditioned
+    );
+    if (status != NUMERUS_MATRIX_SUCCESS) goto fail;
+
     benchmark_reads("dense read", dense, READ_ITERATIONS);
     benchmark_reads("diagonal read", diagonal, READ_ITERATIONS);
     benchmark_reads("triangular read", upper, READ_ITERATIONS);
@@ -447,6 +463,11 @@ int main(void)
     benchmark_condition_estimate(small, OPERATION_ITERATIONS);
     verify_inverse_residual(small);
 
+    benchmark_inverse(ill_conditioned, OPERATION_ITERATIONS);
+    benchmark_condition_estimate(ill_conditioned, OPERATION_ITERATIONS);
+    verify_inverse_residual(ill_conditioned);
+
+    numerus_matrix_destroy(ill_conditioned);
     numerus_matrix_destroy(small);
     numerus_matrix_destroy(sum);
     numerus_matrix_destroy(scaled);
@@ -461,6 +482,7 @@ int main(void)
 
 fail:
     fprintf(stderr, "benchmark setup failed: %d\n", status);
+    numerus_matrix_destroy(ill_conditioned);
     numerus_matrix_destroy(small);
     numerus_matrix_destroy(sum);
     numerus_matrix_destroy(scaled);
