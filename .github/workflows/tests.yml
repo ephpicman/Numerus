@@ -250,6 +250,14 @@ jobs:
             -o tests/matrix_null_space_test tests/matrix_null_space_test.c numerus_matrix_null_space.c numerus_matrix_qr.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
           ./tests/matrix_null_space_test
 
+      - name: Run native Matrix LDLT tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_ldlt_test tests/matrix_ldlt_test.c numerus_matrix_ldlt.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+          ./tests/matrix_ldlt_test
+
       - name: Run native Matrix Cholesky tests
         run: |
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
