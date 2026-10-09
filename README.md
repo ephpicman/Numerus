@@ -49,7 +49,8 @@ the context `const void *` prevents mutation through that pointer; it cannot
 prevent mutation through another alias.
 
 See [Storage documentation](docs/storage.md) and
-[Matrix documentation](docs/matrix.md) for API contracts and design details.
+[Matrix documentation](docs/matrix.md) for API contracts, design details, and
+cached Matrix analysis.
 
 ## Requirements
 
@@ -115,7 +116,7 @@ extension loading checks, and a separate debug-oriented build.
 - `tests/matrix_test.c` — native Matrix tests.
 - `tests/` — PHPT and native C tests.
 - `docs/storage.md` — Storage design and API documentation.
-- `docs/matrix.md` — Matrix views, joins, ownership, and API documentation.
+- `docs/matrix.md` — Matrix views, joins, ownership, cached analysis, and API documentation.
 - `.github/workflows/tests.yml` — build and test matrix.
 
 ## Design principles

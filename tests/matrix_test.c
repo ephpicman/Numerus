@@ -865,6 +865,133 @@ static void test_join_error_propagation_and_horizontal_overflow(void)
     numerus_matrix_destroy(root);
 }
 
+
+static void test_cached_analysis(void)
+{
+    const double general[] = {1, 2, 3, 4};
+    const double symmetric[] = {1, 2, 2, 1};
+    const double upper[] = {2, 3, 4};
+    const double singular[] = {1, 2, 2, 4};
+    numerus_matrix *matrix = NULL;
+    unsigned int flags = 0;
+    double determinant = 123.0;
+
+    assert(numerus_matrix_create_dense(2, 2, general, &matrix) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get_flags(matrix, &flags) == NUMERUS_MATRIX_SUCCESS);
+    assert(flags & NUMERUS_MATRIX_FLAG_SQUARE);
+    assert(!(flags & NUMERUS_MATRIX_FLAG_ZERO));
+    assert(!(flags & NUMERUS_MATRIX_FLAG_DIAGONAL));
+    assert(!(flags & NUMERUS_MATRIX_FLAG_SYMMETRIC));
+    assert(numerus_matrix_determinant(matrix, &determinant) == NUMERUS_MATRIX_SUCCESS);
+    assert(determinant == -2.0);
+    determinant = 0.0;
+    assert(numerus_matrix_determinant(matrix, &determinant) == NUMERUS_MATRIX_SUCCESS);
+    assert(determinant == -2.0);
+    numerus_matrix_destroy(matrix);
+
+    assert(numerus_matrix_create_dense(2, 2, symmetric, &matrix) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get_flags(matrix, &flags) == NUMERUS_MATRIX_SUCCESS);
+    assert(flags & NUMERUS_MATRIX_FLAG_SYMMETRIC);
+    assert(numerus_matrix_determinant(matrix, &determinant) == NUMERUS_MATRIX_SUCCESS);
+    assert(determinant == -3.0);
+    numerus_matrix_destroy(matrix);
+
+    assert(numerus_matrix_create_upper_triangular(2, upper, &matrix) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get_flags(matrix, &flags) == NUMERUS_MATRIX_SUCCESS);
+    assert(flags & NUMERUS_MATRIX_FLAG_UPPER_TRIANGULAR);
+    assert(!(flags & NUMERUS_MATRIX_FLAG_LOWER_TRIANGULAR));
+    assert(numerus_matrix_determinant(matrix, &determinant) == NUMERUS_MATRIX_SUCCESS);
+    assert(determinant == 8.0);
+    numerus_matrix_destroy(matrix);
+
+    assert(numerus_matrix_create_zero(2, 2, &matrix) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get_flags(matrix, &flags) == NUMERUS_MATRIX_SUCCESS);
+    assert(flags & NUMERUS_MATRIX_FLAG_ZERO);
+    assert(flags & NUMERUS_MATRIX_FLAG_DIAGONAL);
+    assert(flags & NUMERUS_MATRIX_FLAG_UPPER_TRIANGULAR);
+    assert(flags & NUMERUS_MATRIX_FLAG_LOWER_TRIANGULAR);
+    assert(flags & NUMERUS_MATRIX_FLAG_SYMMETRIC);
+    assert(numerus_matrix_determinant(matrix, &determinant) == NUMERUS_MATRIX_SUCCESS);
+    assert(determinant == 0.0);
+    numerus_matrix_destroy(matrix);
+
+    assert(numerus_matrix_create_identity(3, &matrix) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get_flags(matrix, &flags) == NUMERUS_MATRIX_SUCCESS);
+    assert(flags & NUMERUS_MATRIX_FLAG_IDENTITY);
+    assert(numerus_matrix_determinant(matrix, &determinant) == NUMERUS_MATRIX_SUCCESS);
+    assert(determinant == 1.0);
+    numerus_matrix_destroy(matrix);
+
+    assert(numerus_matrix_create_dense(2, 2, singular, &matrix) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_determinant(matrix, &determinant) == NUMERUS_MATRIX_SUCCESS);
+    assert(determinant == 0.0);
+    numerus_matrix_destroy(matrix);
+
+    {
+        const double pivot_values[] = {0, 1, 1, 0};
+        assert(numerus_matrix_create_dense(2, 2, pivot_values, &matrix) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(numerus_matrix_determinant(matrix, &determinant) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(determinant == -1.0);
+        numerus_matrix_destroy(matrix);
+    }
+
+    {
+        const double one_value[] = {7};
+        numerus_matrix *root = NULL;
+        numerus_matrix *failing = NULL;
+        unsigned int original_flags = 123u;
+
+        assert(numerus_matrix_create_dense(1, 1, one_value, &root) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(numerus_matrix_create_from_parent_with_transforms(
+            root, 1, 1, invalid_coordinates, NULL, NULL, &failing
+        ) == NUMERUS_MATRIX_SUCCESS);
+        assert(numerus_matrix_get_flags(failing, &original_flags) ==
+            NUMERUS_MATRIX_INVALID_ARGUMENT);
+        assert(original_flags == 123u);
+        determinant = 123.0;
+        assert(numerus_matrix_determinant(failing, &determinant) ==
+            NUMERUS_MATRIX_INVALID_ARGUMENT);
+        assert(determinant == 123.0);
+        numerus_matrix_destroy(failing);
+        numerus_matrix_destroy(root);
+    }
+
+    {
+        const double one_value[] = {7};
+        numerus_matrix *root = NULL;
+        numerus_matrix *huge = NULL;
+
+        assert(numerus_matrix_create_dense(1, 1, one_value, &root) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(numerus_matrix_create_from_parent(
+            root, (size_t) -1, (size_t) -1, &huge
+        ) == NUMERUS_MATRIX_SUCCESS);
+        determinant = 123.0;
+        assert(numerus_matrix_determinant(huge, &determinant) ==
+            NUMERUS_MATRIX_OVERFLOW);
+        assert(determinant == 123.0);
+        numerus_matrix_destroy(huge);
+        numerus_matrix_destroy(root);
+    }
+
+    {
+        const double rectangular[] = {1, 2, 3, 4, 5, 6};
+        assert(numerus_matrix_create_dense(2, 3, rectangular, &matrix) == NUMERUS_MATRIX_SUCCESS);
+        determinant = 123.0;
+        assert(numerus_matrix_determinant(matrix, &determinant) == NUMERUS_MATRIX_NOT_SQUARE);
+        assert(determinant == 123.0);
+        numerus_matrix_destroy(matrix);
+    }
+
+    flags = 123u;
+    assert(numerus_matrix_get_flags(NULL, &flags) == NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(flags == 123u);
+    assert(numerus_matrix_determinant(NULL, &determinant) == NUMERUS_MATRIX_INVALID_ARGUMENT);
+}
+
 int main(void)
 {
     test_factory_and_dimensions();
@@ -880,6 +1007,7 @@ int main(void)
     test_matrix_joins();
     test_join_error_propagation_and_horizontal_overflow();
     test_validation();
+    test_cached_analysis();
 
     puts("Matrix tests passed.");
     return 0;

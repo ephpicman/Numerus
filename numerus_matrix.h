@@ -44,6 +44,22 @@ typedef enum {
 } numerus_matrix_join_type;
 
 /**
+ * @brief Cached structural properties of a Matrix.
+ *
+ * Flags use exact comparisons, not a numerical tolerance. A square zero
+ * Matrix is also diagonal, upper-triangular, lower-triangular, and symmetric.
+ */
+typedef enum {
+    NUMERUS_MATRIX_FLAG_SQUARE = 1u << 0,
+    NUMERUS_MATRIX_FLAG_ZERO = 1u << 1,
+    NUMERUS_MATRIX_FLAG_DIAGONAL = 1u << 2,
+    NUMERUS_MATRIX_FLAG_UPPER_TRIANGULAR = 1u << 3,
+    NUMERUS_MATRIX_FLAG_LOWER_TRIANGULAR = 1u << 4,
+    NUMERUS_MATRIX_FLAG_SYMMETRIC = 1u << 5,
+    NUMERUS_MATRIX_FLAG_IDENTITY = 1u << 6
+} numerus_matrix_flag;
+
+/**
  * @brief Parameters consumed by the general Matrix factory.
  *
  * Only fields required by the selected Storage kind are used. The factory
@@ -313,6 +329,30 @@ int numerus_matrix_create_banded(
     size_t upper_bandwidth,
     const double *values,
     numerus_matrix **matrix
+);
+
+/**
+ * @brief Compute or retrieve cached structural flags.
+ *
+ * Flags describe the logical values exposed by this Matrix. The output is
+ * unchanged if the scan fails.
+ */
+numerus_matrix_status numerus_matrix_get_flags(
+    numerus_matrix *matrix,
+    unsigned int *flags
+);
+
+/**
+ * @brief Compute or retrieve the cached determinant of a square Matrix.
+ *
+ * Uses partial-pivoted Gaussian elimination in the general case, with cheaper
+ * paths for zero, identity, or triangular matrices when flags are already
+ * cached. Successful results, including zero, are cached. Failures are not.
+ * The output is unchanged on failure.
+ */
+numerus_matrix_status numerus_matrix_determinant(
+    numerus_matrix *matrix,
+    double *determinant
 );
 
 /** Read one Matrix element with validation. */
