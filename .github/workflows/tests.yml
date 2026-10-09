@@ -170,6 +170,14 @@ jobs:
             -o tests/matrix_vector_constructor_test tests/matrix_vector_constructor_test.c numerus_matrix.c numerus_matrix_constructors.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_vector_constructor_test
 
+      - name: Run native Matrix polynomial tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_polynomial_test tests/matrix_polynomial_test.c numerus_matrix_polynomial.c numerus_matrix_multiply.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+          ./tests/matrix_polynomial_test
+
       - name: Run native Matrix power tests
         run: |
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
