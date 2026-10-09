@@ -45,7 +45,9 @@ typedef enum {
     /** The Matrix is not numerically positive definite. */
     NUMERUS_MATRIX_NOT_POSITIVE_DEFINITE,
     /** An unpivoted decomposition encountered a zero or numerically small pivot. */
-    NUMERUS_MATRIX_PIVOT_TOO_SMALL
+    NUMERUS_MATRIX_PIVOT_TOO_SMALL,
+    /** A numerical iteration failed to converge within its documented limit. */
+    NUMERUS_MATRIX_NO_CONVERGENCE
 } numerus_matrix_status;
 
 /**
@@ -912,6 +914,22 @@ numerus_matrix_status numerus_matrix_null_space(
  * nonzero; it does not pivot and can reject nonsingular matrices that require
  * symmetric pivoting. Both outputs remain NULL on failure.
  */
+/**
+ * Compute a reduced real SVD: A = U * Sigma * Vt.
+ *
+ * If k = min(rows(A), columns(A)), U has shape rows(A)-by-k, singular_values
+ * is a k-by-1 column vector sorted descending and nonnegative, and Vt has
+ * shape k-by-columns(A). U's columns and Vt's rows are orthonormal within
+ * floating-point error. Outputs are independent dense Matrices; all are NULL
+ * on failure.
+ */
+numerus_matrix_status numerus_matrix_svd(
+    const numerus_matrix *matrix,
+    numerus_matrix **u,
+    numerus_matrix **singular_values,
+    numerus_matrix **vt
+);
+
 numerus_matrix_status numerus_matrix_ldlt_decompose(
     const numerus_matrix *matrix,
     numerus_matrix **lower,

@@ -438,6 +438,24 @@ rank-deficient, zero, and near-singular inputs. Non-finite values and source
 read failures propagate their status; on failure, the basis is NULL and the
 nullity output is unchanged.
 
+## Reduced singular value decomposition (SVD)
+
+`numerus_matrix_svd(A, &U, &singular_values, &Vt)` computes the reduced real
+factorization A approximately equal to U times Sigma times Vt. If
+k = min(rows(A), columns(A)), U has shape rows(A)-by-k, singular values are a
+k-by-1 column vector sorted in descending order, and Vt has shape k-by-columns(A).
+The columns of U and rows of Vt are orthonormal within floating-point error.
+
+The implementation uses one-sided Jacobi rotations on the tall orientation,
+transposing wide inputs as needed. This avoids forming AᵀA, which squares the
+condition number. Zero singular values receive orthonormal completion vectors
+in U. A bounded sweep count returns `NUMERUS_MATRIX_NO_CONVERGENCE` if
+orthogonalization does not converge. Non-finite values and source read failures
+propagate their statuses, and all three output pointers remain NULL on failure.
+
+The current implementation is real-valued only. Singular values are
+nonnegative; complex singular vectors are not needed for a real SVD.
+
 ## LDLᵀ decomposition
 
 `numerus_matrix_ldlt_decompose(A, &L, &D)` computes A approximately equal
@@ -951,6 +969,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_ldlt_test tests/matrix_ldlt_test.c numerus_matrix_ldlt.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
 ./tests/matrix_ldlt_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_svd_test tests/matrix_svd_test.c numerus_matrix_svd.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+./tests/matrix_svd_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
