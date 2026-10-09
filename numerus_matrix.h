@@ -582,7 +582,8 @@ int numerus_matrix_power(
     numerus_matrix **matrix
 );
 
-/ * Evaluate c[0] + c[1]A + ... + c[count - 1]A^(count - 1) by Horner's
+/**
+ * Evaluate c[0] + c[1]A + ... + c[count - 1]A^(count - 1) by Horner's
  * method. Coefficients are ordered from the constant term upward. The base
  * must be square and count must be positive; the result is independent dense
  * Storage. The output pointer remains NULL on failure.
