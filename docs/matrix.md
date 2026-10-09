@@ -316,6 +316,16 @@ context only needs to remain valid during the call. If a source read or callback
 fails, the partial buffer is discarded and the output pointer remains NULL.
 Callbacks must not mutate the source or depend on mutable external state.
 
+## Normalization
+
+`numerus_matrix_create_normalized(source, axis, norm, &result)` returns an
+independent dense Matrix normalized globally, per row, or per column. Supported
+norms are L1, L2, and infinity norm. Every input element must be finite; a
+non-finite input or overflowing norm returns `NUMERUS_MATRIX_NON_FINITE`.
+If any selected vector has zero norm, the whole operation returns
+`NUMERUS_MATRIX_DIVISION_BY_ZERO` and no partial result. L2 uses iterative
+`hypot()` accumulation to reduce overflow/underflow risk.
+
 ## Element-wise minimum, maximum, and clamp
 
 `numerus_matrix_create_elementwise_min()` and

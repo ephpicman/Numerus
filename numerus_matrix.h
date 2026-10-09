@@ -417,6 +417,17 @@ int numerus_matrix_apply(
 );
 
 /**
+ * Normalize globally, by rows, or by columns using the selected norm. Inputs
+ * must be finite; zero-norm vectors return DIVISION_BY_ZERO. Result is dense.
+ */
+int numerus_matrix_create_normalized(
+    const numerus_matrix *source,
+    numerus_matrix_normalize_axis axis,
+    numerus_matrix_normalize_norm norm,
+    numerus_matrix **matrix
+);
+
+/**
  * Materialize the logical values of a Matrix into independent dense Storage.
  *
  * Works for roots, nested views, joins, and binary arithmetic nodes. The result
