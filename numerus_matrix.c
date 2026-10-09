@@ -1,4 +1,4 @@
-#include "numerus_matrix.h"
+#include "numerus_matrix_internal.h"
 #include "numerus_size.h"
 #include "numerus_numeric.h"
 
@@ -34,6 +34,7 @@ struct numerus_matrix {
     numerus_matrix *parent;
     numerus_matrix *parent2;
     numerus_matrix_join_type join_type;
+    numerus_matrix_binary_operation binary_operation;
     numerus_coordinate_transform_fn coordinate_transform;
     numerus_value_transform_fn value_transform;
     const void *transform_context;
@@ -369,6 +370,7 @@ static int allocate_matrix(numerus_matrix **matrix)
     (*matrix)->parent = NULL;
     (*matrix)->parent2 = NULL;
     (*matrix)->join_type = NUMERUS_MATRIX_JOIN_HORIZONTAL;
+    (*matrix)->binary_operation = NUMERUS_MATRIX_BINARY_NONE;
     (*matrix)->coordinate_transform = NULL;
     (*matrix)->value_transform = NULL;
     (*matrix)->transform_context = NULL;
@@ -952,6 +954,52 @@ int numerus_matrix_create_rotate_90_counterclockwise(
     );
 }
 
+int numerus_matrix_create_binary_view(
+    numerus_matrix *left,
+    numerus_matrix *right,
+    numerus_matrix_binary_operation operation,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix *result = NULL;
+    int status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+
+    if (left == NULL || right == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    if (operation != NUMERUS_MATRIX_BINARY_ADD &&
+        operation != NUMERUS_MATRIX_BINARY_SUBTRACT) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    if (numerus_matrix_rows(left) != numerus_matrix_rows(right) ||
+        numerus_matrix_columns(left) != numerus_matrix_columns(right)) {
+        return NUMERUS_MATRIX_DIMENSION_MISMATCH;
+    }
+
+    status = allocate_matrix(&result);
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        return status;
+    }
+
+    result->rows = numerus_matrix_rows(left);
+    result->columns = numerus_matrix_columns(left);
+    result->storage = NULL;
+    result->parent = left;
+    result->parent2 = right;
+    result->binary_operation = operation;
+    result->coordinate_transform = NULL;
+    result->value_transform = NULL;
+    result->transform_context = NULL;
+    *matrix = result;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
 static int numerus_matrix_create_join(
     numerus_matrix *parent,
     numerus_matrix *parent2,
@@ -1008,6 +1056,7 @@ static int numerus_matrix_create_join(
     result->parent = parent;
     result->parent2 = parent2;
     result->join_type = join_type;
+    result->binary_operation = NUMERUS_MATRIX_BINARY_NONE;
     result->coordinate_transform = NULL;
     result->value_transform = NULL;
     result->transform_context = NULL;
@@ -1233,6 +1282,39 @@ numerus_matrix_status numerus_matrix_get_unchecked(
 {
     if (matrix == NULL || value == NULL) {
         return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    if (matrix->parent2 != NULL &&
+        matrix->binary_operation != NUMERUS_MATRIX_BINARY_NONE) {
+        double left_value;
+        double right_value;
+        double result_value;
+        numerus_matrix_status status;
+
+        status = numerus_matrix_get(
+            matrix->parent, row, column, &left_value
+        );
+        if (status != NUMERUS_MATRIX_SUCCESS) {
+            return status;
+        }
+
+        status = numerus_matrix_get(
+            matrix->parent2, row, column, &right_value
+        );
+        if (status != NUMERUS_MATRIX_SUCCESS) {
+            return status;
+        }
+
+        if (matrix->binary_operation == NUMERUS_MATRIX_BINARY_ADD) {
+            result_value = left_value + right_value;
+        } else if (matrix->binary_operation == NUMERUS_MATRIX_BINARY_SUBTRACT) {
+            result_value = left_value - right_value;
+        } else {
+            return NUMERUS_MATRIX_INVALID_ARGUMENT;
+        }
+
+        *value = result_value;
+        return NUMERUS_MATRIX_SUCCESS;
     }
 
     if (matrix->parent2 != NULL) {
