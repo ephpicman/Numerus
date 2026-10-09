@@ -33,7 +33,9 @@ typedef enum {
     NUMERUS_MATRIX_NOT_SQUARE,
     NUMERUS_MATRIX_DIMENSION_MISMATCH,
     /** Scalar division rejected a zero divisor. */
-    NUMERUS_MATRIX_DIVISION_BY_ZERO
+    NUMERUS_MATRIX_DIVISION_BY_ZERO,
+    /** A numerical analysis cannot classify non-finite input or intermediate values. */
+    NUMERUS_MATRIX_NON_FINITE
 } numerus_matrix_status;
 
 /**
@@ -766,6 +768,19 @@ numerus_matrix_status numerus_matrix_get_flags(
 numerus_matrix_status numerus_matrix_determinant(
     numerus_matrix *matrix,
     double *determinant
+);
+
+/**
+ * Estimate numerical rank using scale-aware, complete-pivoting elimination.
+ *
+ * The threshold is NUMERUS_EPSILON * max(rows, columns) relative to the
+ * largest absolute input element. NaN/infinity input and non-finite
+ * elimination intermediates return NUMERUS_MATRIX_NON_FINITE. The output is
+ * unchanged on any failure.
+ */
+numerus_matrix_status numerus_matrix_rank(
+    const numerus_matrix *matrix,
+    size_t *rank
 );
 
 /**
