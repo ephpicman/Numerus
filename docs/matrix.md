@@ -670,13 +670,13 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_norm_test tests/matrix_norm_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm numerus_matrix_lu.c
+  -o tests/matrix_norm_test tests/matrix_norm_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c numerus_matrix_lu.c -lm
 ./tests/matrix_norm_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_finite_test tests/matrix_finite_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm numerus_matrix_lu.c
+  -o tests/matrix_finite_test tests/matrix_finite_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c numerus_matrix_lu.c -lm
 ./tests/matrix_finite_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
@@ -694,7 +694,7 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_structural_predicate_test tests/matrix_structural_predicate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm numerus_matrix_lu.c
+  -o tests/matrix_structural_predicate_test tests/matrix_structural_predicate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c numerus_matrix_lu.c -lm
 ./tests/matrix_structural_predicate_test
 ```
 
