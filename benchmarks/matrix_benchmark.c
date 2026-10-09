@@ -482,6 +482,7 @@ int main(void)
 
 fail:
     fprintf(stderr, "benchmark setup failed: %d\n", status);
+    numerus_matrix_destroy(ill_conditioned);
     numerus_matrix_destroy(small);
     numerus_matrix_destroy(sum);
     numerus_matrix_destroy(scaled);
