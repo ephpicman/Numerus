@@ -29,7 +29,7 @@ Manager.
 ## Workloads and methodology
 
 - 64×64 dense, diagonal, upper-triangular, and sparse reads.
-- 64×64 transpose, scalar-transform, and binary-arithmetic view reads.
+- 64×64 transpose, scalar-transform, and binary-arithmetic view reads. Nested transpose views are measured separately to expose composition overhead.
 - 64×128 joined-view reads.
 - 1,000 scalar-view constructions.
 - Three materializations of a transpose view.
