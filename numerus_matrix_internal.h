@@ -8,6 +8,12 @@
 #include "numerus_matrix.h"
 
 typedef enum {
+    NUMERUS_MATRIX_SELECTION_NONE = 0,
+    NUMERUS_MATRIX_SELECTION_ROWS,
+    NUMERUS_MATRIX_SELECTION_COLUMNS
+} numerus_matrix_selection_axis;
+
+typedef enum {
     NUMERUS_MATRIX_BINARY_NONE = 0,
     NUMERUS_MATRIX_BINARY_ADD,
     NUMERUS_MATRIX_BINARY_SUBTRACT,
@@ -24,6 +30,15 @@ int numerus_matrix_create_binary_view(
     numerus_matrix *left,
     numerus_matrix *right,
     numerus_matrix_binary_operation operation,
+    numerus_matrix **matrix
+);
+
+/** Private checked constructor for a lazy index-selection view. */
+int numerus_matrix_create_selection_view(
+    numerus_matrix *parent,
+    const size_t *indices,
+    size_t count,
+    numerus_matrix_selection_axis axis,
     numerus_matrix **matrix
 );
 
