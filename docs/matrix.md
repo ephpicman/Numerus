@@ -438,6 +438,21 @@ rank-deficient, zero, and near-singular inputs. Non-finite values and source
 read failures propagate their status; on failure, the basis is NULL and the
 nullity output is unchanged.
 
+## LDLᵀ decomposition
+
+`numerus_matrix_ldlt_decompose(A, &L, &D)` computes A approximately equal
+to L times D times the transpose of L. L is unit lower triangular and D uses
+diagonal Storage. The input must be square, finite, and symmetric within a
+scale-aware tolerance. D may contain negative entries, so the algorithm
+supports some indefinite symmetric matrices as well as positive-definite ones.
+
+This implementation deliberately does **not** pivot. If a leading pivot is
+zero or numerically small, it returns `NUMERUS_MATRIX_PIVOT_TOO_SMALL`, even
+when a symmetric permutation could make the matrix factorable. This limitation
+is explicit rather than misreporting every such case as mathematically
+singular. A pivoted Bunch–Kaufman implementation is deferred until a concrete
+consumer justifies its extra block-pivot and permutation API.
+
 ## Cholesky decomposition
 
 `numerus_matrix_cholesky(A, &L)` computes a lower-triangular factor such
@@ -930,6 +945,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_cholesky_test tests/matrix_cholesky_test.c numerus_matrix_cholesky.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
 ./tests/matrix_cholesky_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_ldlt_test tests/matrix_ldlt_test.c numerus_matrix_ldlt.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+./tests/matrix_ldlt_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
