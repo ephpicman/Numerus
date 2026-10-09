@@ -574,6 +574,19 @@ int numerus_matrix_kronecker_product(
 );
 
 /**
+ * Compute the Kronecker sum left ⊕ right = left ⊗ I + I ⊗ right.
+ *
+ * Both inputs must be square. The result is an independent dense Matrix with
+ * dimension left.rows * right.rows. Dimensions and allocation sizes are
+ * checked; the output pointer remains NULL on failure.
+ */
+int numerus_matrix_kronecker_sum(
+    const numerus_matrix *left,
+    const numerus_matrix *right,
+    numerus_matrix **matrix
+);
+
+/**
  * Create a lazy range slice of a Matrix.
  *
  * The slice contains row_count × column_count values starting at the specified
