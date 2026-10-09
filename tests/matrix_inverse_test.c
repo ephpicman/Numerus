@@ -4,6 +4,108 @@
 #include <math.h>
 #include <stdio.h>
 
+static double determinant_small(double values[3][3], size_t size)
+{
+    if (size == 1) {
+        return values[0][0];
+    }
+    if (size == 2) {
+        return values[0][0] * values[1][1] -
+            values[0][1] * values[1][0];
+    }
+
+    return values[0][0] * (
+            values[1][1] * values[2][2] - values[1][2] * values[2][1]
+        ) -
+        values[0][1] * (
+            values[1][0] * values[2][2] - values[1][2] * values[2][0]
+        ) +
+        values[0][2] * (
+            values[1][0] * values[2][1] - values[1][1] * values[2][0]
+        );
+}
+
+/*
+ * Tiny, test-only cofactor reference. Keep it independent from the production
+ * LU path; this is deliberately limited to 1x1..3x3 matrices.
+ */
+static void cofactor_inverse_reference(
+    double input[3][3],
+    size_t size,
+    double output[3][3]
+)
+{
+    double determinant = determinant_small(input, size);
+
+    assert(size >= 1 && size <= 3);
+    assert(determinant != 0.0);
+
+    for (size_t row = 0; row < size; row++) {
+        for (size_t column = 0; column < size; column++) {
+            double minor[3][3] = {{0.0}};
+            size_t minor_row = 0;
+
+            if (size == 1) {
+                output[column][row] = 1.0 / determinant;
+                continue;
+            }
+
+            for (size_t source_row = 0; source_row < size; source_row++) {
+                size_t minor_column = 0;
+                if (source_row == row) {
+                    continue;
+                }
+                for (size_t source_column = 0; source_column < size; source_column++) {
+                    if (source_column == column) {
+                        continue;
+                    }
+                    minor[minor_row][minor_column++] =
+                        input[source_row][source_column];
+                }
+                minor_row++;
+            }
+
+            {
+                double cofactor = determinant_small(minor, size - 1);
+                if ((row + column) % 2 != 0) {
+                    cofactor = -cofactor;
+                }
+                output[column][row] = cofactor / determinant;
+            }
+        }
+    }
+}
+
+static void assert_matches_cofactor_reference(
+    const numerus_matrix *matrix,
+    const numerus_matrix *inverse
+)
+{
+    double input[3][3] = {{0.0}};
+    double expected[3][3] = {{0.0}};
+    size_t size = numerus_matrix_rows(matrix);
+
+    assert(size >= 1 && size <= 3);
+    for (size_t row = 0; row < size; row++) {
+        for (size_t column = 0; column < size; column++) {
+            assert(numerus_matrix_get(
+                matrix, row, column, &input[row][column]
+            ) == NUMERUS_MATRIX_SUCCESS);
+        }
+    }
+    cofactor_inverse_reference(input, size, expected);
+
+    for (size_t row = 0; row < size; row++) {
+        for (size_t column = 0; column < size; column++) {
+            double actual;
+            assert(numerus_matrix_get(
+                inverse, row, column, &actual
+            ) == NUMERUS_MATRIX_SUCCESS);
+            assert(fabs(actual - expected[row][column]) < 1e-9);
+        }
+    }
+}
+
 static void assert_identity_product(
     const numerus_matrix *matrix,
     const numerus_matrix *inverse
@@ -46,6 +148,7 @@ static void test_known_and_pivoted_inverses(void)
     assert(numerus_matrix_rows(inverse) == 2);
     assert(numerus_matrix_columns(inverse) == 2);
     assert_identity_product(matrix, inverse);
+    assert_matches_cofactor_reference(matrix, inverse);
     numerus_matrix_destroy(inverse);
     numerus_matrix_destroy(matrix);
 
@@ -54,6 +157,22 @@ static void test_known_and_pivoted_inverses(void)
     assert(numerus_matrix_inverse(matrix, &inverse) ==
         NUMERUS_MATRIX_SUCCESS);
     assert_identity_product(matrix, inverse);
+    numerus_matrix_destroy(inverse);
+    numerus_matrix_destroy(matrix);
+}
+
+static void test_three_by_three_cofactor_reference(void)
+{
+    const double values[] = {3, 0, 2, 2, 0, -2, 0, 1, 1};
+    numerus_matrix *matrix = NULL;
+    numerus_matrix *inverse = NULL;
+
+    assert(numerus_matrix_create_dense(3, 3, values, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_inverse(matrix, &inverse) == NUMERUS_MATRIX_SUCCESS);
+    assert_identity_product(matrix, inverse);
+    assert_matches_cofactor_reference(matrix, inverse);
+
     numerus_matrix_destroy(inverse);
     numerus_matrix_destroy(matrix);
 }
@@ -129,6 +248,7 @@ static void test_validation_and_scale(void)
 int main(void)
 {
     test_known_and_pivoted_inverses();
+    test_three_by_three_cofactor_reference();
     test_singularity_and_nonfinite_semantics();
     test_validation_and_scale();
     puts("Matrix inverse tests passed.");
