@@ -90,6 +90,14 @@ jobs:
             -o tests/matrix_division_test tests/matrix_division_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c
           ./tests/matrix_division_test
 
+      - name: Run native Matrix materialization tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_materialize_test tests/matrix_materialize_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_storage.c
+          ./tests/matrix_materialize_test
+
       - name: Run extension tests
         run: make test TESTS='tests/*.phpt'
 
