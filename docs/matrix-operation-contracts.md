@@ -59,3 +59,14 @@ Benchmarks should compare representative sizes and storage kinds, report compile
 ## Positive-definiteness classification
 
 `numerus_matrix_classify_definiteness()` requires a finite, real symmetric square Matrix. It reports two predicates through distinct output pointers and leaves both values unchanged on failure. Eigenvalues within `NUMERUS_EPSILON × n × max(|λᵢ|)` of zero are treated as zero. The zero matrix is positive semidefinite but not positive definite. This is a numerical classification, not a symbolic proof.
+
+
+## Alternative inverse algorithm: Gauss–Jordan
+
+`numerus_matrix_inverse_gauss_jordan()` is an explicit alternative to the default
+LU-based inverse. It uses partial pivoting and the same scale-aware numerical
+rank classification as the existing inverse contract. It is intended for
+algorithm comparison and education, not as a claim of better stability or
+performance. It returns an independently materialized dense matrix; on invalid,
+non-square, singular, non-finite, overflow, or allocation failure, the output
+pointer remains NULL. The LU-based inverse remains the recommended default.
