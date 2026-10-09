@@ -122,6 +122,14 @@ jobs:
             -o tests/matrix_compare_test tests/matrix_compare_test.c numerus_matrix.c numerus_matrix_compare.c numerus_storage.c
           ./tests/matrix_compare_test
 
+      - name: Run native Matrix vector constructor tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_vector_constructor_test tests/matrix_vector_constructor_test.c numerus_matrix.c numerus_matrix_constructors.c numerus_storage.c
+          ./tests/matrix_vector_constructor_test
+
       - name: Run non-gating Matrix benchmarks
         if: matrix.php == '8.5'
         run: |

@@ -414,6 +414,30 @@ numerus_matrix_status numerus_matrix_is_close(
     bool *close
 );
 
+/**
+ * Create a 1×length row-vector Matrix from copied values.
+ *
+ * The result is an ordinary dense Matrix, not a separate Vector type.
+ * Length must be positive and values must contain at least length elements.
+ */
+int numerus_matrix_create_row_vector(
+    size_t length,
+    const double *values,
+    numerus_matrix **matrix
+);
+
+/**
+ * Create a length×1 column-vector Matrix from copied values.
+ *
+ * The result is an ordinary dense Matrix, not a separate Vector type.
+ * Length must be positive and values must contain at least length elements.
+ */
+int numerus_matrix_create_column_vector(
+    size_t length,
+    const double *values,
+    numerus_matrix **matrix
+);
+
 /** Create a dense Matrix. */
 int numerus_matrix_create_dense(
     size_t rows,
