@@ -922,6 +922,22 @@ numerus_matrix_status numerus_matrix_classify_system(
  * return NUMERUS_MATRIX_RANK_DEFICIENT; no normal equations or inverse are
  * formed. On failure, *solution remains NULL.
  */
+/**
+ * Solve weighted least squares: minimize sum_i weights[i] * ||A_i X - B_i||².
+ *
+ * weights_count must equal rows(A); weights must be finite and nonnegative.
+ * Zero weights exclude rows. The implementation scales rows by sqrt(weight)
+ * and uses the QR least-squares solver, not normal equations. On failure,
+ * *solution remains NULL.
+ */
+numerus_matrix_status numerus_matrix_weighted_least_squares(
+    const numerus_matrix *matrix,
+    const numerus_matrix *right_hand_side,
+    const double *weights,
+    size_t weights_count,
+    numerus_matrix **solution
+);
+
 numerus_matrix_status numerus_matrix_least_squares(
     const numerus_matrix *matrix,
     const numerus_matrix *right_hand_side,
