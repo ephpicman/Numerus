@@ -165,6 +165,7 @@ static void benchmark_materialize(
 }
 
 static void benchmark_multiplication(
+    const char *name,
     const numerus_matrix *left,
     const numerus_matrix *right,
     size_t iterations
@@ -200,7 +201,7 @@ static void benchmark_multiplication(
 
     end = clock();
     report_measurement(
-        "matrix multiply", rows, columns, iterations, start, end
+        name, rows, columns, iterations, start, end
     );
 }
 
@@ -364,6 +365,8 @@ int main(void)
     numerus_matrix *diagonal = NULL;
     numerus_matrix *upper = NULL;
     numerus_matrix *sparse = NULL;
+    numerus_matrix *identity = NULL;
+    numerus_matrix *zero = NULL;
     numerus_matrix *transpose = NULL;
     numerus_matrix *joined = NULL;
     numerus_matrix *scaled = NULL;
@@ -430,6 +433,10 @@ int main(void)
         sparse_entries, MATRIX_SIZE, &sparse
     );
     if (status != NUMERUS_MATRIX_SUCCESS) goto fail;
+    status = numerus_matrix_create_identity(MATRIX_SIZE, &identity);
+    if (status != NUMERUS_MATRIX_SUCCESS) goto fail;
+    status = numerus_matrix_create_zero(MATRIX_SIZE, MATRIX_SIZE, &zero);
+    if (status != NUMERUS_MATRIX_SUCCESS) goto fail;
     status = numerus_matrix_create_transpose(dense, &transpose);
     if (status != NUMERUS_MATRIX_SUCCESS) goto fail;
     status = numerus_matrix_create_join_horizontal(dense, transpose, &joined);
@@ -458,7 +465,14 @@ int main(void)
     benchmark_reads("binary view read", sum, READ_ITERATIONS);
     benchmark_scale_view_creation(dense, 1000);
     benchmark_materialize(transpose, OPERATION_ITERATIONS);
-    benchmark_multiplication(small, small, OPERATION_ITERATIONS);
+    benchmark_multiplication("dense x dense", dense, dense, OPERATION_ITERATIONS);
+    benchmark_multiplication("dense x identity", dense, identity, OPERATION_ITERATIONS);
+    benchmark_multiplication("identity x dense", identity, dense, OPERATION_ITERATIONS);
+    benchmark_multiplication("dense x zero", dense, zero, OPERATION_ITERATIONS);
+    benchmark_multiplication("dense x diagonal", dense, diagonal, OPERATION_ITERATIONS);
+    benchmark_multiplication("dense x triangular", dense, upper, OPERATION_ITERATIONS);
+    benchmark_multiplication("dense x sparse", dense, sparse, OPERATION_ITERATIONS);
+    benchmark_multiplication("small dense multiply", small, small, OPERATION_ITERATIONS);
     benchmark_inverse(small, OPERATION_ITERATIONS);
     benchmark_condition_estimate(small, OPERATION_ITERATIONS);
     verify_inverse_residual(small);
@@ -473,6 +487,8 @@ int main(void)
     numerus_matrix_destroy(scaled);
     numerus_matrix_destroy(joined);
     numerus_matrix_destroy(transpose);
+    numerus_matrix_destroy(zero);
+    numerus_matrix_destroy(identity);
     numerus_matrix_destroy(sparse);
     numerus_matrix_destroy(upper);
     numerus_matrix_destroy(diagonal);
