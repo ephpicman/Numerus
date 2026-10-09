@@ -342,6 +342,21 @@ does not describe both sides of the node and should not be treated as a complete
 summary of its input representations.
 
 
+## Linear-system solve
+
+`numerus_matrix_solve(A, B, &X)` solves (A X = B) for square,
+numerically nonsingular (A). The right-hand side may contain multiple
+columns; the implementation factorizes (A) once and reuses that LU
+factorization for every column. It returns an independent dense solution Matrix
+and does not form (A^{-1} B).
+
+The solver uses the same scale-aware singularity threshold as numerical rank.
+It returns `NUMERUS_MATRIX_NOT_SQUARE` for non-square (A),
+`NUMERUS_MATRIX_DIMENSION_MISMATCH` when the right-hand-side row count differs,
+`NUMERUS_MATRIX_SINGULAR` for a deficient numerical rank, and
+`NUMERUS_MATRIX_NON_FINITE` for non-finite inputs or intermediates. On
+failure, the output pointer remains NULL.
+
 ## Matrix inverse
 
 `numerus_matrix_inverse()` computes the inverse through LU factorization and
@@ -751,6 +766,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_inverse_test tests/matrix_inverse_test.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
 ./tests/matrix_inverse_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_solve_test tests/matrix_solve_test.c numerus_matrix_solve.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+./tests/matrix_solve_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
