@@ -167,7 +167,7 @@ Exit criteria: independent inverse Storage, explicit singular/error behavior, re
 
 # Phase 6 — Spaces and least squares
 
-- [ ] 6.1 Null space basis. Use rank-revealing QR or SVD; return a documented matrix whose columns span the null space.
+- [ ] 6.1 Null space basis. Use rank-revealing QR or SVD; return a documented matrix whose columns span the null space. The current unpivoted QR implementation is not sufficient by itself.
 - [ ] 6.2 Column-space and row-space bases. Define basis orientation and numerical-rank threshold.
 - [ ] 6.3 Consistency and solution classification. Distinguish inconsistent, unique, and infinitely many solutions.
 - [ ] 6.4 Least-squares solve. Prefer QR for the general path; avoid normal equations as the default because they can worsen conditioning.
@@ -178,7 +178,7 @@ Exit criteria: rectangular and rank-deficient test suites; residual-based valida
 
 # Phase 7 — Additional decompositions
 
-- [ ] 7.1 QR decomposition. Prefer Householder reflectors for a robust baseline; define reduced vs full Q and output contracts.
+- [ ] 7.1 QR decomposition. Reduced Householder QR proposed in PR #49; defines Q as m×min(m,n) and R as min(m,n)×n. Unpivoted QR is not rank-revealing.
 - [ ] 7.2 Cholesky decomposition. Require symmetric positive-definite input within documented tolerance; report failure cleanly.
 - [ ] 7.3 LDLᵀ decomposition. Define pivoting support and supported matrix classes.
 - [ ] 7.4 SVD. Select a proven algorithm and test reconstruction, orthogonality, singular-value ordering, and rank-deficient cases.
