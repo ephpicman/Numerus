@@ -48,7 +48,9 @@ typedef enum {
     /** An unpivoted decomposition encountered a zero or numerically small pivot. */
     NUMERUS_MATRIX_PIVOT_TOO_SMALL,
     /** A numerical iteration failed to converge within its documented limit. */
-    NUMERUS_MATRIX_NO_CONVERGENCE
+    NUMERUS_MATRIX_NO_CONVERGENCE,
+    /** A symmetric matrix has a materially negative eigenvalue and is not PSD. */
+    NUMERUS_MATRIX_NOT_POSITIVE_SEMIDEFINITE
 } numerus_matrix_status;
 
 typedef enum {
@@ -1122,6 +1124,40 @@ numerus_matrix_status numerus_matrix_symmetric_eigen(
     numerus_matrix **eigenvalues,
     numerus_matrix **eigenvectors
 );
+
+/**
+ * Compute the principal square root of a real symmetric positive-semidefinite
+ * matrix by spectral decomposition. Small negative eigenvalues within the
+ * scale-relative tolerance are clamped to zero; materially negative values
+ * return NUMERUS_MATRIX_NOT_POSITIVE_SEMIDEFINITE.
+ */
+numerus_matrix_status numerus_matrix_symmetric_square_root(
+    const numerus_matrix *matrix,
+    numerus_matrix **square_root
+);
+
+/**
+ * Compute the real matrix logarithm of a symmetric positive-definite matrix
+ * by spectral decomposition. Eigenvalues at or below the scale-relative
+ * positivity tolerance return NUMERUS_MATRIX_NOT_POSITIVE_DEFINITE.
+ */
+numerus_matrix_status numerus_matrix_symmetric_logarithm(
+    const numerus_matrix *matrix,
+    numerus_matrix **logarithm
+);
+
+/** Compute sin(A) for a real symmetric Matrix using its spectral decomposition. */
+numerus_matrix_status numerus_matrix_symmetric_sine(
+    const numerus_matrix *matrix,
+    numerus_matrix **sine
+);
+
+/** Compute cos(A) for a real symmetric Matrix using its spectral decomposition. */
+numerus_matrix_status numerus_matrix_symmetric_cosine(
+    const numerus_matrix *matrix,
+    numerus_matrix **cosine
+);
+
 
 /**
  * Compute the Moore-Penrose pseudoinverse using the reduced real SVD.
