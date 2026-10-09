@@ -92,10 +92,47 @@ static void test_identity_and_zero_laws(void)
     numerus_matrix_destroy(a);
 }
 
+static void test_cached_analysis_lifetime(void)
+{
+    const double values[] = {4.0, 1.0, 1.0, 3.0};
+
+    for (size_t iteration = 0; iteration < 32; iteration++) {
+        numerus_matrix *matrix = NULL;
+        numerus_matrix *transpose = NULL;
+        numerus_matrix_flags first_flags, second_flags;
+        double first_determinant = 0.0, second_determinant = 0.0;
+
+        assert(numerus_matrix_create_dense(2, 2, values, &matrix) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(numerus_matrix_get_flags(matrix, &first_flags) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(numerus_matrix_get_flags(matrix, &second_flags) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(first_flags.identity == second_flags.identity);
+        assert(first_flags.symmetric == second_flags.symmetric);
+
+        assert(numerus_matrix_determinant(matrix, &first_determinant) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(numerus_matrix_determinant(matrix, &second_determinant) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(first_determinant == second_determinant);
+        assert(first_determinant == 11.0);
+
+        assert(numerus_matrix_create_transpose(matrix, &transpose) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(numerus_matrix_get_flags(transpose, &first_flags) ==
+            NUMERUS_MATRIX_SUCCESS);
+
+        numerus_matrix_destroy(transpose);
+        numerus_matrix_destroy(matrix);
+    }
+}
+
 int main(void)
 {
     test_multiplication_transpose_identity();
     test_identity_and_zero_laws();
+    test_cached_analysis_lifetime();
     puts("Matrix property tests passed.");
     return 0;
 }
