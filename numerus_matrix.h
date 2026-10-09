@@ -588,7 +588,18 @@ int numerus_matrix_power(
  * must be square and count must be positive; the result is independent dense
  * Storage. The output pointer remains NULL on failure.
  */
-int numerus_matrix_polynomial(
+int /**
+ * Compute exp(A) using scaling-and-squaring with a degree-13 Padé
+ * approximant. Input must be square and finite; the result is independent
+ * dense Storage. Non-finite intermediate results and solver failures are
+ * reported as statuses, and the output pointer remains NULL on failure.
+ */
+int numerus_matrix_exponential(
+    const numerus_matrix *matrix,
+    numerus_matrix **exponential
+);
+
+numerus_matrix_polynomial(
     const numerus_matrix *base,
     const double *coefficients,
     size_t coefficient_count,
