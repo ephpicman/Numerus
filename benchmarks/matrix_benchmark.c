@@ -340,6 +340,106 @@ static void benchmark_inverse_cache_hit(
 }
 
 
+static void benchmark_solve_lu_cache(
+    const numerus_matrix *matrix,
+    size_t iterations
+)
+{
+    size_t iteration;
+    size_t size = numerus_matrix_rows(matrix);
+    double *rhs_values = calloc(size, sizeof(*rhs_values));
+    numerus_matrix *rhs = NULL;
+    numerus_matrix **fresh = NULL;
+    numerus_matrix *warm_solution = NULL;
+    clock_t start;
+    clock_t end;
+
+    if (rhs_values == NULL) {
+        fprintf(stderr, "solve benchmark RHS allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+    for (iteration = 0; iteration < size; iteration++) {
+        rhs_values[iteration] = 1.0;
+    }
+    if (numerus_matrix_create_dense(size, 1, rhs_values, &rhs) !=
+        NUMERUS_MATRIX_SUCCESS) {
+        free(rhs_values);
+        exit(EXIT_FAILURE);
+    }
+    free(rhs_values);
+
+    fresh = calloc(iterations, sizeof(*fresh));
+    if (fresh == NULL) {
+        numerus_matrix_destroy(rhs);
+        exit(EXIT_FAILURE);
+    }
+    for (iteration = 0; iteration < iterations; iteration++) {
+        if (numerus_matrix_materialize(matrix, &fresh[iteration]) !=
+            NUMERUS_MATRIX_SUCCESS) {
+            while (iteration > 0) numerus_matrix_destroy(fresh[--iteration]);
+            free(fresh);
+            numerus_matrix_destroy(rhs);
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    reset_allocation_stats();
+    start = clock();
+    for (iteration = 0; iteration < iterations; iteration++) {
+        numerus_matrix *solution = NULL;
+        double value;
+        int status = numerus_matrix_solve(fresh[iteration], rhs, &solution);
+        if (status != NUMERUS_MATRIX_SUCCESS) {
+            fprintf(stderr, "cold solve benchmark failed: %d\n", status);
+            exit(EXIT_FAILURE);
+        }
+        status = numerus_matrix_get(solution, 0, 0, &value);
+        if (status != NUMERUS_MATRIX_SUCCESS) {
+            numerus_matrix_destroy(solution);
+            exit(EXIT_FAILURE);
+        }
+        benchmark_sink += value;
+        numerus_matrix_destroy(solution);
+    }
+    end = clock();
+    report_measurement("solve (cold LU)", size, 1, iterations, start, end);
+    for (iteration = 0; iteration < iterations; iteration++) {
+        numerus_matrix_destroy(fresh[iteration]);
+    }
+    free(fresh);
+
+    if (numerus_matrix_solve(matrix, rhs, &warm_solution) !=
+        NUMERUS_MATRIX_SUCCESS) {
+        numerus_matrix_destroy(rhs);
+        exit(EXIT_FAILURE);
+    }
+    numerus_matrix_destroy(warm_solution);
+
+    reset_allocation_stats();
+    start = clock();
+    for (iteration = 0; iteration < iterations; iteration++) {
+        numerus_matrix *solution = NULL;
+        double value;
+        int status = numerus_matrix_solve(matrix, rhs, &solution);
+        if (status != NUMERUS_MATRIX_SUCCESS) {
+            fprintf(stderr, "cached LU solve benchmark failed: %d\n", status);
+            numerus_matrix_destroy(rhs);
+            exit(EXIT_FAILURE);
+        }
+        status = numerus_matrix_get(solution, 0, 0, &value);
+        if (status != NUMERUS_MATRIX_SUCCESS) {
+            numerus_matrix_destroy(solution);
+            numerus_matrix_destroy(rhs);
+            exit(EXIT_FAILURE);
+        }
+        benchmark_sink += value;
+        numerus_matrix_destroy(solution);
+    }
+    end = clock();
+    report_measurement("solve (cached LU)", size, 1, iterations, start, end);
+    numerus_matrix_destroy(rhs);
+}
+
 static void benchmark_condition_estimate(
     const numerus_matrix *matrix,
     size_t iterations
@@ -681,6 +781,7 @@ int main(void)
     benchmark_analysis_cache(small);
     benchmark_inverse(small, OPERATION_ITERATIONS);
     benchmark_inverse_cache_hit(small, OPERATION_ITERATIONS);
+    benchmark_solve_lu_cache(small, OPERATION_ITERATIONS);
     benchmark_condition_estimate(small, OPERATION_ITERATIONS);
     verify_inverse_residual(small);
 
