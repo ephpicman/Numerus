@@ -1,7 +1,6 @@
 #include "numerus_matrix.h"
 
 #include <stdint.h>
-#include <stdint.h>
 #include <stddef.h>
 
 /**
