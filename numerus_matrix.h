@@ -1231,6 +1231,18 @@ numerus_matrix_status numerus_matrix_solve(
     numerus_matrix **solution
 );
 
+/**
+ * Compute an inverse using Gauss–Jordan elimination with partial pivoting.
+ * This alternative is primarily useful for comparison and education; the
+ * LU-based numerus_matrix_inverse() remains the default production path.
+ * Singular and non-finite inputs return explicit statuses; output stays NULL
+ * on failure.
+ */
+numerus_matrix_status numerus_matrix_inverse_gauss_jordan(
+    const numerus_matrix *matrix,
+    numerus_matrix **inverse
+);
+
 numerus_matrix_status numerus_matrix_inverse(
     const numerus_matrix *matrix,
     numerus_matrix **inverse
