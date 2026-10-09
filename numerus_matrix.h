@@ -398,6 +398,11 @@ int numerus_matrix_create_elementwise_min(
     const numerus_matrix *left, const numerus_matrix *right,
     numerus_matrix **matrix
 );
+/**
+ * Create an independent dense Matrix containing element-wise maxima.
+ * Inputs must have equal dimensions; NaN propagates from either operand.
+ * The output pointer remains NULL on failure.
+ */
 int numerus_matrix_create_elementwise_max(
     const numerus_matrix *left, const numerus_matrix *right,
     numerus_matrix **matrix
@@ -500,10 +505,20 @@ numerus_matrix_status numerus_matrix_is_equal(
 numerus_matrix_status numerus_matrix_all_close(
     const numerus_matrix *left, const numerus_matrix *right, bool *close
 );
+/**
+ * Return true when at least one corresponding element pair is close under
+ * NUMERUS_EPSILON's combined tolerance. Shape mismatch returns success/false;
+ * NaN values compare unequal. Output is unchanged on read failure.
+ */
 numerus_matrix_status numerus_matrix_any_close(
     const numerus_matrix *left, const numerus_matrix *right, bool *close
 );
 
+/**
+ * Compare all corresponding elements using NUMERUS_EPSILON's combined
+ * tolerance. This is the all-elements predicate; use any_close() when one
+ * matching element is sufficient. Shape mismatch returns success/false.
+ */
 numerus_matrix_status numerus_matrix_is_close(
     const numerus_matrix *left,
     const numerus_matrix *right,
@@ -1000,6 +1015,11 @@ numerus_matrix_status numerus_matrix_row_space_basis(
     size_t *dimension
 );
 
+/**
+ * Return a basis for the numerical null space as columns.
+ * For a trivial null space, success is represented by *basis == NULL and
+ * *nullity == 0. On failure, *basis remains NULL and *nullity is unchanged.
+ */
 numerus_matrix_status numerus_matrix_null_space(
     const numerus_matrix *matrix,
     numerus_matrix **basis,
@@ -1060,6 +1080,12 @@ numerus_matrix_status numerus_matrix_symmetric_spectral_radius(
     double *radius
 );
 
+/**
+ * Compute real eigenvalues and orthonormal eigenvectors for a symmetric Matrix.
+ * Eigenvalues are descending in algebraic order; eigenvectors are columns.
+ * Non-symmetric input and non-convergence return explicit statuses; outputs
+ * remain NULL on failure.
+ */
 numerus_matrix_status numerus_matrix_symmetric_eigen(
     const numerus_matrix *matrix,
     numerus_matrix **eigenvalues,
@@ -1079,6 +1105,11 @@ numerus_matrix_status numerus_matrix_pseudoinverse(
     numerus_matrix **pseudoinverse
 );
 
+/**
+ * Compute the reduced real SVD A = U * Sigma * Vᵀ.
+ * Singular values are nonnegative and sorted descending. U, the singular-value
+ * column vector, and Vᵀ are independent dense outputs; all remain NULL on failure.
+ */
 numerus_matrix_status numerus_matrix_svd(
     const numerus_matrix *matrix,
     numerus_matrix **u,
@@ -1086,23 +1117,43 @@ numerus_matrix_status numerus_matrix_svd(
     numerus_matrix **vt
 );
 
+/**
+ * Compute an unpivoted LDLᵀ factorization of a symmetric Matrix.
+ * Matrices requiring symmetric pivoting may return PIVOT_TOO_SMALL despite
+ * being nonsingular. Both outputs remain NULL on failure.
+ */
 numerus_matrix_status numerus_matrix_ldlt_decompose(
     const numerus_matrix *matrix,
     numerus_matrix **lower,
     numerus_matrix **diagonal
 );
 
+/**
+ * Compute lower-triangular L such that A is approximately L * Lᵀ.
+ * The input must be symmetric positive definite under the documented numerical
+ * checks. The output remains NULL on failure.
+ */
 numerus_matrix_status numerus_matrix_cholesky(
     const numerus_matrix *matrix,
     numerus_matrix **lower
 );
 
+/**
+ * Compute reduced, unpivoted Householder QR: A = Q * R.
+ * Q is rows(A)×min(rows(A), columns(A)); R is min(rows(A), columns(A))×columns(A).
+ * This API is not rank-revealing. Both outputs remain NULL on failure.
+ */
 numerus_matrix_status numerus_matrix_qr_decompose(
     const numerus_matrix *matrix,
     numerus_matrix **q,
     numerus_matrix **r
 );
 
+/**
+ * Estimate the 1-norm condition number ||A||₁ ||A⁻¹||₁.
+ * This implementation uses the inverse-based estimate; singular/numerically
+ * singular inputs can yield infinity. The scalar output is unchanged on failure.
+ */
 numerus_matrix_status numerus_matrix_condition_estimate_one(
     const numerus_matrix *matrix,
     double *condition_estimate
@@ -1146,12 +1197,22 @@ numerus_matrix_status numerus_matrix_weighted_least_squares(
     numerus_matrix **solution
 );
 
+/**
+ * Solve min_X ||A X - B||₂ using column-pivoted QR.
+ * Requires full column rank and supports overdetermined/square A and multiple
+ * RHS columns. Rank-deficient or underdetermined inputs return RANK_DEFICIENT.
+ */
 numerus_matrix_status numerus_matrix_least_squares(
     const numerus_matrix *matrix,
     const numerus_matrix *right_hand_side,
     numerus_matrix **solution
 );
 
+/**
+ * Solve A X = B for square, numerically nonsingular A using one LU factorization.
+ * Multiple RHS columns share that factorization. The result is independent
+ * dense Storage; the output remains NULL on failure.
+ */
 numerus_matrix_status numerus_matrix_solve(
     const numerus_matrix *matrix,
     const numerus_matrix *right_hand_side,
@@ -1163,6 +1224,11 @@ numerus_matrix_status numerus_matrix_inverse(
     numerus_matrix **inverse
 );
 
+/**
+ * Estimate numerical rank using scale-aware complete-pivoting elimination.
+ * This is a tolerance-dependent numerical classification, not symbolic rank.
+ * The output is unchanged on failure.
+ */
 numerus_matrix_status numerus_matrix_rank(
     const numerus_matrix *matrix,
     size_t *rank
@@ -1295,6 +1361,10 @@ numerus_matrix_status numerus_matrix_variance(const numerus_matrix *matrix, bool
  */
 numerus_matrix_status numerus_matrix_standard_deviation(const numerus_matrix *matrix, bool sample, double *standard_deviation);
 
+/**
+ * Compute the arithmetic mean using row-major double accumulation.
+ * NaN and infinities follow IEEE-754 arithmetic; output is unchanged on error.
+ */
 numerus_matrix_status numerus_matrix_mean(
     const numerus_matrix *matrix,
     double *mean
