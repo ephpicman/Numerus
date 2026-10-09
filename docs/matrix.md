@@ -324,7 +324,7 @@ Relevant statuses:
 - `NUMERUS_MATRIX_OUT_OF_BOUNDS`
 - `NUMERUS_MATRIX_NOT_SQUARE`
 - `NUMERUS_MATRIX_DIMENSION_MISMATCH`
-- `NUMERUS_MATRIX_DIVISION_BY_ZERO`
+- `NUMERUS_MATRIX_DIVISION_BY_ZERO`\n- `NUMERUS_MATRIX_NON_FINITE`
 
 A numeric zero is a valid value, not an error signal.
 
@@ -341,6 +341,21 @@ the implementation currently follows the first parent; therefore, this value
 does not describe both sides of the node and should not be treated as a complete
 summary of its input representations.
 
+
+## Numerical rank
+
+`numerus_matrix_rank()` estimates rank for square or rectangular Matrices using
+complete-pivoting elimination. Its relative threshold is
+`NUMERUS_EPSILON * max(rows, columns)` relative to the largest absolute input
+element, making classification invariant under uniform finite scaling within
+ordinary floating-point limits. This is a numerical estimate, not an exact
+symbolic rank and not an SVD-quality rank-revealing decomposition.
+
+A zero Matrix has rank zero. NaN/infinity input or non-finite elimination
+intermediates return `NUMERUS_MATRIX_NON_FINITE`; element-read failures and
+allocation/size failures return their specific statuses. The output rank is
+unchanged on failure. The operation uses O(rows×columns) workspace and
+O(min(rows, columns)×rows×columns) time.
 
 ## Internal LU factorization
 
@@ -690,6 +705,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_lu_test tests/matrix_lu_test.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c
 ./tests/matrix_lu_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_rank_test tests/matrix_rank_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_storage.c -lm
+./tests/matrix_rank_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
