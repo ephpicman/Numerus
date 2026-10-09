@@ -19,7 +19,7 @@ This document establishes the conventions new numerical operations must follow. 
 
 ## Status and numeric failure policy
 
-The current status enums distinguish invalid arguments, out-of-bounds access, incompatible dimensions, non-square inputs, size overflow, allocation failure, and success. These meanings must remain distinct.
+The current Matrix status enum distinguishes invalid arguments, out-of-bounds access, incompatible dimensions, non-square inputs, size overflow, allocation failure, scalar division by zero, and success. Scalar division rejects a zero divisor with `NUMERUS_MATRIX_DIVISION_BY_ZERO`; element-wise division instead follows IEEE-754 and returns infinities/NaN as successful numeric values. These meanings must remain distinct.
 
 New status values should be added when a concrete operation requires them:
 - A singular matrix is a valid input for which an inverse may not exist; it is not an invalid argument and must not be reported as a successful zero-valued inverse.
