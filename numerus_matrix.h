@@ -507,6 +507,31 @@ int numerus_matrix_create_select_columns(
     numerus_matrix **matrix
 );
 
+/**
+ * Create a lazy row-major reshape view.
+ *
+ * The requested shape must contain exactly the same number of elements as
+ * the parent. Logical traversal order is row-major. The parent is borrowed
+ * and must outlive the view.
+ */
+int numerus_matrix_create_reshape(
+    numerus_matrix *parent,
+    size_t rows,
+    size_t columns,
+    numerus_matrix **matrix
+);
+
+/**
+ * Create a lazy row-vector view of all parent elements in row-major order.
+ *
+ * The result has shape 1 × (parent.rows * parent.columns). Element-count
+ * overflow is reported as NUMERUS_MATRIX_OVERFLOW.
+ */
+int numerus_matrix_create_flatten(
+    numerus_matrix *parent,
+    numerus_matrix **matrix
+);
+
 /** Create a dense Matrix. */
 int numerus_matrix_create_dense(
     size_t rows,
