@@ -438,6 +438,21 @@ rank-deficient, zero, and near-singular inputs. Non-finite values and source
 read failures propagate their status; on failure, the basis is NULL and the
 nullity output is unchanged.
 
+## Symmetric eigendecomposition
+
+`numerus_matrix_symmetric_eigen(A, &eigenvalues, &eigenvectors)` computes
+the real eigendecomposition of a finite symmetric square Matrix. Eigenvalues
+are returned in descending algebraic order as an n-by-1 vector, and matching
+orthonormal eigenvectors are columns of an n-by-n Matrix V, with
+A approximately equal to V D Vᵀ.
+
+The implementation uses cyclic Jacobi rotations, with symmetry tolerance and
+off-diagonal convergence threshold scaled to the maximum input magnitude and
+matrix dimension. It returns `NUMERUS_MATRIX_NOT_SYMMETRIC` for input outside
+the symmetry tolerance and `NUMERUS_MATRIX_NO_CONVERGENCE` if the bounded
+rotation sweeps do not converge. Eigenvalues may be negative or repeated.
+General real matrices are not accepted here; their eigenvalues may be complex.
+
 ## Reduced singular value decomposition (SVD)
 
 `numerus_matrix_svd(A, &U, &singular_values, &Vt)` computes the reduced real
@@ -975,6 +990,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_svd_test tests/matrix_svd_test.c numerus_matrix_svd.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
 ./tests/matrix_svd_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_symmetric_eigen_test tests/matrix_symmetric_eigen_test.c numerus_matrix_symmetric_eigen.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+./tests/matrix_symmetric_eigen_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
