@@ -1,4 +1,5 @@
 #include "numerus_matrix.h"
+#include "numerus_size.h"
 #include "numerus_numeric.h"
 
 #include <stdbool.h>
@@ -1421,16 +1422,12 @@ numerus_matrix_status numerus_matrix_determinant(
         }
     }
 
-    if (size > SIZE_MAX / size) {
+    if (!numerus_size_multiply(size, size, &element_count) ||
+        !numerus_size_multiply(element_count, sizeof(*values), &allocation_size)) {
         matrix->determinant_state = 0;
         return NUMERUS_MATRIX_OVERFLOW;
     }
-    element_count = size * size;
-    if (element_count > SIZE_MAX / sizeof(*values)) {
-        matrix->determinant_state = 0;
-        return NUMERUS_MATRIX_OVERFLOW;
-    }
-    values = numerus_matrix_alloc(element_count * sizeof(*values));
+    values = numerus_matrix_alloc(allocation_size);
     if (values == NULL) {
         matrix->determinant_state = 0;
         return NUMERUS_MATRIX_OUT_OF_MEMORY;
