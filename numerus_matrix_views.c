@@ -97,3 +97,34 @@ int numerus_matrix_create_flatten(
         parent, 1, element_count, matrix
     );
 }
+
+/** Create a lazy constant-padded view. */
+int numerus_matrix_create_pad(
+    numerus_matrix *parent,
+    size_t top,
+    size_t bottom,
+    size_t left,
+    size_t right,
+    double value,
+    numerus_matrix **matrix
+)
+{
+    return numerus_matrix_create_padding_view(
+        parent, top, bottom, left, right, value, matrix
+    );
+}
+
+/** Create a lazy zero-padded view. */
+int numerus_matrix_create_zero_extend(
+    numerus_matrix *parent,
+    size_t top,
+    size_t bottom,
+    size_t left,
+    size_t right,
+    numerus_matrix **matrix
+)
+{
+    return numerus_matrix_create_padding_view(
+        parent, top, bottom, left, right, 0.0, matrix
+    );
+}
