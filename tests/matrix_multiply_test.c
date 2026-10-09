@@ -201,6 +201,9 @@ static void test_safe_shortcuts(void)
     assert(numerus_matrix_multiply(matrix, identity, &result) == NUMERUS_MATRIX_SUCCESS);
     assert(numerus_matrix_storage_kind(result) == NUMERUS_STORAGE_DENSE);
     numerus_matrix_destroy(result); result = NULL;
+    assert(numerus_matrix_multiply(identity, matrix, &result) == NUMERUS_MATRIX_SUCCESS);
+    assert(matrix_value_equals(result, 1, 1, 4.0));
+    numerus_matrix_destroy(result); result = NULL;
     assert(numerus_matrix_multiply(matrix, zero, &result) == NUMERUS_MATRIX_SUCCESS);
     assert(numerus_matrix_storage_kind(result) == NUMERUS_STORAGE_ZERO);
     numerus_matrix_destroy(result); result = NULL;
