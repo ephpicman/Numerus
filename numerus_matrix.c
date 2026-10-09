@@ -1,4 +1,5 @@
 #include "numerus_matrix.h"
+#include "numerus_numeric.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -1299,20 +1300,20 @@ numerus_matrix_status numerus_matrix_get_flags(
             if (status != NUMERUS_MATRIX_SUCCESS) {
                 return status;
             }
-            if (value != 0.0) {
+            if (!numerus_double_is_zero(value)) {
                 is_zero = false;
             }
-            if (row != column && value != 0.0) {
+            if (row != column && !numerus_double_is_zero(value)) {
                 is_diagonal = false;
             }
-            if (row > column && value != 0.0) {
+            if (row > column && !numerus_double_is_zero(value)) {
                 is_upper = false;
             }
-            if (row < column && value != 0.0) {
+            if (row < column && !numerus_double_is_zero(value)) {
                 is_lower = false;
             }
-            if ((row == column && value != 1.0) ||
-                (row != column && value != 0.0)) {
+            if ((row == column && !numerus_double_is_one(value)) ||
+                (row != column && !numerus_double_is_zero(value))) {
                 is_identity = false;
             }
             /*
@@ -1327,7 +1328,7 @@ numerus_matrix_status numerus_matrix_get_flags(
                 if (status != NUMERUS_MATRIX_SUCCESS) {
                     return status;
                 }
-                if (value != transposed_value) {
+                if (!numerus_double_equals(value, transposed_value)) {
                     is_symmetric = false;
                 }
             }
