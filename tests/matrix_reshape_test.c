@@ -68,10 +68,12 @@ static void test_reshape_row_major_and_flatten(void)
         assert(matrix_value_equals(flattened, 0, column, (double) column + 1));
     }
 
+    assert(matrix_value_equals(flattened, 0, 5, 6));
+
+    /* Views borrow their parents, so destroy the child before its parents. */
+    numerus_matrix_destroy(flattened);
     numerus_matrix_destroy(reshaped);
     numerus_matrix_destroy(root);
-    assert(matrix_value_equals(flattened, 0, 5, 6));
-    numerus_matrix_destroy(flattened);
 }
 
 static void test_validation_and_nested_reshape(void)
