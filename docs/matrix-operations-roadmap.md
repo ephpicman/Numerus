@@ -103,7 +103,7 @@ Exit criteria: documented contracts, robust size checks, reusable tests, and a d
 - [x] 1.6 Matrix multiplication. Validate inner dimensions and overflow. Default to materializing the result because a naive lazy getter repeats each dot product on every read; benchmark dense and specialized inputs before adding optimized paths. (Merged in PR #18; baseline benchmark harness is being added in the Phase 0.6 follow-up.)
 - [x] 1.7 Scalar division. Reject a zero divisor with `NUMERUS_MATRIX_DIVISION_BY_ZERO`; direct division is used instead of multiplying by a reciprocal. (Merged in PR #20.)
 - [x] 1.8 Approximate and exact matrix equality. Exact equality is separate from epsilon-based close comparison; shape mismatch returns success with `false`. (Merged in PR #21.)
-- [ ] 1.9 Constructors and diagonal utilities. Add missing constant/identity/diagonal/row-vector/column-vector constructors needed by later algorithms; do not add a separate Vector type unless it provides concrete value.
+- [x] 1.9 Constructors and diagonal utilities. Existing constant/identity/diagonal constructors were retained; row-vector and column-vector constructors were added as ordinary dense Matrices, without a separate Vector type. (Merged in PR #22.)
 - [ ] 1.10 Matrix power for non-negative integer exponents. Use identity for exponent zero and exponentiation by squaring. Materialize computed results except for well-defined trivial cases.
 - [ ] 1.11 Kronecker product. Validate output dimensions and allocation overflow; materialize by default.
 
