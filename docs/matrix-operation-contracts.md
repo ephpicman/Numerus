@@ -85,11 +85,11 @@ successful values, and the borrowed parent must outlive the view.
 
 ## Inverse-result cache
 
-Each Matrix may retain one independently materialized inverse result after a
-successful LU inverse. Cache ownership belongs to the source Matrix and the
-cached dense Matrix has no parent reference, so it cannot form a parent/cache
-cycle. A cache hit returns a fresh independent materialization; callers never
-own or destroy the cache entry itself. Cache population is best-effort: if the
+Each Matrix may retain one owned dense value buffer containing its inverse after
+a successful LU inverse. The buffer is owned by the source Matrix and contains
+no Matrix/parent pointers, so it cannot form a parent/cache cycle. A cache hit
+constructs a fresh independent dense Matrix; callers never own or destroy the
+cache buffer itself. Cache population is best-effort: if the
 extra cache allocation fails, the already-computed inverse still succeeds.
 Destroying the source Matrix destroys its cache. As with existing mutable
 structural/determinant caches, concurrent cache population is not thread-safe.
