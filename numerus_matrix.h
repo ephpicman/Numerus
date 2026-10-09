@@ -813,6 +813,19 @@ numerus_matrix_status numerus_matrix_reduced_row_echelon_form(
  * factorization is reused across all columns. The result is an independent
  * dense Matrix; on failure, *solution remains NULL.
  */
+/**
+ * Estimate the matrix 1-norm condition number ||A||_1 * ||A^-1||_1.
+ *
+ * The estimate is based on the implemented inverse and may be infinity for
+ * singular/numerically singular matrices or floating-point overflow. This is
+ * an estimate of numerical conditioning, not a proof of forward accuracy.
+ * The output is unchanged on failure.
+ */
+numerus_matrix_status numerus_matrix_condition_estimate_one(
+    const numerus_matrix *matrix,
+    double *condition_estimate
+);
+
 numerus_matrix_status numerus_matrix_solve(
     const numerus_matrix *matrix,
     const numerus_matrix *right_hand_side,
