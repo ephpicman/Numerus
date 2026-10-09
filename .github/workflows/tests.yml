@@ -231,7 +231,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_trace_test tests/matrix_trace_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm numerus_matrix_lu.c
+            -o tests/matrix_trace_test tests/matrix_trace_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c numerus_matrix_lu.c -lm
           ./tests/matrix_trace_test
 
       - name: Run native Matrix aggregate tests
@@ -239,7 +239,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_aggregate_test tests/matrix_aggregate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm numerus_matrix_lu.c
+            -o tests/matrix_aggregate_test tests/matrix_aggregate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c numerus_matrix_lu.c -lm
           ./tests/matrix_aggregate_test
 
       - name: Run native Matrix norm tests
@@ -247,7 +247,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_norm_test tests/matrix_norm_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm numerus_matrix_lu.c
+            -o tests/matrix_norm_test tests/matrix_norm_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c numerus_matrix_lu.c -lm
           ./tests/matrix_norm_test
 
       - name: Run native Matrix finite-value tests
@@ -255,7 +255,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_finite_test tests/matrix_finite_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm numerus_matrix_lu.c
+            -o tests/matrix_finite_test tests/matrix_finite_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c numerus_matrix_lu.c -lm
           ./tests/matrix_finite_test
 
       - name: Run native Matrix structural predicate tests
@@ -263,7 +263,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_structural_predicate_test tests/matrix_structural_predicate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm numerus_matrix_lu.c
+            -o tests/matrix_structural_predicate_test tests/matrix_structural_predicate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c numerus_matrix_lu.c -lm
           ./tests/matrix_structural_predicate_test
 
       - name: Run non-gating Matrix benchmarks
