@@ -932,6 +932,25 @@ numerus_matrix_status numerus_matrix_null_space(
  * Symmetry and convergence use scale-aware tolerances. Outputs remain NULL
  * on failure.
  */
+/**
+ * Compute the spectral norm (largest singular value) of any real Matrix.
+ * The scalar output is unchanged on failure.
+ */
+numerus_matrix_status numerus_matrix_spectral_norm(
+    const numerus_matrix *matrix,
+    double *norm
+);
+
+/**
+ * Compute the spectral radius for a real symmetric Matrix only.
+ * The radius is the largest absolute eigenvalue. Non-symmetric input returns
+ * NUMERUS_MATRIX_NOT_SYMMETRIC; output is unchanged on failure.
+ */
+numerus_matrix_status numerus_matrix_symmetric_spectral_radius(
+    const numerus_matrix *matrix,
+    double *radius
+);
+
 numerus_matrix_status numerus_matrix_symmetric_eigen(
     const numerus_matrix *matrix,
     numerus_matrix **eigenvalues,
