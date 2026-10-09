@@ -128,3 +128,28 @@ int numerus_matrix_create_zero_extend(
         parent, top, bottom, left, right, 0.0, matrix
     );
 }
+
+/** Tile a Matrix lazily across rows and columns. */
+int numerus_matrix_create_repeat(
+    numerus_matrix *parent,
+    size_t row_repetitions,
+    size_t column_repetitions,
+    numerus_matrix **matrix
+)
+{
+    return numerus_matrix_create_repeat_view(
+        parent, row_repetitions, column_repetitions, matrix
+    );
+}
+
+/** Create a lazy block-diagonal Matrix from repeated copies of parent. */
+int numerus_matrix_create_block_diagonal(
+    numerus_matrix *parent,
+    size_t repetitions,
+    numerus_matrix **matrix
+)
+{
+    return numerus_matrix_create_block_diagonal_view(
+        parent, repetitions, matrix
+    );
+}
