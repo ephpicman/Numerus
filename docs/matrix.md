@@ -897,6 +897,95 @@ dense 1×columns Matrix. These functions materialize their small output vectors
 and propagate parent read errors; on failure the output Matrix pointer remains
 NULL.
 
+## Algorithm selection, complexity, and numerical limitations
+
+The following costs describe the current dense numerical algorithms at a high
+level. Let m and n be the input dimensions, and let r be the number of
+right-hand-side columns. Costs exclude the cost of reading a lazy source,
+which may itself perform additional mapping work.
+
+| Operation | Typical time cost | Important limitation |
+| --- | --- | --- |
+| Element-wise scans, aggregates, and norms | O(mn) | Floating-point accumulation order affects rounding; NaN/infinity behavior is operation-specific. |
+| Dense matrix multiplication | O(mkn) for an m×k by k×n product | Uses ordinary double arithmetic; output is materialized. |
+| LU factorization, determinant, inverse | O(n³) for n×n input | LU uses partial pivoting; inverse rejects matrices classified as numerically singular. |
+| Square solve with r RHS columns | O(n³ + n²r) | One LU factorization is shared across RHS columns; solving does not form an inverse. |
+| REF/RREF and numerical rank | O(mn·min(m,n)) | Rank is a scale-aware numerical estimate, not symbolic rank. |
+| Reduced Householder QR | O(mn·min(m,n)) | The unpivoted QR API is not rank-revealing. |
+| Cholesky and unpivoted LDLᵀ | O(n³) | Cholesky requires positive definiteness; LDLᵀ may reject matrices that need symmetric pivoting. |
+| Reduced SVD | Iteration-dependent; each Jacobi sweep is O(mn·min(m,n)) | Convergence is bounded and failure is reported; near-zero singular values are threshold-dependent. |
+| Symmetric Jacobi eigendecomposition | O(n³) per sweep | Accepts real symmetric matrices only; general real matrices may have complex eigenvalues and are not supported by this API. |
+| Materializing a view | O(mn) time and O(mn) additional storage | The result is independent of its source and no longer depends on source lifetime. |
+
+These are algorithmic estimates, not runtime guarantees. Allocation cost,
+Storage kind, view depth, compiler, and floating-point hardware can materially
+change observed performance. Use the benchmark harness to compare representative
+cases; do not add timing thresholds to CI based on one machine.
+
+### Numerical interpretation
+
+- Exact equality uses C double equality. Approximate comparisons use the
+  documented combined tolerance; neither operation proves mathematical
+  equivalence.
+- Pivot, rank, symmetry, positive-definiteness, and singular-value decisions
+  are numerical classifications with documented scale-aware thresholds.
+  They are not exact symbolic statements.
+- Partial pivoting, Householder QR, and SVD are different numerical tools; do
+  not substitute one for another solely because their signatures appear similar.
+  In particular, unpivoted QR and unpivoted LDLᵀ have explicit limitations.
+- A successful result does not guarantee small forward error for an
+  ill-conditioned problem. Inspect residuals and conditioning when accuracy
+  matters. A condition estimate is a diagnostic, not an error bound.
+- Non-finite input handling is operation-specific. Operations that reject
+  non-finite values return a status; arithmetic operations may instead preserve
+  IEEE-754 NaN/infinity behavior. Check each function contract.
+
+### Runnable C example: solve without forming an inverse
+
+This example solves A x = b directly. It uses the same public C API exercised
+by the native test suite.
+
+```c
+#include "numerus_matrix.h"
+#include <stdio.h>
+
+int main(void)
+{
+    const double a_values[] = {3.0, 1.0, 1.0, 2.0};
+    const double b_values[] = {9.0, 8.0};
+    numerus_matrix *a = NULL;
+    numerus_matrix *b = NULL;
+    numerus_matrix *x = NULL;
+    int status = numerus_matrix_create_dense(2, 2, a_values, &a);
+
+    if (status == NUMERUS_MATRIX_SUCCESS) {
+        status = numerus_matrix_create_column_vector(2, b_values, &b);
+    }
+    if (status == NUMERUS_MATRIX_SUCCESS) {
+        status = numerus_matrix_solve(a, b, &x);
+    }
+    if (status == NUMERUS_MATRIX_SUCCESS) {
+        double x0, x1;
+        status = (int) numerus_matrix_get(x, 0, 0, &x0);
+        if (status == NUMERUS_MATRIX_SUCCESS) {
+            status = (int) numerus_matrix_get(x, 1, 0, &x1);
+        }
+        if (status == NUMERUS_MATRIX_SUCCESS) {
+            printf("x = [%.6f, %.6f]\\n", x0, x1);
+        }
+    }
+
+    numerus_matrix_destroy(x);
+    numerus_matrix_destroy(b);
+    numerus_matrix_destroy(a);
+    return status == NUMERUS_MATRIX_SUCCESS ? 0 : 1;
+}
+```
+
+Expected solution: x = [2.000000, 3.000000]. In production code, report the
+status explicitly rather than silently collapsing every failure into a generic
+exit code.
+
 ## Native tests
 
 The native Matrix tests cover storage-backed constructors, orientation
