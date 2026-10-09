@@ -115,11 +115,20 @@ numbers validate the fast paths on this workload; they are not a universal
 performance guarantee. Diagonal and triangular multiplication remain generic
 because no comparably compelling specialized algorithm has been validated.
 
-## Recommended sequence
+## Follow-up work
 
-1. Expand the standalone benchmark to compare generic multiplication against candidate paths for identity, zero, diagonal, triangular, sparse, symmetric, and banded operands across small and medium shapes.
-2. Record repeated samples and medians, requested allocation counts/bytes, and a correctness comparison against the generic implementation. Include finite and non-finite inputs.
-3. Implement only shortcuts that demonstrate a meaningful win and pass semantic-equivalence tests. Keep the generic algorithm as the fallback.
-4. Consider sparse multiplication/factorization separately: sparse fill-in and output representation require their own design rather than a dense result hidden behind a sparse label.
+1. **Completed:** expand the benchmark to compare generic multiplication for
+   dense, identity, zero, diagonal, triangular, and sparse operands.
+2. **Completed:** record repeated samples, medians, timing ranges, and
+   allocation counts/bytes; add finite and non-finite correctness tests.
+3. **Completed:** implement exact identity/zero shortcuts and a sparse-right
+   row-compressed path only under finite, nonnegative preconditions. The generic
+   implementation remains the fallback.
+4. **Deferred:** diagonal/triangular/symmetric/banded fast paths until a
+   dedicated algorithm demonstrates a meaningful win. Sparse factorization and
+   rank remain separate work because fill-in and output representation need
+   their own design.
 
-This audit does not introduce specialized arithmetic paths; it establishes the evidence and semantic requirements for Phase 10.2.
+The audit and measurements are evidence for the current limited set of
+specializations, not a blanket promise that every structured Storage kind has
+an optimized multiplication algorithm.
