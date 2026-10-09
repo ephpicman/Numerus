@@ -147,8 +147,13 @@ numerus_matrix_status numerus_matrix_row_space_basis(
         goto cleanup;
     }
 
+    /*
+     * View constructors currently accept a mutable pointer despite never
+     * mutating their immutable parent. The cast only adapts that legacy
+     * signature; this function performs no writes through the parent.
+     */
     status = (numerus_matrix_status) numerus_matrix_create_transpose(
-        matrix, &transpose
+        (numerus_matrix *) matrix, &transpose
     );
     if (status != NUMERUS_MATRIX_SUCCESS) {
         goto cleanup;
