@@ -500,6 +500,19 @@ propagate their statuses, and all three output pointers remain NULL on failure.
 The current implementation is real-valued only. Singular values are
 nonnegative; complex singular vectors are not needed for a real SVD.
 
+## Moore–Penrose pseudoinverse
+
+`numerus_matrix_pseudoinverse(A, &A_plus)` computes the real Moore–Penrose
+pseudoinverse from the reduced SVD, `A⁺ = V Σ⁺ Uᵀ`. The result is an
+independent dense Matrix of shape columns(A)-by-rows(A). Singular values at or
+below `NUMERUS_EPSILON * max(rows, columns) * sigma_max` are treated as zero;
+this is a scale-aware numerical-rank decision, not symbolic rank.
+
+The operation supports tall, wide, rank-deficient, and all-zero matrices.
+Non-finite inputs, SVD convergence failures, allocation failures, and source
+read failures propagate their statuses. The output pointer remains NULL on
+failure. Native tests cover all four Moore–Penrose conditions.
+
 ## LDLᵀ decomposition
 
 `numerus_matrix_ldlt_decompose(A, &L, &D)` computes A approximately equal
@@ -1019,6 +1032,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_svd_test tests/matrix_svd_test.c numerus_matrix_svd.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
 ./tests/matrix_svd_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_pseudoinverse_test tests/matrix_pseudoinverse_test.c numerus_matrix_pseudoinverse.c numerus_matrix_svd.c numerus_matrix_multiply.c numerus_matrix_views.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+./tests/matrix_pseudoinverse_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \

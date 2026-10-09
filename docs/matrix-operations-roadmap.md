@@ -172,7 +172,7 @@ Exit criteria: independent inverse Storage, explicit singular/error behavior, re
 - [x] 6.3 Consistency and solution classification. Pivoted QR and an RHS-relative residual distinguish inconsistent, unique, and infinitely many solutions. (Merged in PR #53.)
 - [x] 6.4 Least-squares solve. Column-pivoted QR solves full-column-rank overdetermined and square systems without normal equations; rank-deficient/minimum-norm cases are deferred to SVD/pseudoinverse work. (Merged in PR #54.)
 - [x] 6.5 Weighted least squares. Finite nonnegative weights are applied by row scaling with sqrt(weight), then solved by pivoted QR. (Merged in PR #55.)
-- [ ] 6.6 Moore–Penrose pseudoinverse. Prefer SVD-based implementation and test all four Moore–Penrose conditions within a documented tolerance.
+- [x] 6.6 Moore–Penrose pseudoinverse. SVD-based implementation supports rectangular, rank-deficient, and zero matrices; native tests cover all four Moore–Penrose conditions and the documented scale-aware singular-value threshold.
 
 Exit criteria: rectangular and rank-deficient test suites; residual-based validation; documented numerical thresholds.
 
@@ -194,7 +194,7 @@ Exit criteria: reconstruction and orthogonality tests, convergence/error reporti
 - [ ] 8.2 General real-matrix eigenvalues. Deferred: complex numbers are an explicit non-goal, and the current API exposes only real symmetric eigendecomposition. Do not silently discard imaginary components; revisit only after a complex-value representation and error contract are designed.
 - [x] 8.3 Spectral radius and spectral norm. General spectral norm reuses SVD; symmetric spectral radius reuses symmetric eigendecomposition. General nonsymmetric spectral radius remains deferred until the real/complex eigenvalue contract is implemented. (Merged in PR #61.)
 - [ ] 8.4 Diagonalizability checks. Define numerical rather than symbolic semantics.
-- [ ] 8.5 Matrix power for negative integer exponents. Build on inverse and exponentiation by squaring. (Implementation proposed; merge pending.)
+- [x] 8.5 Matrix power for negative integer exponents. Builds on one LU-based inverse and exponentiation by squaring. (Merged in PR #62.)
 - [ ] 8.6 Matrix exponential. Prefer a numerically appropriate scaling-and-squaring method with Padé approximation rather than naïve Taylor summation as the only production path.
 - [ ] 8.7 Matrix square root and logarithm. Specify supported input classes and failure behavior.
 - [ ] 8.8 Matrix sine/cosine and polynomial functions. Add after matrix exponential and multiplication semantics are stable.

@@ -971,6 +971,19 @@ numerus_matrix_status numerus_matrix_symmetric_eigen(
     numerus_matrix **eigenvectors
 );
 
+/**
+ * Compute the Moore-Penrose pseudoinverse using the reduced real SVD.
+ *
+ * Singular values at or below NUMERUS_EPSILON * max(rows, columns) *
+ * largest_singular_value are treated as zero. The output has shape
+ * columns(A)-by-rows(A), is independent dense Storage, and remains NULL
+ * on failure.
+ */
+numerus_matrix_status numerus_matrix_pseudoinverse(
+    const numerus_matrix *matrix,
+    numerus_matrix **pseudoinverse
+);
+
 numerus_matrix_status numerus_matrix_svd(
     const numerus_matrix *matrix,
     numerus_matrix **u,
