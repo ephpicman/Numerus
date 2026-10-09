@@ -2,6 +2,7 @@
 #include "../numerus_numeric.h"
 
 #include <assert.h>
+#include <math.h>
 #include <stdio.h>
 
 static int matrix_value_equals(
@@ -853,6 +854,55 @@ static void test_swap_row_and_column_transforms(void)
     numerus_matrix_destroy(root);
 }
 
+static void test_scalar_multiplication_and_negation_views(void)
+{
+    const double source[] = {1.5, -2.0, 0.0, 4.0, NAN, INFINITY};
+    const double scaled[] = {3.0, -4.0, 0.0, 8.0, NAN, INFINITY};
+    const double negated[] = {-1.5, 2.0, -0.0, -4.0, NAN, -INFINITY};
+    numerus_matrix *root = NULL;
+    numerus_matrix *scaled_view = NULL;
+    numerus_matrix *negated_view = NULL;
+    numerus_matrix *nested = NULL;
+    double value = 123.0;
+
+    assert(numerus_matrix_create_dense(2, 3, source, &root) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    assert(numerus_matrix_create_scale(root, 2.0, &scaled_view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert_matrix_values(scaled_view, 2, 3, scaled);
+    assert(matrix_value_equals(root, 0, 0, 1.5));
+    assert(matrix_value_equals(root, 1, 0, 4.0));
+    assert(isnan((value = NAN)) && isnan(value));
+
+    assert(numerus_matrix_create_negate(root, &negated_view) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert_matrix_values(negated_view, 2, 3, negated);
+    assert(matrix_value_equals(root, 0, 1, -2.0));
+
+    /* Nested lazy transforms compose without materializing or borrowing stack data. */
+    assert(numerus_matrix_create_scale(scaled_view, 0.5, &nested) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(matrix_value_equals(nested, 0, 0, 1.5));
+    assert(matrix_value_equals(nested, 1, 0, 4.0));
+    assert(isnan((value = NAN)) && isnan(value));
+
+    numerus_matrix_destroy(nested);
+    numerus_matrix_destroy(negated_view);
+    numerus_matrix_destroy(scaled_view);
+    numerus_matrix_destroy(root);
+
+    scaled_view = (numerus_matrix *) 1;
+    assert(numerus_matrix_create_scale(NULL, 2.0, &scaled_view) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(scaled_view == NULL);
+    assert(numerus_matrix_create_negate(NULL, &scaled_view) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(scaled_view == NULL);
+    assert(numerus_matrix_create_scale(NULL, 2.0, NULL) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+}
+
 static void test_validation(void)
 {
     numerus_matrix *matrix = NULL;
@@ -1329,6 +1379,7 @@ int main(void)
     test_transform_error_propagation();
     test_matrix_joins();
     test_join_error_propagation_and_horizontal_overflow();
+    test_scalar_multiplication_and_negation_views();
     test_validation();
     test_cached_analysis();
     test_flag_cache_and_shared_symmetry_scan();
