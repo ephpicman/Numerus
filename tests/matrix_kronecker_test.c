@@ -141,9 +141,69 @@ static void test_non_finite_product(void)
     numerus_matrix_destroy(left);
 }
 
+
+static void test_kronecker_sum(void)
+{
+    const double left_values[] = {1, 2, 3, 4};
+    const double right_values[] = {5, 6, 7, 8};
+    const double expected[] = {
+        6, 6, 2, 0,
+        7, 9, 0, 2,
+        3, 0, 9, 6,
+        0, 3, 7, 12
+    };
+    const double rectangular_values[] = {1, 2, 3, 4, 5, 6};
+    numerus_matrix *left = NULL;
+    numerus_matrix *right = NULL;
+    numerus_matrix *rectangular = NULL;
+    numerus_matrix *failing = NULL;
+    numerus_matrix *sum = NULL;
+
+    assert(numerus_matrix_create_dense(2, 2, left_values, &left) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(2, 2, right_values, &right) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_kronecker_sum(left, right, &sum) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(sum) == 4);
+    assert(numerus_matrix_columns(sum) == 4);
+    assert(numerus_matrix_storage_kind(sum) == NUMERUS_STORAGE_DENSE);
+    for (size_t row = 0; row < 4; row++) {
+        for (size_t column = 0; column < 4; column++) {
+            assert(matrix_value_equals(
+                sum, row, column, expected[row * 4 + column]
+            ));
+        }
+    }
+
+    numerus_matrix_destroy(sum);
+    sum = NULL;
+    assert(numerus_matrix_create_dense(2, 3, rectangular_values, &rectangular) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_from_parent_with_transforms(
+        left, 2, 2, reject_coordinates, NULL, NULL, &failing
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_kronecker_sum(failing, right, &sum) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(sum == NULL);
+    assert(numerus_matrix_kronecker_sum(rectangular, right, &sum) ==
+        NUMERUS_MATRIX_NOT_SQUARE);
+    assert(sum == NULL);
+    assert(numerus_matrix_kronecker_sum(left, NULL, &sum) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(sum == NULL);
+
+    numerus_matrix_destroy(failing);
+    numerus_matrix_destroy(rectangular);
+    numerus_matrix_destroy(sum);
+    numerus_matrix_destroy(right);
+    numerus_matrix_destroy(left);
+}
+
 int main(void)
 {
     test_kronecker_layout();
+    test_kronecker_sum();
     test_overflow_and_read_failures();
     test_non_finite_product();
     puts("Matrix Kronecker product tests passed.");

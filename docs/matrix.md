@@ -231,6 +231,19 @@ partial result is published. The operation uses O(m·n·p·q) time and O(m·p·n
 temporary/result memory. Values follow ordinary IEEE-754 multiplication
 semantics, including NaN from zero multiplied by infinity.
 
+## Kronecker sum
+
+`numerus_matrix_kronecker_sum(left, right, &result)` computes
+`left ⊗ I + I ⊗ right`. Both inputs must be square; otherwise the function
+returns `NUMERUS_MATRIX_NOT_SQUARE` and leaves the output pointer NULL. For
+square inputs of dimensions m and n, the result is an independent dense
+(m·n)×(m·n) Matrix.
+
+Dimension, element-count, and byte-count arithmetic is checked before
+allocation. Parent read failures propagate and no partial result is published.
+The implementation follows IEEE-754 arithmetic for both products, including
+zero multiplied by non-finite values. Time and result storage are O(m²n²).
+
 ## Signed integer matrix powers
 
 `numerus_matrix_power_signed(base, exponent, &result)` extends the
