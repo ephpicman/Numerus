@@ -843,6 +843,34 @@ numerus_matrix_status numerus_matrix_column_means(
     numerus_matrix **means
 );
 
+/**
+ * Compute the Frobenius norm using a scaled sum-of-squares algorithm.
+ * This avoids avoidable intermediate overflow/underflow. If any element is
+ * NaN the result is NaN; otherwise an infinite element yields infinity.
+ */
+numerus_matrix_status numerus_matrix_frobenius_norm(
+    const numerus_matrix *matrix,
+    double *norm
+);
+
+/**
+ * Compute the induced matrix 1-norm: the maximum absolute column sum.
+ * NaN propagates; infinities follow IEEE-754 arithmetic.
+ */
+numerus_matrix_status numerus_matrix_one_norm(
+    const numerus_matrix *matrix,
+    double *norm
+);
+
+/**
+ * Compute the induced matrix infinity-norm: the maximum absolute row sum.
+ * NaN propagates; infinities follow IEEE-754 arithmetic.
+ */
+numerus_matrix_status numerus_matrix_infinity_norm(
+    const numerus_matrix *matrix,
+    double *norm
+);
+
 /** Read one Matrix element with validation. */
 numerus_matrix_status numerus_matrix_get(
     const numerus_matrix *matrix,
