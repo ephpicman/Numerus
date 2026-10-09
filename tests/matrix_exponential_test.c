@@ -49,7 +49,7 @@ static void test_diagonal_and_zero(void)
 static void test_nilpotent_and_rotation(void)
 {
     const double nilpotent[] = {0.0, 1.0, 0.0, 0.0};
-    const double rotation[] = {0.0, M_PI / 2.0, -M_PI / 2.0, 0.0};
+    const double rotation[] = {0.0, 1.57079632679489661923, -M_PI / 2.0, 0.0};
     numerus_matrix *matrix = NULL;
     numerus_matrix *result = NULL;
 
