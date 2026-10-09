@@ -209,7 +209,7 @@ Exit criteria: convergence tests, residual checks, explicit real-only limitation
 - [x] 9.4 Variance and standard deviation. Population/sample semantics are explicit; one-pass Welford accumulation rejects non-finite values and preserves outputs on failure.
 - [x] 9.5 All-close / any-close. Reuses the established approximate comparison policy; exact equality remains separate.
 - [x] 9.6 Kronecker sum. Requires square inputs, uses checked dimensions/allocation sizes, and materializes independent dense Storage.
-- [ ] 9.7 Matrix polynomial evaluation. Use Horner's method with matrix multiplication; document coefficient order.
+- [x] 9.7 Matrix polynomial evaluation. Uses Horner's method, ascending coefficient order, materialized products, and explicit failure cleanup.
 
 Exit criteria: clear scalar-vs-matrix result types, explicit NaN semantics, no hidden mutation of parent matrices.
 
@@ -253,7 +253,7 @@ This inventory captures the broader feature set discussed for Numerus. It is not
 - [x] Exact equality and approximate equality, including all-close and any-close predicates
 - [ ] Non-negative and negative integer matrix powers
 - [x] Kronecker product and Kronecker sum (Phase 9.6)
-- [ ] Matrix polynomial
+- [x] Matrix polynomial (Phase 9.7)
 
 ### Structural and assembly
 - [x] Transpose, row/column flips, rotations, row/column removal and swaps, horizontal/vertical joins (already implemented)

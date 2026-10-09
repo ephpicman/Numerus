@@ -548,6 +548,19 @@ int numerus_matrix_power(
 );
 
 /**
+ * Evaluate c[0] + c[1]A + ... + c[count - 1]A^(count - 1) by Horner's
+ * method. Coefficients are ordered from the constant term upward. The base
+ * must be square and count must be positive; the result is independent dense
+ * Storage. The output pointer remains NULL on failure.
+ */
+int numerus_matrix_polynomial(
+    const numerus_matrix *base,
+    const double *coefficients,
+    size_t coefficient_count,
+    numerus_matrix **matrix
+);
+
+/**
  * Compute base raised to a signed integer exponent.
  *
  * Negative exponents invert the square base once, then use exponentiation by
