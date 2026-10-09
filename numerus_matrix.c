@@ -2895,7 +2895,6 @@ void numerus_matrix_destroy(numerus_matrix *matrix)
     }
 
     numerus_matrix_lu_destroy(matrix->cached_lu_factorization);
-    numerus_matrix_lu_destroy(matrix->cached_lu_factorization);
     numerus_matrix_free(matrix->cached_inverse_values);
     numerus_matrix_free(matrix->selection_indices);
     numerus_matrix_free(matrix->block_matrices);
