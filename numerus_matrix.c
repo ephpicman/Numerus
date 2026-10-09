@@ -493,6 +493,10 @@ static int allocate_matrix(numerus_matrix **matrix)
     (*matrix)->transform_parent_columns = 0;
     (*matrix)->selection_indices = NULL;
     (*matrix)->selection_axis = NUMERUS_MATRIX_SELECTION_NONE;
+    (*matrix)->padding_view = false;
+    (*matrix)->padding_top = 0;
+    (*matrix)->padding_left = 0;
+    (*matrix)->padding_value = 0.0;
 
     return NUMERUS_MATRIX_SUCCESS;
 }
