@@ -273,3 +273,115 @@ numerus_matrix_status numerus_matrix_column_means(
 {
     return matrix_axis_aggregates(matrix, false, true, means);
 }
+
+
+/*
+ * Frobenius norm uses hypot() to avoid the avoidable overflow and underflow
+ * of summing squared elements. NaN is deliberately propagated even when an
+ * infinity is also present, consistently with the aggregate APIs.
+ */
+numerus_matrix_status numerus_matrix_norm_frobenius(
+    const numerus_matrix *matrix,
+    double *norm
+)
+{
+    double result = 0.0;
+    bool saw_nan = false;
+    size_t row;
+    size_t column;
+
+    if (matrix == NULL || norm == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    for (row = 0; row < numerus_matrix_rows(matrix); row++) {
+        for (column = 0; column < numerus_matrix_columns(matrix); column++) {
+            double value;
+            numerus_matrix_status status = numerus_matrix_get(
+                matrix, row, column, &value
+            );
+
+            if (status != NUMERUS_MATRIX_SUCCESS) {
+                return status;
+            }
+            if (isnan(value)) {
+                saw_nan = true;
+                continue;
+            }
+            result = hypot(result, value);
+        }
+    }
+
+    *norm = saw_nan ? NAN : result;
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status matrix_induced_norm(
+    const numerus_matrix *matrix,
+    bool reduce_columns,
+    double *norm
+)
+{
+    size_t outer_count;
+    size_t inner_count;
+    size_t outer;
+    double maximum = 0.0;
+    bool saw_nan = false;
+
+    if (matrix == NULL || norm == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    outer_count = reduce_columns
+        ? numerus_matrix_columns(matrix)
+        : numerus_matrix_rows(matrix);
+    inner_count = reduce_columns
+        ? numerus_matrix_rows(matrix)
+        : numerus_matrix_columns(matrix);
+
+    for (outer = 0; outer < outer_count; outer++) {
+        double sum = 0.0;
+        size_t inner;
+
+        for (inner = 0; inner < inner_count; inner++) {
+            size_t row = reduce_columns ? inner : outer;
+            size_t column = reduce_columns ? outer : inner;
+            double value;
+            numerus_matrix_status status = numerus_matrix_get(
+                matrix, row, column, &value
+            );
+
+            if (status != NUMERUS_MATRIX_SUCCESS) {
+                return status;
+            }
+            if (isnan(value)) {
+                saw_nan = true;
+                continue;
+            }
+            sum += fabs(value);
+        }
+
+        if (sum > maximum) {
+            maximum = sum;
+        }
+    }
+
+    *norm = saw_nan ? NAN : maximum;
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+numerus_matrix_status numerus_matrix_norm_one(
+    const numerus_matrix *matrix,
+    double *norm
+)
+{
+    return matrix_induced_norm(matrix, true, norm);
+}
+
+numerus_matrix_status numerus_matrix_norm_infinity(
+    const numerus_matrix *matrix,
+    double *norm
+)
+{
+    return matrix_induced_norm(matrix, false, norm);
+}

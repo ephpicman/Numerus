@@ -769,6 +769,34 @@ numerus_matrix_status numerus_matrix_determinant(
 );
 
 /**
+ * Compute the Frobenius norm using a stable hypot-based accumulation.
+ * If any element is NaN, the result is NaN; infinities otherwise follow
+ * IEEE-754 behavior. Output is unchanged if a read fails.
+ */
+numerus_matrix_status numerus_matrix_norm_frobenius(
+    const numerus_matrix *matrix,
+    double *norm
+);
+
+/**
+ * Compute the induced matrix 1-norm (maximum absolute column sum).
+ * Any NaN element makes the result NaN; output is unchanged on read failure.
+ */
+numerus_matrix_status numerus_matrix_norm_one(
+    const numerus_matrix *matrix,
+    double *norm
+);
+
+/**
+ * Compute the induced matrix infinity-norm (maximum absolute row sum).
+ * Any NaN element makes the result NaN; output is unchanged on read failure.
+ */
+numerus_matrix_status numerus_matrix_norm_infinity(
+    const numerus_matrix *matrix,
+    double *norm
+);
+
+/**
  * Compute the trace of a square Matrix.
  *
  * Diagonal elements are accumulated in increasing index order using ordinary

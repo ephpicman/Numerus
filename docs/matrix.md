@@ -436,6 +436,19 @@ Repeated indices are rejected here (unlike selection views, which intentionally
 allow duplicates). The index list is copied, the view remains lazy, and the
 parent must outlive it.
 
+## Matrix norms
+
+`numerus_matrix_norm_frobenius()` computes the Frobenius norm using
+`hypot()` accumulation to avoid unnecessary overflow and underflow from
+squaring values. The induced 1-norm is the maximum absolute column sum, and
+the induced infinity-norm is the maximum absolute row sum.
+
+All three functions return scalar `double` results. Any NaN element makes the
+norm NaN; otherwise infinities and overflow in induced absolute sums follow
+IEEE-754 behavior. Failed element reads propagate their status and leave the
+output scalar unchanged. Each norm scans the logical Matrix once and uses
+constant auxiliary memory.
+
 ## Trace
 
 `numerus_matrix_trace()` returns the scalar sum of the main diagonal and
@@ -599,6 +612,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_aggregate_test tests/matrix_aggregate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c
 ./tests/matrix_aggregate_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_norm_test tests/matrix_norm_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm
+./tests/matrix_norm_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds
