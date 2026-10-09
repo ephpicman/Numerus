@@ -84,6 +84,20 @@ int numerus_matrix_create_block_grid_view(
     numerus_matrix **matrix
 );
 
+/** Private checked constructor for a row-vector diagonal extraction view. */
+int numerus_matrix_create_diagonal_extract_view(
+    numerus_matrix *parent,
+    ptrdiff_t offset,
+    numerus_matrix **matrix
+);
+
+/** Private checked constructor for a square diagonal view from a vector. */
+int numerus_matrix_create_diagonal_from_vector_view(
+    numerus_matrix *vector,
+    ptrdiff_t offset,
+    numerus_matrix **matrix
+);
+
 /** Private checked constructor for a lazy range slice. */
 int numerus_matrix_create_slice_view(
     numerus_matrix *parent,
