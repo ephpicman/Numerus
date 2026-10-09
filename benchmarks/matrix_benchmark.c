@@ -508,6 +508,7 @@ int main(void)
     numerus_matrix *identity = NULL;
     numerus_matrix *zero = NULL;
     numerus_matrix *transpose = NULL;
+    numerus_matrix *nested_view = NULL;
     numerus_matrix *joined = NULL;
     numerus_matrix *scaled = NULL;
     numerus_matrix *sum = NULL;
@@ -579,6 +580,8 @@ int main(void)
     if (status != NUMERUS_MATRIX_SUCCESS) goto fail;
     status = numerus_matrix_create_transpose(dense, &transpose);
     if (status != NUMERUS_MATRIX_SUCCESS) goto fail;
+    status = numerus_matrix_create_transpose(transpose, &nested_view);
+    if (status != NUMERUS_MATRIX_SUCCESS) goto fail;
     status = numerus_matrix_create_join_horizontal(dense, transpose, &joined);
     if (status != NUMERUS_MATRIX_SUCCESS) goto fail;
     status = numerus_matrix_create_scale(dense, 2.0, &scaled);
@@ -600,11 +603,13 @@ int main(void)
     benchmark_reads("triangular read", upper, READ_ITERATIONS);
     benchmark_reads("sparse read", sparse, READ_ITERATIONS);
     benchmark_reads("transpose view read", transpose, READ_ITERATIONS);
+    benchmark_reads("nested transpose read", nested_view, READ_ITERATIONS);
     benchmark_reads("joined view read", joined, READ_ITERATIONS);
     benchmark_reads("scaled view read", scaled, READ_ITERATIONS);
     benchmark_reads("binary view read", sum, READ_ITERATIONS);
     benchmark_scale_view_creation(dense, 1000);
     benchmark_materialize(transpose, OPERATION_ITERATIONS);
+    benchmark_materialize(nested_view, OPERATION_ITERATIONS);
     benchmark_multiplication("dense x dense", dense, dense, OPERATION_ITERATIONS);
     benchmark_multiplication("dense x identity", dense, identity, OPERATION_ITERATIONS);
     benchmark_multiplication("identity x dense", identity, dense, OPERATION_ITERATIONS);
@@ -627,6 +632,7 @@ int main(void)
     numerus_matrix_destroy(sum);
     numerus_matrix_destroy(scaled);
     numerus_matrix_destroy(joined);
+    numerus_matrix_destroy(nested_view);
     numerus_matrix_destroy(transpose);
     numerus_matrix_destroy(zero);
     numerus_matrix_destroy(identity);
