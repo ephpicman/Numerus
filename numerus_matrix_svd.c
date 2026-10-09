@@ -1,4 +1,5 @@
 #include "numerus_matrix.h"
+#include "numerus_numeric.h"
 #include "numerus_size.h"
 
 #include <math.h>
@@ -169,6 +170,7 @@ static numerus_matrix_status matrix_svd_tall(
 
                 tau = (q_ratio * q_ratio - p_ratio * p_ratio) /
                     (2.0 * gamma_ratio);
+                if (!isfinite(tau)) continue;
                 tangent = copysign(1.0, tau) /
                     (fabs(tau) + hypot(1.0, tau));
                 cosine = 1.0 / sqrt(1.0 + tangent * tangent);
