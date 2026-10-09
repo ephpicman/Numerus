@@ -39,11 +39,15 @@ numerus_matrix_status numerus_matrix_qr_decompose(
     double *r_values = NULL;
     numerus_matrix_status status = NUMERUS_MATRIX_SUCCESS;
 
+    if (q != NULL) {
+        *q = NULL;
+    }
+    if (r != NULL && r != q) {
+        *r = NULL;
+    }
     if (q == NULL || r == NULL || q == r || matrix == NULL) {
         return NUMERUS_MATRIX_INVALID_ARGUMENT;
     }
-    *q = NULL;
-    *r = NULL;
 
     rows = numerus_matrix_rows(matrix);
     columns = numerus_matrix_columns(matrix);
