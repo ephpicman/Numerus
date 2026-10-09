@@ -35,7 +35,9 @@ typedef enum {
     /** Scalar division rejected a zero divisor. */
     NUMERUS_MATRIX_DIVISION_BY_ZERO,
     /** A numerical analysis cannot classify non-finite input or intermediate values. */
-    NUMERUS_MATRIX_NON_FINITE
+    NUMERUS_MATRIX_NON_FINITE,
+    /** The operation requires a nonsingular Matrix, but numerical rank is deficient. */
+    NUMERUS_MATRIX_SINGULAR
 } numerus_matrix_status;
 
 /**
@@ -796,6 +798,17 @@ numerus_matrix_status numerus_matrix_row_echelon_form(
 numerus_matrix_status numerus_matrix_reduced_row_echelon_form(
     const numerus_matrix *matrix,
     numerus_matrix **result
+);
+
+/**
+ * Compute an inverse through LU factorization and triangular solves.
+ * Numerical singularity uses numerus_matrix_rank() and its scale-aware
+ * threshold. The returned Matrix owns independent dense Storage. On failure,
+ * *inverse remains NULL; singular inputs return NUMERUS_MATRIX_SINGULAR.
+ */
+numerus_matrix_status numerus_matrix_inverse(
+    const numerus_matrix *matrix,
+    numerus_matrix **inverse
 );
 
 numerus_matrix_status numerus_matrix_rank(
