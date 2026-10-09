@@ -335,6 +335,19 @@ int numerus_matrix_create_hadamard_product(
     numerus_matrix **matrix
 );
 
+/**
+ * Create a lazy element-wise quotient of equally sized Matrices.
+ *
+ * Division follows IEEE-754 double semantics: zero divisors produce the
+ * corresponding infinities or NaN rather than a Matrix status error. Both
+ * parent references are non-owning and must remain alive for the result.
+ */
+int numerus_matrix_create_divide(
+    numerus_matrix *left,
+    numerus_matrix *right,
+    numerus_matrix **matrix
+);
+
 /** Create a dense Matrix. */
 int numerus_matrix_create_dense(
     size_t rows,
