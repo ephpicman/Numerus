@@ -380,12 +380,23 @@ destruction safe. Keep objects alive for the duration of every operation and
 supply callbacks/context that satisfy their documented lifetime and
 determinism requirements.
 
+## Padding and zero extension
+
+`numerus_matrix_create_pad()` creates a lazy view with configurable top,
+bottom, left, and right padding and a caller-selected constant value.
+`numerus_matrix_create_zero_extend()` is the zero-filled convenience form.
+The original Matrix remains centered at the requested offsets; reads within
+the original region delegate to the borrowed parent, while reads outside it
+return the padding value without allocating a dense buffer. Parent read errors
+are propagated unchanged. The parent must outlive the view, and padded
+dimension arithmetic is checked for overflow.
+
 ## Native tests
 
 The native Matrix tests cover storage-backed constructors, orientation
 transforms, row/column removal and swaps, composed views, lazy scalar
 multiplication, powers, Kronecker products, range slices, indexed row/column
-selection, reshape/flatten views, scalar division, equality, vector constructors,
+selection, reshape/flatten and padding views, scalar division, equality, vector constructors,
 element-wise arithmetic, materialization, and overflow/read-failure handling.
 
 Run them from the repository root:
@@ -480,6 +491,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_reshape_test tests/matrix_reshape_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
 ./tests/matrix_reshape_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_padding_test tests/matrix_padding_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+./tests/matrix_padding_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds
