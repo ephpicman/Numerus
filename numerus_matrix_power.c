@@ -1,5 +1,9 @@
 #include "numerus_matrix.h"
 
+#include <stdint.h>
+#include <stdint.h>
+#include <stddef.h>
+
 /**
  * Compute a non-negative integer matrix power by exponentiation by squaring.
  *
@@ -91,5 +95,50 @@ int numerus_matrix_power(
 failure:
     numerus_matrix_destroy(result);
     numerus_matrix_destroy(power);
+    return status;
+}
+
+/**
+ * Signed-exponent variant of matrix power. The magnitude calculation avoids
+ * negating INT64_MIN directly, which would overflow a signed integer.
+ */
+int numerus_matrix_power_signed(
+    const numerus_matrix *base,
+    int64_t exponent,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix *inverse = NULL;
+    uint64_t magnitude;
+    int status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+
+    if (base == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    if (exponent >= 0) {
+        if ((uint64_t) exponent > (uint64_t) SIZE_MAX) {
+            return NUMERUS_MATRIX_OVERFLOW;
+        }
+        return numerus_matrix_power(base, (size_t) exponent, matrix);
+    }
+
+    /* This form is defined even for INT64_MIN. */
+    magnitude = (uint64_t) (-(exponent + 1)) + UINT64_C(1);
+    if (magnitude > (uint64_t) SIZE_MAX) {
+        return NUMERUS_MATRIX_OVERFLOW;
+    }
+
+    status = numerus_matrix_inverse(base, &inverse);
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        return status;
+    }
+
+    status = numerus_matrix_power(inverse, (size_t) magnitude, matrix);
+    numerus_matrix_destroy(inverse);
     return status;
 }
