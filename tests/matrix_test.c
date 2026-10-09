@@ -870,14 +870,31 @@ static void test_scalar_multiplication_and_negation_views(void)
 
     assert(numerus_matrix_create_scale(root, 2.0, &scaled_view) ==
         NUMERUS_MATRIX_SUCCESS);
-    assert_matrix_values(scaled_view, 2, 3, scaled);
+    assert(matrix_value_equals(scaled_view, 0, 0, scaled[0]));
+    assert(matrix_value_equals(scaled_view, 0, 1, scaled[1]));
+    assert(matrix_value_equals(scaled_view, 0, 2, scaled[2]));
+    assert(matrix_value_equals(scaled_view, 1, 0, scaled[3]));
+    assert(numerus_matrix_get(scaled_view, 1, 1, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(isnan(value));
+    assert(numerus_matrix_get(scaled_view, 1, 2, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(isinf(value) && value > 0.0);
     assert(matrix_value_equals(root, 0, 0, 1.5));
     assert(matrix_value_equals(root, 1, 0, 4.0));
-    assert(isnan((value = NAN)) && isnan(value));
 
     assert(numerus_matrix_create_negate(root, &negated_view) ==
         NUMERUS_MATRIX_SUCCESS);
-    assert_matrix_values(negated_view, 2, 3, negated);
+    assert(matrix_value_equals(negated_view, 0, 0, negated[0]));
+    assert(matrix_value_equals(negated_view, 0, 1, negated[1]));
+    assert(matrix_value_equals(negated_view, 0, 2, negated[2]));
+    assert(matrix_value_equals(negated_view, 1, 0, negated[3]));
+    assert(numerus_matrix_get(negated_view, 1, 1, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(isnan(value));
+    assert(numerus_matrix_get(negated_view, 1, 2, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(isinf(value) && value < 0.0);
     assert(matrix_value_equals(root, 0, 1, -2.0));
 
     /* Nested lazy transforms compose without materializing or borrowing stack data. */
@@ -885,14 +902,16 @@ static void test_scalar_multiplication_and_negation_views(void)
         NUMERUS_MATRIX_SUCCESS);
     assert(matrix_value_equals(nested, 0, 0, 1.5));
     assert(matrix_value_equals(nested, 1, 0, 4.0));
-    assert(isnan((value = NAN)) && isnan(value));
+    assert(numerus_matrix_get(nested, 1, 1, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(isnan(value));
 
     numerus_matrix_destroy(nested);
     numerus_matrix_destroy(negated_view);
     numerus_matrix_destroy(scaled_view);
     numerus_matrix_destroy(root);
 
-    scaled_view = (numerus_matrix *) 1;
+    scaled_view = root;
     assert(numerus_matrix_create_scale(NULL, 2.0, &scaled_view) ==
         NUMERUS_MATRIX_INVALID_ARGUMENT);
     assert(scaled_view == NULL);
