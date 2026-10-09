@@ -119,7 +119,7 @@ Some capabilities already exist. Reuse them; do not reimplement existing behavio
 - [x] 2.4 Padding and zero extension. Lazy constant-fill mapping with checked dimensions; zero extension is a convenience wrapper. (Merged in PR #28.)
 - [x] 2.5 Repetition and block matrices. Lazy tiling and block-diagonal views validate positive repetition counts and checked output dimensions. (Merged in PR #29.)
 - [x] 2.6 General block assembly. Row-major block grids require non-NULL blocks, consistent heights per block row and widths per block column, and checked sizes. (Merged in PR #30.)
-- [ ] 2.7 Diagonal extraction and diagonal construction from vector-like input. Define main and offset diagonal behavior.
+- [x] 2.7 Diagonal extraction and construction from row/column vectors. Offset zero is the main diagonal; positive offsets are above and negative offsets below. (Merged in PR #31.)
 - [ ] 2.8 Row/column permutations. Generalize existing swap views to permutations only if there is a clear use case; validate uniqueness and bounds.
 
 Exit criteria: no input copies for pure views, correct composition of nested views, tests for boundary indices and parent lifetime.
