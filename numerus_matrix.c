@@ -1,5 +1,6 @@
 #include "numerus_matrix.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -23,8 +24,8 @@ struct numerus_matrix {
     numerus_coordinate_transform_fn coordinate_transform;
     numerus_value_transform_fn value_transform;
     const void *transform_context;
-    unsigned int cached_flags;
-    int flags_cached;
+    numerus_matrix_flags cached_flags;
+    bool flags_cached;
     int determinant_state;
     double cached_determinant;
 };
@@ -238,8 +239,8 @@ static int allocate_matrix(numerus_matrix **matrix)
     (*matrix)->coordinate_transform = NULL;
     (*matrix)->value_transform = NULL;
     (*matrix)->transform_context = NULL;
-    (*matrix)->cached_flags = 0;
-    (*matrix)->flags_cached = 0;
+    (*matrix)->cached_flags = (numerus_matrix_flags) {0};
+    (*matrix)->flags_cached = false;
     (*matrix)->determinant_state = 0;
     (*matrix)->cached_determinant = 0.0;
 
@@ -978,12 +979,16 @@ numerus_matrix_status numerus_matrix_get(
 
 numerus_matrix_status numerus_matrix_get_flags(
     numerus_matrix *matrix,
-    unsigned int *flags
+    numerus_matrix_flags *flags
 )
 {
-    unsigned int result = 0;
-    int is_zero = 1, is_diagonal = 1, is_upper = 1;
-    int is_lower = 1, is_symmetric = 1, is_identity = 1;
+    numerus_matrix_flags result = {0};
+    bool is_zero = true;
+    bool is_diagonal = true;
+    bool is_upper = true;
+    bool is_lower = true;
+    bool is_symmetric = true;
+    bool is_identity = true;
     size_t row, column;
 
     if (matrix == NULL || flags == NULL) {
@@ -993,9 +998,8 @@ numerus_matrix_status numerus_matrix_get_flags(
         *flags = matrix->cached_flags;
         return NUMERUS_MATRIX_SUCCESS;
     }
-    if (matrix->rows == matrix->columns) {
-        result |= NUMERUS_MATRIX_FLAG_SQUARE;
-    }
+
+    result.square = matrix->rows == matrix->columns;
 
     for (row = 0; row < matrix->rows; row++) {
         for (column = 0; column < matrix->columns; column++) {
@@ -1003,26 +1007,35 @@ numerus_matrix_status numerus_matrix_get_flags(
             numerus_matrix_status status = numerus_matrix_get(
                 matrix, row, column, &value
             );
+
             if (status != NUMERUS_MATRIX_SUCCESS) {
                 return status;
             }
-            if (value != 0.0) is_zero = 0;
-            if (row != column && value != 0.0) is_diagonal = 0;
-            if (row > column && value != 0.0) is_upper = 0;
-            if (row < column && value != 0.0) is_lower = 0;
+            if (value != 0.0) {
+                is_zero = false;
+            }
+            if (row != column && value != 0.0) {
+                is_diagonal = false;
+            }
+            if (row > column && value != 0.0) {
+                is_upper = false;
+            }
+            if (row < column && value != 0.0) {
+                is_lower = false;
+            }
             if ((row == column && value != 1.0) ||
                 (row != column && value != 0.0)) {
-                is_identity = 0;
+                is_identity = false;
             }
         }
     }
 
-    if (is_zero) result |= NUMERUS_MATRIX_FLAG_ZERO;
-    if (matrix->rows == matrix->columns) {
-        if (is_diagonal) result |= NUMERUS_MATRIX_FLAG_DIAGONAL;
-        if (is_upper) result |= NUMERUS_MATRIX_FLAG_UPPER_TRIANGULAR;
-        if (is_lower) result |= NUMERUS_MATRIX_FLAG_LOWER_TRIANGULAR;
-        if (is_identity) result |= NUMERUS_MATRIX_FLAG_IDENTITY;
+    result.zero = is_zero;
+    if (result.square) {
+        result.diagonal = is_diagonal;
+        result.upper_triangular = is_upper;
+        result.lower_triangular = is_lower;
+        result.identity = is_identity;
 
         for (row = 0; row < matrix->rows && is_symmetric; row++) {
             for (column = row + 1; column < matrix->columns; column++) {
@@ -1030,22 +1043,27 @@ numerus_matrix_status numerus_matrix_get_flags(
                 numerus_matrix_status status = numerus_matrix_get(
                     matrix, row, column, &upper_value
                 );
-                if (status != NUMERUS_MATRIX_SUCCESS) return status;
+
+                if (status != NUMERUS_MATRIX_SUCCESS) {
+                    return status;
+                }
                 status = numerus_matrix_get(
                     matrix, column, row, &lower_value
                 );
-                if (status != NUMERUS_MATRIX_SUCCESS) return status;
+                if (status != NUMERUS_MATRIX_SUCCESS) {
+                    return status;
+                }
                 if (upper_value != lower_value) {
-                    is_symmetric = 0;
+                    is_symmetric = false;
                     break;
                 }
             }
         }
-        if (is_symmetric) result |= NUMERUS_MATRIX_FLAG_SYMMETRIC;
+        result.symmetric = is_symmetric;
     }
 
     matrix->cached_flags = result;
-    matrix->flags_cached = 1;
+    matrix->flags_cached = true;
     *flags = result;
     return NUMERUS_MATRIX_SUCCESS;
 }
@@ -1096,17 +1114,16 @@ numerus_matrix_status numerus_matrix_determinant(
     matrix->determinant_state = 1;
     size = matrix->rows;
     if (matrix->flags_cached) {
-        if (matrix->cached_flags & NUMERUS_MATRIX_FLAG_ZERO) {
+        if (matrix->cached_flags.zero) {
             result = 0.0;
             goto cache_result;
         }
-        if (matrix->cached_flags & NUMERUS_MATRIX_FLAG_IDENTITY) {
+        if (matrix->cached_flags.identity) {
             result = 1.0;
             goto cache_result;
         }
-        if (matrix->cached_flags &
-            (NUMERUS_MATRIX_FLAG_UPPER_TRIANGULAR |
-             NUMERUS_MATRIX_FLAG_LOWER_TRIANGULAR)) {
+        if (matrix->cached_flags.upper_triangular ||
+            matrix->cached_flags.lower_triangular) {
             status = matrix_determinant_from_triangular(matrix, &result);
             if (status != NUMERUS_MATRIX_SUCCESS) {
                 matrix->determinant_state = 0;
