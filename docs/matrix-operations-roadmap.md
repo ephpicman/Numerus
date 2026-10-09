@@ -161,7 +161,7 @@ Exit criteria: factorization reconstruction tests, numerical edge-case coverage,
 - [x] 5.6 Solve Ax=b. Matrix RHS supports multiple columns sharing one LU factorization; no inverse-times-vector default path. (Merged in PR #46.)
 - [ ] 5.7 Reuse cached factorization. Share LU among determinant, inverse, and repeated solves only after a coherent factorization cache is designed and benchmarked.
 - [x] 5.8 Condition estimate. One-norm estimate distinguishes conditioning from exact properties; singular inputs report infinity. (Merged in PR #47.)
-- [ ] 5.9 Inverse algorithm benchmarks. Initial timings/allocation counts and inverse residual measurement now cover LU inverse and condition estimation. Comparative Gauss–Jordan/small-matrix algorithms remain deferred until a justified alternative exists; ill-conditioned inputs still need a dedicated benchmark.
+- [x] 5.9 Inverse algorithm benchmarks. LU inverse and condition estimation report CPU time, allocations, and residuals for well-conditioned and ill-conditioned inputs. No competing inverse algorithm is implemented; Gauss–Jordan/small-matrix alternatives remain deferred unless they offer a justified trade-off. (Completed in PR #50.)
 
 Exit criteria: independent inverse Storage, explicit singular/error behavior, residual and stability tests, documented caching/lifetime policy.
 
