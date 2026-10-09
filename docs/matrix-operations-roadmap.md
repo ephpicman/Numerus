@@ -133,15 +133,15 @@ These operations correctly return scalar values/flags, not matrices.
 - [x] 3.3 Matrix norms. Frobenius, induced 1-norm, and induced infinity-norm; stable Frobenius accumulation and NaN behavior are tested. (Merged in PR #37.)
 - [x] 3.4 Finite-value inspection. Detect NaN and infinity; distinguish predicates from element transforms. (Merged in PR #38.)
 - [x] 3.5 Structural predicates. Expose/reuse square, zero, diagonal, triangular, symmetric, and identity flags. (Already implemented in `numerus_matrix_get_flags()` and covered by native tests.)
-- [ ] 3.6 Additional predicates. Skew-symmetric and orthogonal, with dimension requirements and epsilon semantics. (Implementation proposed; merge pending.)
-- [ ] 3.7 Cache review. Ensure every structural cache bit has a precise definition and tests; avoid duplicating scans where one shared pass can safely compute multiple flags.
-- [ ] 3.8 Aggregate caching. Cache only frequently reused full-matrix aggregates after benchmarks demonstrate value and cache memory/lifetime rules are documented.
+- [x] 3.6 Additional predicates. Skew-symmetric and orthogonal, with dimension requirements and epsilon semantics. (Merged in PR #39.)
+- [x] 3.7 Cache review. Structural flag bits are grouped and cached after one shared scan; failed reads do not populate cache, and tests verify cache hits and shared symmetry reads. (Audited; no implementation change required.)
+- [ ] 3.8 Aggregate caching. Deferred: no benchmark evidence currently justifies retaining aggregate results or expanding cache memory/lifetime complexity.
 
 Exit criteria: documented semantics for NaN/infinity and approximate predicates; all cache state transitions tested.
 
 # Phase 4 — Determinant, rank, and foundational elimination
 
-- [ ] 4.1 Determinant contract and edge cases. Preserve existing behavior and tests; add singular, pivoting, triangular, zero, identity, small/large-scale, and near-singular cases.
+- [ ] 4.1 Determinant contract and edge cases. Preserve existing behavior and tests; add singular, pivoting, triangular, zero, identity, small/large-scale, and near-singular cases. (Regression coverage proposed; merge pending.)
 - [ ] 4.2 Factorization infrastructure. Design reusable internal work buffers and pivot arrays without exposing mutable matrix data.
 - [ ] 4.3 LU with partial pivoting. Use an internal factorization/result structure with explicit permutation and lifetime rules. Test reconstruction PA ≈ LU.
 - [ ] 4.4 Reuse LU for determinant. Use LU when it improves reuse/clarity, retaining specialized paths when demonstrably better.
