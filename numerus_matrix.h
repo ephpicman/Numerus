@@ -360,6 +360,19 @@ int numerus_matrix_materialize(
     numerus_matrix **matrix
 );
 
+/**
+ * Compute the matrix product left × right into independent dense Storage.
+ *
+ * The left column count must equal the right row count. The operation is
+ * materialized rather than a lazy view because a lazy getter would repeat the
+ * dot product for every read. On failure, the output pointer remains NULL.
+ */
+int numerus_matrix_multiply(
+    const numerus_matrix *left,
+    const numerus_matrix *right,
+    numerus_matrix **matrix
+);
+
 /** Create a dense Matrix. */
 int numerus_matrix_create_dense(
     size_t rows,
