@@ -464,6 +464,23 @@ int numerus_matrix_kronecker_product(
     numerus_matrix **matrix
 );
 
+/**
+ * Create a lazy range slice of a Matrix.
+ *
+ * The slice contains row_count × column_count values starting at the specified
+ * zero-based parent coordinates. Counts must be positive and the complete
+ * range must fit inside the parent. The parent is borrowed and must outlive
+ * the result.
+ */
+int numerus_matrix_create_slice(
+    numerus_matrix *parent,
+    size_t row_start,
+    size_t row_count,
+    size_t column_start,
+    size_t column_count,
+    numerus_matrix **matrix
+);
+
 /** Create a dense Matrix. */
 int numerus_matrix_create_dense(
     size_t rows,
