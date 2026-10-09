@@ -31,7 +31,9 @@ typedef enum {
     NUMERUS_MATRIX_OUT_OF_BOUNDS,
     /** The requested Storage representation requires a square Matrix. */
     NUMERUS_MATRIX_NOT_SQUARE,
-    NUMERUS_MATRIX_DIMENSION_MISMATCH
+    NUMERUS_MATRIX_DIMENSION_MISMATCH,
+    /** Scalar division rejected a zero divisor. */
+    NUMERUS_MATRIX_DIVISION_BY_ZERO
 } numerus_matrix_status;
 
 /**
@@ -370,6 +372,19 @@ int numerus_matrix_materialize(
 int numerus_matrix_multiply(
     const numerus_matrix *left,
     const numerus_matrix *right,
+    numerus_matrix **matrix
+);
+
+/**
+ * Create a lazy view dividing every parent value by a scalar.
+ *
+ * A positive or negative zero divisor is rejected with
+ * NUMERUS_MATRIX_DIVISION_BY_ZERO. Other values use IEEE-754 double
+ * division semantics. The parent is borrowed and must outlive the view.
+ */
+int numerus_matrix_create_divide_scalar(
+    numerus_matrix *parent,
+    double divisor,
     numerus_matrix **matrix
 );
 
