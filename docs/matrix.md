@@ -16,6 +16,8 @@ A Matrix has positive row and column counts and is one of three forms:
   value transforms when an element is read.
 - **Joined view:** refers to two parent Matrices and delegates each read to the
   appropriate parent.
+- **Binary arithmetic view:** refers to two equally shaped parents and combines
+  their corresponding values on each read.
 
 The Matrix structure is opaque. Callers cannot access or change its internal
 fields through the public header.
@@ -146,6 +148,7 @@ Ownership is deliberately simple but important:
 - A root Matrix owns and destroys its Storage.
 - A derived view does not own its parent.
 - A joined view does not own either parent.
+- A binary arithmetic view does not own either parent.
 - Destroying a view does not destroy its parent.
 - Every parent must remain alive while any dependent view can be read.
 
@@ -183,10 +186,10 @@ Only use it when the Matrix and coordinate preconditions are satisfied.
 The metadata functions `numerus_matrix_rows()` and
 `numerus_matrix_columns()` return zero for a NULL pointer.
 `numerus_matrix_storage_kind()` reports the root Storage kind for ordinary
-derived views and returns `NUMERUS_STORAGE_ZERO` for NULL. For a joined Matrix,
+derived views and returns `NUMERUS_STORAGE_ZERO` for NULL. For a joined or binary arithmetic Matrix,
 the implementation currently follows the first parent; therefore, this value
-does not describe both sides of a join and should not be treated as a complete
-summary of a joined Matrix's representations.
+does not describe both sides of the node and should not be treated as a complete
+summary of its input representations.
 
 
 ## Cached analysis
