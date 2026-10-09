@@ -153,3 +153,16 @@ int numerus_matrix_create_block_diagonal(
         parent, repetitions, matrix
     );
 }
+
+/** Assemble a lazy grid from a row-major array of borrowed Matrix blocks. */
+int numerus_matrix_create_block_grid(
+    numerus_matrix *const *blocks,
+    size_t block_row_count,
+    size_t block_column_count,
+    numerus_matrix **matrix
+)
+{
+    return numerus_matrix_create_block_grid_view(
+        blocks, block_row_count, block_column_count, matrix
+    );
+}

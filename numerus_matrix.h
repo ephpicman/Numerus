@@ -587,6 +587,23 @@ int numerus_matrix_create_block_diagonal(
     numerus_matrix **matrix
 );
 
+/**
+ * Assemble a lazy block grid from a row-major array of Matrix pointers.
+ *
+ * Every block must be non-NULL. Blocks in each block row must have equal row
+ * counts, and blocks in each block column must have equal column counts.
+ * Missing/NULL blocks are rejected rather than implicitly treated as zeros.
+ * The pointer array is copied; all block Matrices are borrowed and must
+ * outlive the resulting view. Grid dimensions and cumulative output sizes are
+ * checked for overflow.
+ */
+int numerus_matrix_create_block_grid(
+    numerus_matrix *const *blocks,
+    size_t block_row_count,
+    size_t block_column_count,
+    numerus_matrix **matrix
+);
+
 /** Create a dense Matrix. */
 int numerus_matrix_create_dense(
     size_t rows,

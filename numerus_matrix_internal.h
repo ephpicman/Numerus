@@ -76,6 +76,14 @@ int numerus_matrix_create_block_diagonal_view(
     numerus_matrix **matrix
 );
 
+/** Private checked constructor for a general non-empty block grid. */
+int numerus_matrix_create_block_grid_view(
+    numerus_matrix *const *blocks,
+    size_t block_row_count,
+    size_t block_column_count,
+    numerus_matrix **matrix
+);
+
 /** Private checked constructor for a lazy range slice. */
 int numerus_matrix_create_slice_view(
     numerus_matrix *parent,

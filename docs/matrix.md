@@ -402,12 +402,23 @@ repetition count. Both operations check dimension multiplication for overflow,
 propagate parent read failures, allocate no element buffer, and borrow the
 parent, which must outlive the resulting view.
 
+## General block-grid assembly
+
+`numerus_matrix_create_block_grid()` builds a lazy view from a row-major
+array of Matrix pointers. Every block must be present: NULL/missing blocks are
+rejected instead of silently choosing a fill value. Within each block row,
+all blocks must have equal heights; within each block column, all blocks must
+have equal widths. The API copies the pointer array and cumulative offsets,
+not the matrix data, so every source Matrix must outlive the assembled view.
+Block counts, allocation sizes, and total dimensions are checked for overflow.
+Reads are dispatched to the corresponding source block and propagate its errors.
+
 ## Native tests
 
 The native Matrix tests cover storage-backed constructors, orientation
 transforms, row/column removal and swaps, composed views, lazy scalar
 multiplication, powers, Kronecker products, range slices, indexed row/column
-selection, reshape/flatten, padding, repetition, and block-diagonal views, scalar division, equality, vector constructors,
+selection, reshape/flatten, padding, repetition, block-diagonal, and block-grid views, scalar division, equality, vector constructors,
 element-wise arithmetic, materialization, and overflow/read-failure handling.
 
 Run them from the repository root:
@@ -514,6 +525,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_repeat_test tests/matrix_repeat_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
 ./tests/matrix_repeat_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_block_grid_test tests/matrix_block_grid_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+./tests/matrix_block_grid_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds

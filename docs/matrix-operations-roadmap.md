@@ -117,7 +117,7 @@ Some capabilities already exist. Reuse them; do not reimplement existing behavio
 - [x] 2.2 Row/column extraction and selection. Single rows/columns are supported by a one-element index list; arbitrary lists preserve order and allow duplicates. (Merged in PR #26.)
 - [x] 2.3 Reshape and flatten views. Preserve row-major traversal order; require element counts to match and guard multiplication overflow. (Merged in PR #27.)
 - [x] 2.4 Padding and zero extension. Lazy constant-fill mapping with checked dimensions; zero extension is a convenience wrapper. (Merged in PR #28.)
-- [ ] 2.5 Repetition and block matrices. Validate compatible block dimensions and all output-size arithmetic.
+- [x] 2.5 Repetition and block matrices. Lazy tiling and block-diagonal views validate positive repetition counts and checked output dimensions. (Merged in PR #29.)
 - [ ] 2.6 General block assembly. Extend joins only after contracts for empty/missing blocks are explicit; preserve lazy parents where useful.
 - [ ] 2.7 Diagonal extraction and diagonal construction from vector-like input. Define main and offset diagonal behavior.
 - [ ] 2.8 Row/column permutations. Generalize existing swap views to permutations only if there is a clear use case; validate uniqueness and bounds.
