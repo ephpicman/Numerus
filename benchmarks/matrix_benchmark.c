@@ -312,6 +312,107 @@ static void benchmark_condition_estimate(
     );
 }
 
+#define CACHE_BENCHMARK_ITERATIONS 128
+
+static void benchmark_analysis_cache(numerus_matrix *source)
+{
+    numerus_matrix *fresh[CACHE_BENCHMARK_ITERATIONS] = {NULL};
+    numerus_matrix_flags flags;
+    size_t i;
+    size_t size = numerus_matrix_rows(source);
+    clock_t start;
+    clock_t end;
+    int status;
+
+    /* Prepare independent matrices outside the measured interval. */
+    for (i = 0; i < CACHE_BENCHMARK_ITERATIONS; i++) {
+        status = numerus_matrix_materialize(source, &fresh[i]);
+        if (status != NUMERUS_MATRIX_SUCCESS) {
+            fprintf(stderr, "cache benchmark setup failed: %d\\n", status);
+            while (i > 0) numerus_matrix_destroy(fresh[--i]);
+            return;
+        }
+    }
+
+    /* Warm the source explicitly so the hit cases are genuinely cache hits. */
+    status = numerus_matrix_get_flags(source, &flags);
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        fprintf(stderr, "structural flags cache benchmark warmup failed: %d\\n", status);
+        goto cleanup;
+    }
+    {
+        double determinant;
+        status = numerus_matrix_determinant(source, &determinant);
+        if (status != NUMERUS_MATRIX_SUCCESS) {
+            fprintf(stderr, "determinant cache benchmark warmup failed: %d\\n", status);
+            goto cleanup;
+        }
+    }
+
+    reset_allocation_stats();
+    start = clock();
+    for (i = 0; i < CACHE_BENCHMARK_ITERATIONS; i++) {
+        status = numerus_matrix_get_flags(fresh[i], &flags);
+        if (status != NUMERUS_MATRIX_SUCCESS) {
+            fprintf(stderr, "structural flags cache-miss benchmark failed: %d\\n", status);
+            goto cleanup;
+        }
+        benchmark_sink += flags.identity ? 1.0 : 0.0;
+    }
+    end = clock();
+    report_measurement("flags cache miss", size, size,
+        CACHE_BENCHMARK_ITERATIONS, start, end);
+
+    reset_allocation_stats();
+    start = clock();
+    for (i = 0; i < CACHE_BENCHMARK_ITERATIONS; i++) {
+        status = numerus_matrix_get_flags(source, &flags);
+        if (status != NUMERUS_MATRIX_SUCCESS) {
+            fprintf(stderr, "structural flags cache-hit benchmark failed: %d\\n", status);
+            goto cleanup;
+        }
+        benchmark_sink += flags.identity ? 1.0 : 0.0;
+    }
+    end = clock();
+    report_measurement("flags cache hit", size, size,
+        CACHE_BENCHMARK_ITERATIONS, start, end);
+
+    reset_allocation_stats();
+    start = clock();
+    for (i = 0; i < CACHE_BENCHMARK_ITERATIONS; i++) {
+        double determinant;
+        status = numerus_matrix_determinant(fresh[i], &determinant);
+        if (status != NUMERUS_MATRIX_SUCCESS) {
+            fprintf(stderr, "determinant cache-miss benchmark failed: %d\\n", status);
+            goto cleanup;
+        }
+        benchmark_sink += determinant;
+    }
+    end = clock();
+    report_measurement("determinant cache miss", size, size,
+        CACHE_BENCHMARK_ITERATIONS, start, end);
+
+    reset_allocation_stats();
+    start = clock();
+    for (i = 0; i < CACHE_BENCHMARK_ITERATIONS; i++) {
+        double determinant;
+        status = numerus_matrix_determinant(source, &determinant);
+        if (status != NUMERUS_MATRIX_SUCCESS) {
+            fprintf(stderr, "determinant cache-hit benchmark failed: %d\\n", status);
+            goto cleanup;
+        }
+        benchmark_sink += determinant;
+    }
+    end = clock();
+    report_measurement("determinant cache hit", size, size,
+        CACHE_BENCHMARK_ITERATIONS, start, end);
+
+cleanup:
+    for (i = 0; i < CACHE_BENCHMARK_ITERATIONS; i++) {
+        numerus_matrix_destroy(fresh[i]);
+    }
+}
+
 static void verify_inverse_residual(const numerus_matrix *matrix)
 {
     numerus_matrix *inverse = NULL;
@@ -512,6 +613,7 @@ int main(void)
     benchmark_multiplication("dense x triangular", dense, upper, OPERATION_ITERATIONS);
     benchmark_multiplication("dense x sparse", dense, sparse, OPERATION_ITERATIONS);
     benchmark_multiplication("small dense multiply", small, small, OPERATION_ITERATIONS);
+    benchmark_analysis_cache(small);
     benchmark_inverse(small, OPERATION_ITERATIONS);
     benchmark_condition_estimate(small, OPERATION_ITERATIONS);
     verify_inverse_residual(small);
