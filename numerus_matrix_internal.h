@@ -30,7 +30,7 @@ numerus_matrix_status numerus_matrix_get_cached_inverse(
 /** Transfer ownership of an independent cached inverse to its source Matrix. */
 void numerus_matrix_store_inverse_cache(
     const numerus_matrix *matrix,
-    numerus_matrix *inverse
+    const double *values
 );
 
 /**
