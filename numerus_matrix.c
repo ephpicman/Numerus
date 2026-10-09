@@ -45,6 +45,7 @@ struct numerus_matrix {
     uint32_t flags_computed;
     int determinant_state;
     double cached_determinant;
+    numerus_matrix *cached_inverse;
     double transform_scalar;
     size_t transform_row_offset;
     size_t transform_column_offset;
@@ -559,6 +560,7 @@ static int allocate_matrix(numerus_matrix **matrix)
     (*matrix)->flags_computed = 0;
     (*matrix)->determinant_state = 0;
     (*matrix)->cached_determinant = 0.0;
+    (*matrix)->cached_inverse = NULL;
     (*matrix)->transform_scalar = 0.0;
     (*matrix)->transform_row_offset = 0;
     (*matrix)->transform_column_offset = 0;
@@ -2732,6 +2734,56 @@ numerus_storage_kind numerus_matrix_storage_kind(
 /**
  * Release a Matrix. Parent relationships are non-owning.
  */
+
+/*
+ * The inverse cache owns an independent materialized Matrix. The cache is
+ * logically transparent, bounded to one result per Matrix, and destroyed with
+ * its owner. Cache population is not thread-safe; concurrent mutation of one
+ * Matrix's lazy caches is outside the current API contract.
+ */
+numerus_matrix_status numerus_matrix_get_cached_inverse(
+    const numerus_matrix *matrix,
+    numerus_matrix **inverse
+)
+{
+    if (inverse == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *inverse = NULL;
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    if (matrix->cached_inverse == NULL) {
+        return NUMERUS_MATRIX_SUCCESS;
+    }
+    return (numerus_matrix_status) numerus_matrix_materialize(
+        matrix->cached_inverse, inverse
+    );
+}
+
+void numerus_matrix_store_inverse_cache(
+    const numerus_matrix *matrix,
+    numerus_matrix *inverse
+)
+{
+    numerus_matrix *mutable_matrix;
+
+    if (inverse == NULL) {
+        return;
+    }
+    if (matrix == NULL) {
+        numerus_matrix_destroy(inverse);
+        return;
+    }
+
+    mutable_matrix = (numerus_matrix *) matrix;
+    if (mutable_matrix->cached_inverse == NULL) {
+        mutable_matrix->cached_inverse = inverse;
+    } else {
+        numerus_matrix_destroy(inverse);
+    }
+}
+
 void numerus_matrix_destroy(numerus_matrix *matrix)
 {
     if (matrix == NULL) {
@@ -2742,6 +2794,7 @@ void numerus_matrix_destroy(numerus_matrix *matrix)
         numerus_storage_destroy(matrix->storage);
     }
 
+    numerus_matrix_destroy(matrix->cached_inverse);
     numerus_matrix_free(matrix->selection_indices);
     numerus_matrix_free(matrix->block_matrices);
     numerus_matrix_free(matrix->block_row_offsets);
