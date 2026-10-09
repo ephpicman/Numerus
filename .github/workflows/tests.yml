@@ -210,6 +210,14 @@ jobs:
             -o tests/matrix_permutation_test tests/matrix_permutation_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
           ./tests/matrix_permutation_test
 
+      - name: Run native Matrix LU factorization tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_lu_test tests/matrix_lu_test.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c
+          ./tests/matrix_lu_test
+
       - name: Run native Matrix determinant edge-case tests
         run: |
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \

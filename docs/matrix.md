@@ -342,6 +342,21 @@ does not describe both sides of the node and should not be treated as a complete
 summary of its input representations.
 
 
+## Internal LU factorization
+
+The private `numerus_matrix_lu.h` interface factors a square Matrix into
+packed lower/upper triangular data and a row permutation. The permutation maps
+each factor row to its original source row, so reconstruction tests verify
+(P A = L U). The factorization owns its work buffers and does not retain or
+mutate the input Matrix.
+
+Partial pivoting selects the largest absolute value in the current column.
+Exact-zero pivots are skipped, allowing rank-deficient inputs to produce a
+factorization object; the reported rank is the number of non-zero pivots under
+that exact-zero policy, not a scale-aware numerical-rank estimate. Read and
+allocation failures clean up the workspace and leave the output pointer NULL.
+The API is private infrastructure for later determinant, solve, and rank work.
+
 ## Determinant edge cases
 
 The determinant uses Gaussian elimination with partial pivoting and an exact
@@ -664,6 +679,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_determinant_test tests/matrix_determinant_test.c numerus_matrix.c numerus_storage.c
 ./tests/matrix_determinant_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_lu_test tests/matrix_lu_test.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c
+./tests/matrix_lu_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
