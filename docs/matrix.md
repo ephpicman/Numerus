@@ -155,6 +155,30 @@ the implementation currently follows the first parent; therefore, this value
 does not describe both sides of a join and should not be treated as a complete
 summary of a joined Matrix's representations.
 
+
+## Cached analysis
+
+Each Matrix has a per-object analysis cache. It stores structural metadata and
+scalar results, not element values, so it does not change the lazy-view model.
+
+`numerus_matrix_get_flags()` computes and caches exact structural properties:
+square, zero, diagonal, upper-triangular, lower-triangular, symmetric, and
+identity. These flags describe the logical values exposed by that Matrix,
+including views and joins. Comparisons use exact floating-point equality; no
+tolerance is applied. A square zero Matrix is also diagonal, upper-triangular,
+lower-triangular, and symmetric.
+
+`numerus_matrix_determinant()` caches a successfully computed determinant.
+The general path uses Gaussian elimination with partial pivoting. If flags
+have already been computed, zero, identity, and triangular matrices can use
+cheaper paths. A determinant of zero is a valid cached result. Allocation
+failures and element-read failures are not cached and can be retried.
+
+Each Matrix has its own cache. A View or Join does not reuse its parent's
+analysis cache because its logical values may differ. These APIs do not
+establish thread safety: concurrent access while a cache is being populated is
+not guaranteed safe. Keep the Matrix and all parents alive during every call.
+
 ## Concurrency
 
 This documentation does not promise general thread safety or concurrent-read
@@ -166,10 +190,10 @@ determinism requirements.
 
 ## Native tests
 
-The native Matrix tests cover the storage-backed constructors, views and their
+The native Matrix tests cover storage-backed constructors, views and their
 coordinate mappings, composed views, custom value transforms, callback error
-propagation, joins, dimension mismatch and overflow handling, and output-value
-preservation after failed reads.
+propagation, joins, dimension mismatch and overflow handling, cached structural
+flags, determinant calculations, and output-value preservation after failures.
 
 Run them from the repository root:
 
