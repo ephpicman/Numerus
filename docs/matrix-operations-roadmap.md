@@ -82,7 +82,7 @@ Do not combine unrelated algorithms into one large PR. This roadmap is a sequenc
 - [x] 0.3 Add shared safe size arithmetic helpers. Check rows×columns, buffer sizes, output dimensions, and all allocation-size calculations for overflow.
 - [x] 0.4 Review shared iteration helpers. Decision: retain explicit hot loops for now; reuse the checked/unchecked accessors and add a shared iteration abstraction only when multiple operations demonstrate the same stable traversal contract. This avoids premature abstraction in performance-sensitive C loops.
 - [x] 0.5 Establish baseline test helpers. Matrix construction/assertion helpers, approximate comparisons, status assertions, and failure-path output-preservation tests.
-- [ ] 0.6 Establish benchmark baselines. Include dense, diagonal, triangular, sparse, view-backed, and joined matrices at small/medium sizes; record time and allocations without making noisy microbenchmarks CI gates initially.
+- [x] 0.6 Establish benchmark baselines. Include dense, diagonal, triangular, sparse, view-backed, and joined matrices at small/medium sizes; record time and allocations without making noisy microbenchmarks CI gates initially. (Harness and initial measurements: `benchmarks/README.md`, `benchmarks/baseline-2026-10-09.md`.)
 
 ### Phase 0 decisions recorded
 
@@ -91,7 +91,7 @@ Do not combine unrelated algorithms into one large PR. This roadmap is a sequenc
 - Checked size arithmetic lives in `numerus_size.h`. Its add, multiply, and triangular-count helpers leave output parameters unchanged on failure. Storage maps helper failures to its existing overflow status; Matrix uses the helpers for determinant workspace sizing.
 - Native tests already use assertion helpers and explicit output-preservation checks. The shared arithmetic helpers now have boundary and overflow tests.
 
-Exit criteria: documented contracts, robust size checks, reusable tests, and a documented baseline benchmark methodology. Actual timing baselines remain pending until Phase 1 introduces arithmetic operations worth benchmarking; do not invent baseline numbers. No numerical algorithm expansion in this phase.
+Exit criteria: documented contracts, robust size checks, reusable tests, and a documented benchmark methodology with an initial recorded timing/allocation baseline. The recorded run is a single CI smoke sample; use repeated samples and medians before drawing performance conclusions. No numerical algorithm expansion in this phase.
 
 # Phase 1 — Essential matrix-valued operations
 
@@ -100,7 +100,7 @@ Exit criteria: documented contracts, robust size checks, reusable tests, and a d
 - [x] 1.3 Hadamard product. Element-wise multiplication with equal-dimension validation. (Merged in PR #15.)
 - [x] 1.4 Element-wise division. Define division-by-zero and non-finite behavior before implementation; do not silently invent a rule. IEEE-754 infinities/NaN are successful numeric results, not status errors. (Merged in PR #16.)
 - [x] 1.5 Materialization API. Copy any logical Matrix (including nested views/joins) into independent Storage. Check allocation overflow and callback errors. (Merged in PR #17.)
-- [ ] 1.6 Matrix multiplication. Validate inner dimensions and overflow. Default to materializing the result because a naive lazy getter repeats each dot product on every read; benchmark dense and specialized inputs before adding optimized paths.
+- [x] 1.6 Matrix multiplication. Validate inner dimensions and overflow. Default to materializing the result because a naive lazy getter repeats each dot product on every read; benchmark dense and specialized inputs before adding optimized paths. (Merged in PR #18; baseline benchmark harness is being added in the Phase 0.6 follow-up.)
 - [ ] 1.7 Scalar division. Reject a zero divisor according to the documented numeric contract.
 - [ ] 1.8 Approximate and exact matrix equality. Exact equality is separate from epsilon-based close comparison; define shape mismatch behavior.
 - [ ] 1.9 Constructors and diagonal utilities. Add missing constant/identity/diagonal/row-vector/column-vector constructors needed by later algorithms; do not add a separate Vector type unless it provides concrete value.

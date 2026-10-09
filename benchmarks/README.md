@@ -1,0 +1,51 @@
+# Matrix Benchmarks
+
+This directory contains a standalone benchmark for the internal C Matrix API.
+It is diagnostic tooling, not a performance test with pass/fail thresholds.
+
+## Run
+
+From the repository root, using GCC/Clang with GNU ld on a Unix-like system:
+
+```sh
+cc -std=c11 -O2 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free \
+  -o benchmarks/matrix_benchmark \
+  benchmarks/matrix_benchmark.c \
+  numerus_matrix.c numerus_matrix_binary.c \
+  numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_storage.c
+./benchmarks/matrix_benchmark
+```
+
+The benchmark reports compiler version, shape, iteration count, CPU time from
+`clock()`, allocation calls, and total bytes requested through `malloc` and
+`calloc` during the measured interval. The linker wrappers are used only in
+this standalone executable; extension builds continue to use the Zend Memory
+Manager.
+
+## Workloads and methodology
+
+- 64×64 dense, diagonal, upper-triangular, and sparse reads.
+- 64×64 transpose, scalar-transform, and binary-arithmetic view reads.
+- 64×128 joined-view reads.
+- 1,000 scalar-view constructions.
+- Three materializations of a transpose view.
+- Three 32×32 dense matrix multiplications.
+
+The source matrices are constructed before counters and timers are reset for
+each measured case. Read workloads perform full checked-coordinate scans;
+operation workloads create and destroy each result inside the timed interval.
+A volatile sink prevents the read results from being trivially discarded.
+
+These numbers are intended as a reproducible starting point, not universal
+performance claims. They depend on compiler, machine load, allocator, and build
+configuration. Do not compare results from materially different environments
+without recording those differences. No timing threshold is a CI gate; CI runs
+the benchmark as a smoke test and prints its measurements for review.
+
+Allocation metrics count requested bytes and calls to `malloc`/`calloc` in
+the linked standalone program. They do not measure peak live memory, retained
+bytes, allocator metadata, or allocations internal to libc that do not pass
+through the wrapped symbols.
