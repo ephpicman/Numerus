@@ -27,7 +27,7 @@ numerus_matrix_status numerus_matrix_get_cached_inverse(
     numerus_matrix **inverse
 );
 
-/** Transfer ownership of an independent cached inverse to its source Matrix. */
+/** Copy inverse values into the source Matrix's cache when within its size cap. */
 void numerus_matrix_store_inverse_cache(
     const numerus_matrix *matrix,
     const double *values
