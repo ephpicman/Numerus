@@ -190,8 +190,9 @@ static void test_safe_shortcuts(void)
 {
     const double a[] = {1, 2, 3, 4};
     const double b[] = {INFINITY, 1, 2, 3};
+    const double signed_zero[] = {-0.0, 1, 2, 3};
     numerus_matrix *matrix = NULL, *identity = NULL, *zero = NULL;
-    numerus_matrix *nonfinite = NULL, *result = NULL;
+    numerus_matrix *nonfinite = NULL, *signed_matrix = NULL, *result = NULL;
     double value;
 
     assert(numerus_matrix_create_dense(2, 2, a, &matrix) == NUMERUS_MATRIX_SUCCESS);
@@ -212,8 +213,15 @@ static void test_safe_shortcuts(void)
     assert(numerus_matrix_multiply(nonfinite, zero, &result) == NUMERUS_MATRIX_SUCCESS);
     assert(numerus_matrix_get(result, 0, 0, &value) == NUMERUS_MATRIX_SUCCESS);
     assert(isnan(value));
+    numerus_matrix_destroy(result); result = NULL;
+
+    assert(numerus_matrix_create_dense(2, 2, signed_zero, &signed_matrix) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_multiply(signed_matrix, identity, &result) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get(result, 0, 0, &value) == NUMERUS_MATRIX_SUCCESS);
+    assert(!signbit(value));
 
     numerus_matrix_destroy(result);
+    numerus_matrix_destroy(signed_matrix);
     numerus_matrix_destroy(nonfinite);
     numerus_matrix_destroy(zero);
     numerus_matrix_destroy(identity);
