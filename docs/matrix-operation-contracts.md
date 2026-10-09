@@ -81,3 +81,20 @@ matrix/matrix addition and subtraction and from scalar multiplication. The
 scalar is copied into the allocated view, not borrowed from the caller.
 Operations use ordinary IEEE-754 `double` semantics; NaN and infinities are
 successful values, and the borrowed parent must outlive the view.
+
+
+## Inverse-result cache
+
+Each Matrix may retain one owned dense value buffer containing its inverse after
+a successful LU inverse. The buffer is owned by the source Matrix and contains
+no Matrix/parent pointers, so it cannot form a parent/cache cycle. A cache hit
+constructs a fresh independent dense Matrix; callers never own or destroy the
+cache buffer itself. Cache population is best-effort: if the
+extra cache allocation fails, the already-computed inverse still succeeds.
+Destroying the source Matrix destroys its cache. As with existing mutable
+structural/determinant caches, concurrent cache population is not thread-safe.
+The cache retains at most 64 KiB of inverse element payload per Matrix; larger
+inverses are returned normally but are not retained. This bounds each entry,
+though total cache memory still scales with the number of eligible Matrix
+instances. Use the benchmark's cold-vs-hit comparison when deciding whether to
+keep or revise this policy.

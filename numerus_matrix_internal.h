@@ -21,6 +21,18 @@ typedef enum {
     NUMERUS_MATRIX_BINARY_DIVIDE
 } numerus_matrix_binary_operation;
 
+/** Internal inverse-cache lookup; a successful miss returns *inverse == NULL. */
+numerus_matrix_status numerus_matrix_get_cached_inverse(
+    const numerus_matrix *matrix,
+    numerus_matrix **inverse
+);
+
+/** Copy inverse values into the source Matrix's cache when within its size cap. */
+void numerus_matrix_store_inverse_cache(
+    const numerus_matrix *matrix,
+    const double *values
+);
+
 /**
  * Create a lazy two-parent element-wise node.
  *

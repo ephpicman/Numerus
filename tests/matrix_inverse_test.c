@@ -177,6 +177,34 @@ static void test_three_by_three_cofactor_reference(void)
     numerus_matrix_destroy(matrix);
 }
 
+
+static void test_inverse_cache_returns_independent_results(void)
+{
+    const double values[] = {4, 7, 2, 6};
+    numerus_matrix *matrix = NULL;
+    numerus_matrix *first = NULL;
+    numerus_matrix *second = NULL;
+    double value;
+
+    assert(numerus_matrix_create_dense(2, 2, values, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_inverse(matrix, &first) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_inverse(matrix, &second) == NUMERUS_MATRIX_SUCCESS);
+    assert(first != second);
+    assert_identity_product(matrix, first);
+    assert_identity_product(matrix, second);
+
+    /* Both returned matrices survive destruction of the cache owner. */
+    numerus_matrix_destroy(matrix);
+    assert(numerus_matrix_get(first, 0, 0, &value) == NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value - 0.6) < 1e-12);
+    assert(numerus_matrix_get(second, 1, 1, &value) == NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value - 0.4) < 1e-12);
+
+    numerus_matrix_destroy(first);
+    numerus_matrix_destroy(second);
+}
+
 static void test_singularity_and_nonfinite_semantics(void)
 {
     const double singular_values[] = {1, 2, 2, 4};
@@ -249,6 +277,7 @@ int main(void)
 {
     test_known_and_pivoted_inverses();
     test_three_by_three_cofactor_reference();
+    test_inverse_cache_returns_independent_results();
     test_singularity_and_nonfinite_semantics();
     test_validation_and_scale();
     puts("Matrix inverse tests passed.");

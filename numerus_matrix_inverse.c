@@ -1,4 +1,5 @@
 #include "numerus_matrix.h"
+#include "numerus_matrix_internal.h"
 #include "numerus_matrix_lu.h"
 #include "numerus_size.h"
 
@@ -31,6 +32,11 @@ numerus_matrix_status numerus_matrix_inverse(
     }
     if (numerus_matrix_rows(matrix) != numerus_matrix_columns(matrix)) {
         return NUMERUS_MATRIX_NOT_SQUARE;
+    }
+
+    status = numerus_matrix_get_cached_inverse(matrix, inverse);
+    if (status != NUMERUS_MATRIX_SUCCESS || *inverse != NULL) {
+        return status;
     }
 
     size = numerus_matrix_rows(matrix);
@@ -152,6 +158,9 @@ numerus_matrix_status numerus_matrix_inverse(
     status = (numerus_matrix_status) numerus_matrix_create_dense(
         size, size, values, inverse
     );
+    if (status == NUMERUS_MATRIX_SUCCESS) {
+        numerus_matrix_store_inverse_cache(matrix, values);
+    }
     free(values);
     return status;
 

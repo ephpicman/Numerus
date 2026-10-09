@@ -249,18 +249,33 @@ static void benchmark_inverse(
     size_t iterations
 )
 {
+    numerus_matrix **fresh;
     size_t iteration;
     size_t size = numerus_matrix_rows(matrix);
     clock_t start;
     clock_t end;
 
+    fresh = calloc(iterations, sizeof(*fresh));
+    if (fresh == NULL) {
+        fprintf(stderr, "inverse benchmark setup allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+    for (iteration = 0; iteration < iterations; iteration++) {
+        int status = numerus_matrix_materialize(matrix, &fresh[iteration]);
+        if (status != NUMERUS_MATRIX_SUCCESS) {
+            fprintf(stderr, "inverse benchmark setup failed: %d\n", status);
+            while (iteration > 0) numerus_matrix_destroy(fresh[--iteration]);
+            free(fresh);
+            exit(EXIT_FAILURE);
+        }
+    }
+
     reset_allocation_stats();
     start = clock();
-
     for (iteration = 0; iteration < iterations; iteration++) {
         numerus_matrix *inverse = NULL;
         double value;
-        int status = numerus_matrix_inverse(matrix, &inverse);
+        int status = numerus_matrix_inverse(fresh[iteration], &inverse);
 
         if (status != NUMERUS_MATRIX_SUCCESS) {
             fprintf(stderr, "inverse benchmark failed: %d\n", status);
@@ -277,8 +292,53 @@ static void benchmark_inverse(
     }
 
     end = clock();
-    report_measurement("LU inverse", size, size, iterations, start, end);
+    report_measurement("LU inverse (cold)", size, size, iterations, start, end);
+    for (iteration = 0; iteration < iterations; iteration++) {
+        numerus_matrix_destroy(fresh[iteration]);
+    }
+    free(fresh);
 }
+
+static void benchmark_inverse_cache_hit(
+    const numerus_matrix *matrix,
+    size_t iterations
+)
+{
+    size_t iteration;
+    size_t size = numerus_matrix_rows(matrix);
+    numerus_matrix *warm = NULL;
+    clock_t start;
+    clock_t end;
+
+    if (numerus_matrix_inverse(matrix, &warm) != NUMERUS_MATRIX_SUCCESS) {
+        fprintf(stderr, "inverse cache warmup failed\n");
+        exit(EXIT_FAILURE);
+    }
+    numerus_matrix_destroy(warm);
+
+    reset_allocation_stats();
+    start = clock();
+    for (iteration = 0; iteration < iterations; iteration++) {
+        numerus_matrix *inverse = NULL;
+        double value;
+        int status = numerus_matrix_inverse(matrix, &inverse);
+
+        if (status != NUMERUS_MATRIX_SUCCESS) {
+            fprintf(stderr, "inverse cache-hit benchmark failed: %d\n", status);
+            exit(EXIT_FAILURE);
+        }
+        status = numerus_matrix_get(inverse, 0, 0, &value);
+        if (status != NUMERUS_MATRIX_SUCCESS) {
+            numerus_matrix_destroy(inverse);
+            exit(EXIT_FAILURE);
+        }
+        benchmark_sink += value;
+        numerus_matrix_destroy(inverse);
+    }
+    end = clock();
+    report_measurement("inverse cache hit", size, size, iterations, start, end);
+}
+
 
 static void benchmark_condition_estimate(
     const numerus_matrix *matrix,
@@ -328,7 +388,7 @@ static void benchmark_analysis_cache(numerus_matrix *source)
     for (i = 0; i < CACHE_BENCHMARK_ITERATIONS; i++) {
         status = numerus_matrix_materialize(source, &fresh[i]);
         if (status != NUMERUS_MATRIX_SUCCESS) {
-            fprintf(stderr, "cache benchmark setup failed: %d\\n", status);
+            fprintf(stderr, "cache benchmark setup failed: %d\n", status);
             while (i > 0) numerus_matrix_destroy(fresh[--i]);
             return;
         }
@@ -337,14 +397,14 @@ static void benchmark_analysis_cache(numerus_matrix *source)
     /* Warm the source explicitly so the hit cases are genuinely cache hits. */
     status = numerus_matrix_get_flags(source, &flags);
     if (status != NUMERUS_MATRIX_SUCCESS) {
-        fprintf(stderr, "structural flags cache benchmark warmup failed: %d\\n", status);
+        fprintf(stderr, "structural flags cache benchmark warmup failed: %d\n", status);
         goto cleanup;
     }
     {
         double determinant;
         status = numerus_matrix_determinant(source, &determinant);
         if (status != NUMERUS_MATRIX_SUCCESS) {
-            fprintf(stderr, "determinant cache benchmark warmup failed: %d\\n", status);
+            fprintf(stderr, "determinant cache benchmark warmup failed: %d\n", status);
             goto cleanup;
         }
     }
@@ -354,7 +414,7 @@ static void benchmark_analysis_cache(numerus_matrix *source)
     for (i = 0; i < CACHE_BENCHMARK_ITERATIONS; i++) {
         status = numerus_matrix_get_flags(fresh[i], &flags);
         if (status != NUMERUS_MATRIX_SUCCESS) {
-            fprintf(stderr, "structural flags cache-miss benchmark failed: %d\\n", status);
+            fprintf(stderr, "structural flags cache-miss benchmark failed: %d\n", status);
             goto cleanup;
         }
         benchmark_sink += flags.identity ? 1.0 : 0.0;
@@ -368,7 +428,7 @@ static void benchmark_analysis_cache(numerus_matrix *source)
     for (i = 0; i < CACHE_BENCHMARK_ITERATIONS; i++) {
         status = numerus_matrix_get_flags(source, &flags);
         if (status != NUMERUS_MATRIX_SUCCESS) {
-            fprintf(stderr, "structural flags cache-hit benchmark failed: %d\\n", status);
+            fprintf(stderr, "structural flags cache-hit benchmark failed: %d\n", status);
             goto cleanup;
         }
         benchmark_sink += flags.identity ? 1.0 : 0.0;
@@ -383,7 +443,7 @@ static void benchmark_analysis_cache(numerus_matrix *source)
         double determinant;
         status = numerus_matrix_determinant(fresh[i], &determinant);
         if (status != NUMERUS_MATRIX_SUCCESS) {
-            fprintf(stderr, "determinant cache-miss benchmark failed: %d\\n", status);
+            fprintf(stderr, "determinant cache-miss benchmark failed: %d\n", status);
             goto cleanup;
         }
         benchmark_sink += determinant;
@@ -398,7 +458,7 @@ static void benchmark_analysis_cache(numerus_matrix *source)
         double determinant;
         status = numerus_matrix_determinant(source, &determinant);
         if (status != NUMERUS_MATRIX_SUCCESS) {
-            fprintf(stderr, "determinant cache-hit benchmark failed: %d\\n", status);
+            fprintf(stderr, "determinant cache-hit benchmark failed: %d\n", status);
             goto cleanup;
         }
         benchmark_sink += determinant;
@@ -620,6 +680,7 @@ int main(void)
     benchmark_multiplication("small dense multiply", small, small, OPERATION_ITERATIONS);
     benchmark_analysis_cache(small);
     benchmark_inverse(small, OPERATION_ITERATIONS);
+    benchmark_inverse_cache_hit(small, OPERATION_ITERATIONS);
     benchmark_condition_estimate(small, OPERATION_ITERATIONS);
     verify_inverse_residual(small);
 
