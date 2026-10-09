@@ -1,5 +1,6 @@
 #include "numerus_matrix.h"
 #include "numerus_size.h"
+#include "numerus_numeric.h"
 
 #include <math.h>
 #include <stdlib.h>
@@ -14,10 +15,13 @@
 # define matrix_qr_free(pointer) free(pointer)
 #endif
 
-numerus_matrix_status numerus_matrix_qr_decompose(
+static numerus_matrix_status matrix_qr_decompose_internal(
     const numerus_matrix *matrix,
+    bool pivot_columns,
     numerus_matrix **q,
-    numerus_matrix **r
+    numerus_matrix **r,
+    size_t *permutation_out,
+    size_t *numerical_rank
 )
 {
     size_t rows;
@@ -30,6 +34,7 @@ numerus_matrix_status numerus_matrix_qr_decompose(
     size_t tau_bytes;
     size_t q_bytes;
     size_t r_bytes;
+    size_t permutation_bytes = 0;
     size_t row;
     size_t column;
     size_t step;
@@ -37,6 +42,10 @@ numerus_matrix_status numerus_matrix_qr_decompose(
     double *tau = NULL;
     double *q_values = NULL;
     double *r_values = NULL;
+    size_t *permutation_values = NULL;
+    double scale = 0.0;
+    double relative_threshold;
+    size_t rank_result = 0;
     numerus_matrix_status status = NUMERUS_MATRIX_SUCCESS;
 
     if (q != NULL) {
@@ -45,7 +54,8 @@ numerus_matrix_status numerus_matrix_qr_decompose(
     if (r != NULL && r != q) {
         *r = NULL;
     }
-    if (q == NULL || r == NULL || q == r || matrix == NULL) {
+    if (q == NULL || r == NULL || q == r || matrix == NULL ||
+        (pivot_columns && (permutation_out == NULL || numerical_rank == NULL))) {
         return NUMERUS_MATRIX_INVALID_ARGUMENT;
     }
 
@@ -59,7 +69,10 @@ numerus_matrix_status numerus_matrix_qr_decompose(
         !numerus_size_multiply(q_count, sizeof(*q_values), &q_bytes) ||
         !numerus_size_multiply(rank_bound, columns, &r_count) ||
         !numerus_size_multiply(r_count, sizeof(*r_values), &r_bytes) ||
-        !numerus_size_multiply(rank_bound, sizeof(*tau), &tau_bytes)) {
+        !numerus_size_multiply(rank_bound, sizeof(*tau), &tau_bytes) ||
+        (pivot_columns && !numerus_size_multiply(
+            columns, sizeof(*permutation_values), &permutation_bytes
+        ))) {
         return NUMERUS_MATRIX_OVERFLOW;
     }
 
@@ -67,7 +80,11 @@ numerus_matrix_status numerus_matrix_qr_decompose(
     tau = matrix_qr_alloc(tau_bytes);
     q_values = matrix_qr_alloc(q_bytes);
     r_values = matrix_qr_alloc(r_bytes);
-    if (work == NULL || tau == NULL || q_values == NULL || r_values == NULL) {
+    if (pivot_columns) {
+        permutation_values = matrix_qr_alloc(permutation_bytes);
+    }
+    if (work == NULL || tau == NULL || q_values == NULL || r_values == NULL ||
+        (pivot_columns && permutation_values == NULL)) {
         status = NUMERUS_MATRIX_OUT_OF_MEMORY;
         goto cleanup;
     }
@@ -84,6 +101,14 @@ numerus_matrix_status numerus_matrix_qr_decompose(
                 goto cleanup;
             }
             work[row * columns + column] = value;
+            if (fabs(value) > scale) {
+                scale = fabs(value);
+            }
+        }
+    }
+    if (pivot_columns) {
+        for (column = 0; column < columns; column++) {
+            permutation_values[column] = column;
         }
     }
 
@@ -94,10 +119,52 @@ numerus_matrix_status numerus_matrix_qr_decompose(
      */
     for (step = 0; step < rank_bound; step++) {
         double norm = 0.0;
-        double alpha = work[step * columns + step];
+        double alpha;
         double beta;
         double denominator_ratio;
 
+        if (pivot_columns) {
+            size_t pivot_column = step;
+            double best_norm = -1.0;
+            size_t candidate_column;
+
+            for (candidate_column = step;
+                 candidate_column < columns;
+                 candidate_column++) {
+                double candidate_norm = 0.0;
+
+                for (row = step; row < rows; row++) {
+                    candidate_norm = hypot(
+                        candidate_norm, work[row * columns + candidate_column]
+                    );
+                    if (!isfinite(candidate_norm)) {
+                        status = NUMERUS_MATRIX_NON_FINITE;
+                        goto cleanup;
+                    }
+                }
+                if (candidate_norm > best_norm) {
+                    best_norm = candidate_norm;
+                    pivot_column = candidate_column;
+                }
+            }
+
+            if (pivot_column != step) {
+                size_t swap_row;
+                size_t temporary_index;
+
+                for (swap_row = 0; swap_row < rows; swap_row++) {
+                    double temporary = work[swap_row * columns + step];
+                    work[swap_row * columns + step] =
+                        work[swap_row * columns + pivot_column];
+                    work[swap_row * columns + pivot_column] = temporary;
+                }
+                temporary_index = permutation_values[step];
+                permutation_values[step] = permutation_values[pivot_column];
+                permutation_values[pivot_column] = temporary_index;
+            }
+        }
+
+        alpha = work[step * columns + step];
         for (row = step; row < rows; row++) {
             norm = hypot(norm, work[row * columns + step]);
             if (!isfinite(norm)) {
@@ -203,6 +270,18 @@ numerus_matrix_status numerus_matrix_qr_decompose(
         }
     }
 
+    if (pivot_columns && scale > 0.0) {
+        relative_threshold = NUMERUS_EPSILON *
+            (double) (rows > columns ? rows : columns);
+        for (step = 0; step < rank_bound; step++) {
+            if (fabs(work[step * columns + step]) / scale <=
+                relative_threshold) {
+                break;
+            }
+            rank_result++;
+        }
+    }
+
     for (row = 0; row < rank_bound; row++) {
         for (column = 0; column < columns; column++) {
             r_values[row * columns + column] =
@@ -225,11 +304,52 @@ numerus_matrix_status numerus_matrix_qr_decompose(
         *q = NULL;
         goto cleanup;
     }
+    if (pivot_columns) {
+        for (column = 0; column < columns; column++) {
+            permutation_out[column] = permutation_values[column];
+        }
+        *numerical_rank = rank_result;
+    }
 
 cleanup:
-    matrix_qr_free(r_values);
-    matrix_qr_free(q_values);
-    matrix_qr_free(tau);
-    matrix_qr_free(work);
+    if (r_values != NULL) matrix_qr_free(r_values);
+    if (q_values != NULL) matrix_qr_free(q_values);
+    if (tau != NULL) matrix_qr_free(tau);
+    if (work != NULL) matrix_qr_free(work);
+    if (permutation_values != NULL) matrix_qr_free(permutation_values);
     return status;
+}
+
+numerus_matrix_status numerus_matrix_qr_decompose(
+    const numerus_matrix *matrix,
+    numerus_matrix **q,
+    numerus_matrix **r
+)
+{
+    return matrix_qr_decompose_internal(
+        matrix, false, q, r, NULL, NULL
+    );
+}
+
+numerus_matrix_status numerus_matrix_qr_decompose_pivoted(
+    const numerus_matrix *matrix,
+    numerus_matrix **q,
+    numerus_matrix **r,
+    size_t *permutation,
+    size_t permutation_count,
+    size_t *numerical_rank
+)
+{
+    if (q != NULL) *q = NULL;
+    if (r != NULL && r != q) *r = NULL;
+    if (matrix == NULL || permutation == NULL || numerical_rank == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    if (permutation_count != numerus_matrix_columns(matrix)) {
+        return NUMERUS_MATRIX_DIMENSION_MISMATCH;
+    }
+
+    return matrix_qr_decompose_internal(
+        matrix, true, q, r, permutation, numerical_rank
+    );
 }
