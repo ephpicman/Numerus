@@ -342,6 +342,17 @@ does not describe both sides of the node and should not be treated as a complete
 summary of its input representations.
 
 
+## Determinant edge cases
+
+The determinant uses Gaussian elimination with partial pivoting and an exact
+zero-pivot check. It does not apply `NUMERUS_EPSILON` as a singularity cutoff:
+a small but representable determinant can be valid. Results still follow
+ordinary double arithmetic, so sufficiently large products may overflow and
+sufficiently small products may underflow. Singular matrices return a successful
+numeric zero; invalid input and element-read failures return statuses and leave
+the output scalar unchanged. Successfully computed results, including zero,
+are cached per Matrix.
+
 ## Cached analysis
 
 Each Matrix has a per-object analysis cache. It stores structural metadata and
@@ -647,6 +658,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_finite_test tests/matrix_finite_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm
 ./tests/matrix_finite_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_determinant_test tests/matrix_determinant_test.c numerus_matrix.c numerus_storage.c
+./tests/matrix_determinant_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
