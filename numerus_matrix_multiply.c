@@ -199,6 +199,13 @@ int numerus_matrix_multiply(
         return NUMERUS_MATRIX_INVALID_ARGUMENT;
     }
 
+    if (!numerus_size_multiply(rows, columns, &element_count) ||
+        !numerus_size_multiply(
+            element_count, sizeof(*values), &allocation_size
+        )) {
+        return NUMERUS_MATRIX_OVERFLOW;
+    }
+
     {
         bool matches;
         bool eligible;
@@ -232,15 +239,8 @@ int numerus_matrix_multiply(
         if (matches) {
             status = matrix_is_finite_nonnegative(right, &eligible);
             if (status != NUMERUS_MATRIX_SUCCESS) return status;
-            if (eligible) return numerus_matrix_create_zero(rows, columns, matrix);
+            if (eligible) return create_dense_zero_result(rows, columns, matrix);
         }
-    }
-
-    if (!numerus_size_multiply(rows, columns, &element_count) ||
-        !numerus_size_multiply(
-            element_count, sizeof(*values), &allocation_size
-        )) {
-        return NUMERUS_MATRIX_OVERFLOW;
     }
 
     values = numerus_multiply_alloc(allocation_size);
