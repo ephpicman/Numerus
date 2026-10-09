@@ -478,7 +478,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
-          tools: phpize
 
       - name: Install build dependencies
         run: |
