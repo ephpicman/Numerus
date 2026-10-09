@@ -396,8 +396,9 @@ int main(void)
 
     for (row = 0; row < SMALL_SIZE; row++) {
         for (column = 0; column < SMALL_SIZE; column++) {
-            small_values[row * SMALL_SIZE + column] =
-                dense_values[row * MATRIX_SIZE + column];
+            small_values[row * SMALL_SIZE + column] = row == column
+                ? (double) (SMALL_SIZE + row + 1)
+                : (double) ((row + column) % 13 + 1) / 16.0;
         }
     }
 
