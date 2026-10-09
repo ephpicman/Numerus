@@ -4,6 +4,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+enum {
+    NUMERUS_MATRIX_FLAG_SQUARE = UINT32_C(1) << 0,
+    NUMERUS_MATRIX_FLAG_ZERO = UINT32_C(1) << 1,
+    NUMERUS_MATRIX_FLAG_DIAGONAL = UINT32_C(1) << 2,
+    NUMERUS_MATRIX_FLAG_UPPER_TRIANGULAR = UINT32_C(1) << 3,
+    NUMERUS_MATRIX_FLAG_LOWER_TRIANGULAR = UINT32_C(1) << 4,
+    NUMERUS_MATRIX_FLAG_SYMMETRIC = UINT32_C(1) << 5,
+    NUMERUS_MATRIX_FLAG_IDENTITY = UINT32_C(1) << 6,
+    NUMERUS_MATRIX_FLAGS_ALL = (UINT32_C(1) << 7) - 1
+};
+
 #ifndef NUMERUS_MATRIX_USE_LIBC_ALLOC
 # include "php.h"
 # include "Zend/zend_alloc.h"
@@ -27,7 +38,7 @@ struct numerus_matrix {
     size_t transform_index1;
     size_t transform_index2;
     numerus_matrix_flags cached_flags;
-    bool flags_cached;
+    uint32_t flags_computed;
     int determinant_state;
     double cached_determinant;
 };
@@ -340,7 +351,7 @@ static int allocate_matrix(numerus_matrix **matrix)
     (*matrix)->transform_index1 = 0;
     (*matrix)->transform_index2 = 0;
     (*matrix)->cached_flags = (numerus_matrix_flags) {0};
-    (*matrix)->flags_cached = false;
+    (*matrix)->flags_computed = 0;
     (*matrix)->determinant_state = 0;
     (*matrix)->cached_determinant = 0.0;
 
@@ -1270,7 +1281,8 @@ numerus_matrix_status numerus_matrix_get_flags(
     if (matrix == NULL || flags == NULL) {
         return NUMERUS_MATRIX_INVALID_ARGUMENT;
     }
-    if (matrix->flags_cached) {
+    if ((matrix->flags_computed & NUMERUS_MATRIX_FLAGS_ALL) ==
+        NUMERUS_MATRIX_FLAGS_ALL) {
         *flags = matrix->cached_flags;
         return NUMERUS_MATRIX_SUCCESS;
     }
@@ -1303,6 +1315,22 @@ numerus_matrix_status numerus_matrix_get_flags(
                 (row != column && value != 0.0)) {
                 is_identity = false;
             }
+            /*
+             * Compare each off-diagonal pair once during the shared scan.
+             * The previous second pass fetched both values for every pair.
+             */
+            if (result.square && row < column && is_symmetric) {
+                double transposed_value;
+                status = numerus_matrix_get(
+                    matrix, column, row, &transposed_value
+                );
+                if (status != NUMERUS_MATRIX_SUCCESS) {
+                    return status;
+                }
+                if (value != transposed_value) {
+                    is_symmetric = false;
+                }
+            }
         }
     }
 
@@ -1312,34 +1340,11 @@ numerus_matrix_status numerus_matrix_get_flags(
         result.upper_triangular = is_upper;
         result.lower_triangular = is_lower;
         result.identity = is_identity;
-
-        for (row = 0; row < matrix->rows && is_symmetric; row++) {
-            for (column = row + 1; column < matrix->columns; column++) {
-                double upper_value, lower_value;
-                numerus_matrix_status status = numerus_matrix_get(
-                    matrix, row, column, &upper_value
-                );
-
-                if (status != NUMERUS_MATRIX_SUCCESS) {
-                    return status;
-                }
-                status = numerus_matrix_get(
-                    matrix, column, row, &lower_value
-                );
-                if (status != NUMERUS_MATRIX_SUCCESS) {
-                    return status;
-                }
-                if (upper_value != lower_value) {
-                    is_symmetric = false;
-                    break;
-                }
-            }
-        }
         result.symmetric = is_symmetric;
     }
 
     matrix->cached_flags = result;
-    matrix->flags_cached = true;
+    matrix->flags_computed = NUMERUS_MATRIX_FLAGS_ALL;
     *flags = result;
     return NUMERUS_MATRIX_SUCCESS;
 }
@@ -1389,7 +1394,13 @@ numerus_matrix_status numerus_matrix_determinant(
 
     matrix->determinant_state = 1;
     size = matrix->rows;
-    if (matrix->flags_cached) {
+    if ((matrix->flags_computed &
+        (NUMERUS_MATRIX_FLAG_ZERO | NUMERUS_MATRIX_FLAG_IDENTITY |
+         NUMERUS_MATRIX_FLAG_UPPER_TRIANGULAR |
+         NUMERUS_MATRIX_FLAG_LOWER_TRIANGULAR)) ==
+        (NUMERUS_MATRIX_FLAG_ZERO | NUMERUS_MATRIX_FLAG_IDENTITY |
+         NUMERUS_MATRIX_FLAG_UPPER_TRIANGULAR |
+         NUMERUS_MATRIX_FLAG_LOWER_TRIANGULAR)) {
         if (matrix->cached_flags.zero) {
             result = 0.0;
             goto cache_result;
