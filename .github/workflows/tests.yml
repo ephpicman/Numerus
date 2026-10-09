@@ -57,6 +57,13 @@ jobs:
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -o tests/matrix_test tests/matrix_test.c numerus_matrix.c numerus_storage.c
           ./tests/matrix_test
+      - name: Run native Matrix unary operation tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_unary_test tests/matrix_unary_test.c numerus_matrix.c numerus_storage.c
+          ./tests/matrix_unary_test
 
       - name: Run extension tests
         run: make test TESTS='tests/*.phpt'
