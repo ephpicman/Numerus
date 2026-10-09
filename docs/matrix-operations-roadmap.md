@@ -196,8 +196,8 @@ Exit criteria: reconstruction and orthogonality tests, convergence/error reporti
 - [ ] 8.4 Diagonalizability checks. Define numerical rather than symbolic semantics.
 - [x] 8.5 Matrix power for negative integer exponents. Builds on one LU-based inverse and exponentiation by squaring. (Merged in PR #62.)
 - [x] 8.6 Matrix exponential. Added a degree-13 Padé approximant with 1-norm scaling-and-squaring, finite-intermediate checks, linear-solve error propagation, and native tests for diagonal, zero, nilpotent, rotation, scaling, non-finite, and overflow cases. (Merged in PR #102.)
-- [ ] 8.7 Matrix square root and logarithm. Specify supported input classes and failure behavior.
-- [ ] 8.8 Matrix sine/cosine and polynomial functions. Add after matrix exponential and multiplication semantics are stable.
+- [x] 8.7 Matrix square root and logarithm. Added explicitly symmetric-domain APIs: principal square root for PSD matrices and real logarithm for PD matrices, using scale-relative eigenvalue checks. General non-symmetric matrix functions remain outside this API contract. (Merged in PR #104.)
+- [x] 8.8 Matrix sine/cosine and polynomial functions. The polynomial API already existed; PR #104 adds spectral sine/cosine for real symmetric matrices. General non-symmetric sine/cosine remain unclaimed until a Schur-based function framework exists.
 
 Exit criteria: convergence tests, residual checks, explicit real-only limitations, documented supported matrix classes.
 
