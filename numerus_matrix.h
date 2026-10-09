@@ -532,6 +532,34 @@ int numerus_matrix_create_flatten(
     numerus_matrix **matrix
 );
 
+/**
+ * Create a lazy constant-padded view.
+ *
+ * top/bottom/left/right specify the number of rows or columns added on each
+ * side. Existing values retain their positions; all padding cells use value.
+ * The parent is borrowed and must outlive the view. Dimension overflow is
+ * reported as NUMERUS_MATRIX_OVERFLOW.
+ */
+int numerus_matrix_create_pad(
+    numerus_matrix *parent,
+    size_t top,
+    size_t bottom,
+    size_t left,
+    size_t right,
+    double value,
+    numerus_matrix **matrix
+);
+
+/** Create a lazy zero-padded view with the same shape and ownership rules. */
+int numerus_matrix_create_zero_extend(
+    numerus_matrix *parent,
+    size_t top,
+    size_t bottom,
+    size_t left,
+    size_t right,
+    numerus_matrix **matrix
+);
+
 /** Create a dense Matrix. */
 int numerus_matrix_create_dense(
     size_t rows,
