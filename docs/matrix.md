@@ -357,6 +357,23 @@ It returns `NUMERUS_MATRIX_NOT_SQUARE` for non-square (A),
 `NUMERUS_MATRIX_NON_FINITE` for non-finite inputs or intermediates. On
 failure, the output pointer remains NULL.
 
+## Linear-system classification
+
+`numerus_matrix_classify_system(A, B, &kind)` classifies the numerical
+solutions to A X = B for rectangular A and one or multiple right-hand-side
+columns. The result is one of `NUMERUS_MATRIX_SOLUTION_UNIQUE`,
+`NUMERUS_MATRIX_SOLUTION_INFINITE`, or
+`NUMERUS_MATRIX_SOLUTION_INCONSISTENT`.
+
+The implementation uses column-pivoted Householder QR to estimate the
+numerical column space, then projects each right-hand side onto that space.
+Consistency is based on the residual norm relative to the right-hand-side
+norm and the shared epsilon policy. This is a numerical classification, not
+symbolic algebra: very ill-conditioned systems can be sensitive to the rank
+and residual thresholds. All right-hand sides are inspected; a non-finite
+value or source read failure returns its status even if an earlier column was
+already found inconsistent. The output classification is unchanged on failure.
+
 ## Row-space and column-space bases
 
 `numerus_matrix_column_space_basis(A, &basis, &dimension)` returns selected
@@ -875,6 +892,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_spaces_test tests/matrix_spaces_test.c numerus_matrix_spaces.c numerus_matrix_qr.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
 ./tests/matrix_spaces_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_system_test tests/matrix_system_test.c numerus_matrix_system.c numerus_matrix_qr.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+./tests/matrix_system_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
