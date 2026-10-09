@@ -438,6 +438,22 @@ rank-deficient, zero, and near-singular inputs. Non-finite values and source
 read failures propagate their status; on failure, the basis is NULL and the
 nullity output is unchanged.
 
+## Spectral norm and spectral radius
+
+`numerus_matrix_spectral_norm(A, &norm)` returns the largest singular value
+for any real Matrix, using the SVD implementation. It is a scalar result and
+is distinct from the Frobenius norm.
+
+`numerus_matrix_symmetric_spectral_radius(A, &radius)` returns the largest
+absolute eigenvalue for real symmetric matrices only. It deliberately rejects
+non-symmetric input rather than pretending the symmetric eigensolver handles
+general real matrices, whose eigenvalues may be complex. Both scalar outputs
+remain unchanged on failure.
+
+These APIs currently compute the full factorization for a clear baseline.
+A specialized largest-singular-value estimator can be considered later if
+benchmarks show that full SVD is a material cost for real workloads.
+
 ## Symmetric eigendecomposition
 
 `numerus_matrix_symmetric_eigen(A, &eigenvalues, &eigenvectors)` computes
@@ -996,6 +1012,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_symmetric_eigen_test tests/matrix_symmetric_eigen_test.c numerus_matrix_symmetric_eigen.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
 ./tests/matrix_symmetric_eigen_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_spectral_test tests/matrix_spectral_test.c numerus_matrix_spectral.c numerus_matrix_svd.c numerus_matrix_symmetric_eigen.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+./tests/matrix_spectral_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
