@@ -164,43 +164,83 @@ static void benchmark_materialize(
     );
 }
 
+#define MULTIPLY_BENCHMARK_SAMPLES 5
+
 static void benchmark_multiplication(
+    const char *name,
     const numerus_matrix *left,
     const numerus_matrix *right,
     size_t iterations
 )
 {
-    size_t iteration;
+    double seconds[MULTIPLY_BENCHMARK_SAMPLES];
+    size_t calls[MULTIPLY_BENCHMARK_SAMPLES];
+    size_t bytes[MULTIPLY_BENCHMARK_SAMPLES];
+    size_t sample;
     size_t rows = numerus_matrix_rows(left);
     size_t columns = numerus_matrix_columns(right);
-    clock_t start;
-    clock_t end;
 
-    reset_allocation_stats();
-    start = clock();
+    for (sample = 0; sample < MULTIPLY_BENCHMARK_SAMPLES; sample++) {
+        size_t iteration;
+        clock_t start;
+        clock_t end;
 
-    for (iteration = 0; iteration < iterations; iteration++) {
-        numerus_matrix *result = NULL;
-        double value;
-        int status = numerus_matrix_multiply(left, right, &result);
+        reset_allocation_stats();
+        start = clock();
+        for (iteration = 0; iteration < iterations; iteration++) {
+            numerus_matrix *result = NULL;
+            double value;
+            int status = numerus_matrix_multiply(left, right, &result);
 
-        if (status != NUMERUS_MATRIX_SUCCESS) {
-            fprintf(stderr, "multiplication benchmark failed: %d\n", status);
-            exit(EXIT_FAILURE);
+            if (status != NUMERUS_MATRIX_SUCCESS) {
+                fprintf(stderr, "multiplication benchmark failed: %d\n", status);
+                exit(EXIT_FAILURE);
+            }
+            status = numerus_matrix_get(result, 0, 0, &value);
+            if (status != NUMERUS_MATRIX_SUCCESS) {
+                fprintf(stderr, "product read failed: %d\n", status);
+                numerus_matrix_destroy(result);
+                exit(EXIT_FAILURE);
+            }
+            benchmark_sink += value;
+            numerus_matrix_destroy(result);
         }
-
-        status = numerus_matrix_get(result, 0, 0, &value);
-        if (status != NUMERUS_MATRIX_SUCCESS) {
-            fprintf(stderr, "product read failed: %d\n", status);
-            exit(EXIT_FAILURE);
-        }
-        benchmark_sink += value;
-        numerus_matrix_destroy(result);
+        end = clock();
+        seconds[sample] = (double) (end - start) / (double) CLOCKS_PER_SEC;
+        calls[sample] = allocation_calls;
+        bytes[sample] = allocation_bytes;
     }
 
-    end = clock();
-    report_measurement(
-        "matrix multiply", rows, columns, iterations, start, end
+    for (sample = 0; sample < MULTIPLY_BENCHMARK_SAMPLES; sample++) {
+        size_t other;
+        for (other = sample + 1; other < MULTIPLY_BENCHMARK_SAMPLES; other++) {
+            if (seconds[other] < seconds[sample]) {
+                double temp = seconds[sample];
+                seconds[sample] = seconds[other];
+                seconds[other] = temp;
+            }
+            if (calls[other] < calls[sample]) {
+                size_t temp = calls[sample];
+                calls[sample] = calls[other];
+                calls[other] = temp;
+            }
+            if (bytes[other] < bytes[sample]) {
+                size_t temp = bytes[sample];
+                bytes[sample] = bytes[other];
+                bytes[other] = temp;
+            }
+        }
+    }
+
+    printf(
+        "%-24s shape=%zux%zu samples=%d iterations_per_sample=%zu "
+        "median_seconds=%.6f min_seconds=%.6f max_seconds=%.6f "
+        "median_allocations_per_sample=%zu median_allocated_bytes_per_sample=%zu sink=%.6f\n",
+        name, rows, columns, MULTIPLY_BENCHMARK_SAMPLES, iterations,
+        seconds[MULTIPLY_BENCHMARK_SAMPLES / 2], seconds[0],
+        seconds[MULTIPLY_BENCHMARK_SAMPLES - 1],
+        calls[MULTIPLY_BENCHMARK_SAMPLES / 2],
+        bytes[MULTIPLY_BENCHMARK_SAMPLES / 2], (double) benchmark_sink
     );
 }
 
@@ -364,6 +404,8 @@ int main(void)
     numerus_matrix *diagonal = NULL;
     numerus_matrix *upper = NULL;
     numerus_matrix *sparse = NULL;
+    numerus_matrix *identity = NULL;
+    numerus_matrix *zero = NULL;
     numerus_matrix *transpose = NULL;
     numerus_matrix *joined = NULL;
     numerus_matrix *scaled = NULL;
@@ -430,6 +472,10 @@ int main(void)
         sparse_entries, MATRIX_SIZE, &sparse
     );
     if (status != NUMERUS_MATRIX_SUCCESS) goto fail;
+    status = numerus_matrix_create_identity(MATRIX_SIZE, &identity);
+    if (status != NUMERUS_MATRIX_SUCCESS) goto fail;
+    status = numerus_matrix_create_zero(MATRIX_SIZE, MATRIX_SIZE, &zero);
+    if (status != NUMERUS_MATRIX_SUCCESS) goto fail;
     status = numerus_matrix_create_transpose(dense, &transpose);
     if (status != NUMERUS_MATRIX_SUCCESS) goto fail;
     status = numerus_matrix_create_join_horizontal(dense, transpose, &joined);
@@ -458,7 +504,14 @@ int main(void)
     benchmark_reads("binary view read", sum, READ_ITERATIONS);
     benchmark_scale_view_creation(dense, 1000);
     benchmark_materialize(transpose, OPERATION_ITERATIONS);
-    benchmark_multiplication(small, small, OPERATION_ITERATIONS);
+    benchmark_multiplication("dense x dense", dense, dense, OPERATION_ITERATIONS);
+    benchmark_multiplication("dense x identity", dense, identity, OPERATION_ITERATIONS);
+    benchmark_multiplication("identity x dense", identity, dense, OPERATION_ITERATIONS);
+    benchmark_multiplication("dense x zero", dense, zero, OPERATION_ITERATIONS);
+    benchmark_multiplication("dense x diagonal", dense, diagonal, OPERATION_ITERATIONS);
+    benchmark_multiplication("dense x triangular", dense, upper, OPERATION_ITERATIONS);
+    benchmark_multiplication("dense x sparse", dense, sparse, OPERATION_ITERATIONS);
+    benchmark_multiplication("small dense multiply", small, small, OPERATION_ITERATIONS);
     benchmark_inverse(small, OPERATION_ITERATIONS);
     benchmark_condition_estimate(small, OPERATION_ITERATIONS);
     verify_inverse_residual(small);
@@ -473,6 +526,8 @@ int main(void)
     numerus_matrix_destroy(scaled);
     numerus_matrix_destroy(joined);
     numerus_matrix_destroy(transpose);
+    numerus_matrix_destroy(zero);
+    numerus_matrix_destroy(identity);
     numerus_matrix_destroy(sparse);
     numerus_matrix_destroy(upper);
     numerus_matrix_destroy(diagonal);
@@ -488,6 +543,8 @@ fail:
     numerus_matrix_destroy(scaled);
     numerus_matrix_destroy(joined);
     numerus_matrix_destroy(transpose);
+    numerus_matrix_destroy(zero);
+    numerus_matrix_destroy(identity);
     numerus_matrix_destroy(sparse);
     numerus_matrix_destroy(upper);
     numerus_matrix_destroy(diagonal);
