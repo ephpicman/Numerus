@@ -244,6 +244,17 @@ allocation. Parent read failures propagate and no partial result is published.
 The implementation follows IEEE-754 arithmetic for both products, including
 zero multiplied by non-finite values. Time and result storage are O(m²n²).
 
+## Matrix polynomial evaluation
+
+`numerus_matrix_polynomial(base, coefficients, count, &result)` evaluates
+`c[0] + c[1]A + ... + c[count - 1]A^(count - 1)` using Horner's method.
+Coefficients are ordered from the constant term upward, and count must be
+positive. The base must be square. The result is independent dense Storage;
+each Horner step uses a materialized matrix product, so intermediate lazy views
+do not outlive their parents. Allocation-size overflow and parent read failures
+are reported, and the output pointer remains NULL on failure. Floating-point
+operations follow ordinary IEEE-754 double arithmetic.
+
 ## Signed integer matrix powers
 
 `numerus_matrix_power_signed(base, exponent, &result)` extends the
