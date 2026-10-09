@@ -1375,7 +1375,7 @@ numerus_matrix_status numerus_matrix_determinant(
     double *determinant
 )
 {
-    size_t size, element_count, row, column;
+    size_t size, element_count, allocation_size, row, column;
     double result = 1.0, *values;
     int sign = 1;
     numerus_matrix_status status;
