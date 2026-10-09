@@ -175,7 +175,6 @@ static numerus_matrix_status matrix_try_sparse_right_product(
 )
 {
     size_t maximum_entries;
-    size_t row_offset_count;
     size_t row_offsets_bytes;
     size_t column_indices_bytes;
     size_t sparse_values_bytes;
