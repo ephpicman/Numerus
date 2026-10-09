@@ -11,10 +11,10 @@ static void test_axes_and_norms(void) {
  numerus_matrix *m=NULL,*n=NULL;
  assert(numerus_matrix_create_dense(2,3,values,&m)==NUMERUS_MATRIX_SUCCESS);
  assert(numerus_matrix_create_normalized(m,NUMERUS_MATRIX_NORMALIZE_ROWS,NUMERUS_MATRIX_NORMALIZE_L2,&n)==NUMERUS_MATRIX_SUCCESS);
- check(n,0,0,0.6); check(n,0,1,0.8); check(n,1,1,1.0);
+ check(n,0,0,0.6); check(n,0,1,0.8); check(n,1,0,1.0);
  numerus_matrix_destroy(n); n=NULL;
  assert(numerus_matrix_create_normalized(m,NUMERUS_MATRIX_NORMALIZE_COLUMNS,NUMERUS_MATRIX_NORMALIZE_L1,&n)==NUMERUS_MATRIX_SUCCESS);
- check(n,0,0,1.0); check(n,0,1,1.0); check(n,1,1,0.0);
+ check(n,0,0,1.0); check(n,0,1,2.0/3.0); check(n,1,1,1.0/3.0);
  numerus_matrix_destroy(n); n=NULL;
  assert(numerus_matrix_create_normalized(m,NUMERUS_MATRIX_NORMALIZE_WHOLE,NUMERUS_MATRIX_NORMALIZE_INFINITY,&n)==NUMERUS_MATRIX_SUCCESS);
  check(n,0,0,0.75); check(n,0,1,1.0); check(n,1,1,0.5);
