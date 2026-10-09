@@ -108,6 +108,12 @@ A custom transform can be logically mutable if its callback depends on mutable
 external state; that violates the API contract even though the Matrix object's
 fields themselves are opaque.
 
+The scalar multiplication and negation convenience views store their scalar inside
+the view itself, so they do not borrow a caller-owned scalar or callback context.
+Their parent Matrix is still non-owning and must outlive the view. They use normal
+IEEE-754 `double` multiplication semantics: zero, signed zero, NaN, and infinities
+are not converted into status errors.
+
 ## Joins
 
 Joins are lazy and hold two non-owning parent references.
@@ -228,9 +234,9 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -o tests/matrix_test tests/matrix_test.c numerus_matrix.c numerus_storage.c
 ./tests/matrix_test
 
-cc -std=c11 -Wall -Wextra -Wpedantic -Werror \\
-  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \\
-  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \\
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_unary_test tests/matrix_unary_test.c numerus_matrix.c numerus_storage.c
 ./tests/matrix_unary_test
 ```
