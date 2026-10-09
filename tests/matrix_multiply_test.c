@@ -112,20 +112,20 @@ static void test_identity_and_zero_products(void)
 static void test_shape_overflow_and_read_failures(void)
 {
     const double values[] = {1, 2, 3, 4};
+    const double wrong_shape_values[] = {1, 2, 3, 4, 5, 6};
     const double right_values[] = {1, 2};
     numerus_matrix *root = NULL;
     numerus_matrix *right_root = NULL;
     numerus_matrix *wrong_shape = NULL;
     numerus_matrix *failing = NULL;
     numerus_matrix *huge_left = NULL;
-    numerus_matrix *small_right = NULL;
     numerus_matrix *product = NULL;
 
     assert(numerus_matrix_create_dense(2, 2, values, &root) ==
         NUMERUS_MATRIX_SUCCESS);
     assert(numerus_matrix_create_dense(1, 2, right_values, &right_root) ==
         NUMERUS_MATRIX_SUCCESS);
-    assert(numerus_matrix_create_dense(3, 2, values, &wrong_shape) ==
+    assert(numerus_matrix_create_dense(3, 2, wrong_shape_values, &wrong_shape) ==
         NUMERUS_MATRIX_SUCCESS);
 
     product = root;
@@ -155,13 +155,6 @@ static void test_shape_overflow_and_read_failures(void)
         NUMERUS_MATRIX_OVERFLOW);
     assert(product == NULL);
 
-    /* Avoid an unused logical helper: this shape is used as the right operand. */
-    assert(numerus_matrix_create_from_parent(
-        right_root, 1, 2, &small_right
-    ) == NUMERUS_MATRIX_SUCCESS);
-    assert(numerus_matrix_rows(small_right) == 1);
-
-    numerus_matrix_destroy(small_right);
     numerus_matrix_destroy(huge_left);
     numerus_matrix_destroy(failing);
     numerus_matrix_destroy(wrong_shape);
