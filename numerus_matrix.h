@@ -41,6 +41,18 @@ typedef enum {
 } numerus_matrix_status;
 
 /**
+ * Numerical classification of the solutions to A X = B.
+ */
+typedef enum {
+    /** Every right-hand side has exactly one solution. */
+    NUMERUS_MATRIX_SOLUTION_UNIQUE = 0,
+    /** Every right-hand side is consistent, but solutions are not unique. */
+    NUMERUS_MATRIX_SOLUTION_INFINITE,
+    /** At least one right-hand side is outside the numerical column space of A. */
+    NUMERUS_MATRIX_SOLUTION_INCONSISTENT
+} numerus_matrix_solution_kind;
+
+/**
  * @brief Layout used to join two Matrices.
  */
 typedef enum {
@@ -884,6 +896,19 @@ numerus_matrix_status numerus_matrix_qr_decompose(
 numerus_matrix_status numerus_matrix_condition_estimate_one(
     const numerus_matrix *matrix,
     double *condition_estimate
+);
+
+/**
+ * Classify the numerical solutions to A X = B.
+ *
+ * Supports rectangular A and multiple right-hand-side columns in B. Consistency
+ * is tested by projecting each RHS onto the numerical column space obtained
+ * from column-pivoted QR. The classification output is unchanged on failure.
+ */
+numerus_matrix_status numerus_matrix_classify_system(
+    const numerus_matrix *matrix,
+    const numerus_matrix *right_hand_side,
+    numerus_matrix_solution_kind *classification
 );
 
 numerus_matrix_status numerus_matrix_solve(
