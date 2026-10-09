@@ -1,0 +1,204 @@
+#include "../numerus_matrix.h"
+
+#include <assert.h>
+#include <math.h>
+#include <stdint.h>
+#include <stdio.h>
+
+static int matrix_value_equals(
+    const numerus_matrix *matrix,
+    size_t row,
+    size_t column,
+    double expected
+)
+{
+    double actual = 0.0;
+
+    return numerus_matrix_get(
+        matrix, row, column, &actual
+    ) == NUMERUS_MATRIX_SUCCESS && actual == expected;
+}
+
+static numerus_matrix_status reject_coordinates(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    (void) row;
+    (void) column;
+    (void) parent_row;
+    (void) parent_column;
+    (void) context;
+
+    return NUMERUS_MATRIX_INVALID_ARGUMENT;
+}
+
+static void test_rectangular_product(void)
+{
+    const double left_values[] = {1, 2, 3, 4, 5, 6};
+    const double right_values[] = {7, 8, 9, 10, 11, 12};
+    const double expected[] = {58, 64, 139, 154};
+    numerus_matrix *left = NULL;
+    numerus_matrix *right = NULL;
+    numerus_matrix *product = NULL;
+
+    assert(numerus_matrix_create_dense(2, 3, left_values, &left) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(3, 2, right_values, &right) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_multiply(left, right, &product) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    assert(numerus_matrix_rows(product) == 2);
+    assert(numerus_matrix_columns(product) == 2);
+    assert(numerus_matrix_storage_kind(product) == NUMERUS_STORAGE_DENSE);
+    for (size_t row = 0; row < 2; row++) {
+        for (size_t column = 0; column < 2; column++) {
+            assert(matrix_value_equals(
+                product, row, column, expected[row * 2 + column]
+            ));
+        }
+    }
+
+    /* The product is independent of both parents. */
+    numerus_matrix_destroy(right);
+    numerus_matrix_destroy(left);
+    assert(matrix_value_equals(product, 1, 1, 154.0));
+    numerus_matrix_destroy(product);
+}
+
+static void test_identity_and_zero_products(void)
+{
+    const double values[] = {1, -2, 3, 4, 5, 6};
+    numerus_matrix *matrix = NULL;
+    numerus_matrix *identity = NULL;
+    numerus_matrix *zero = NULL;
+    numerus_matrix *product = NULL;
+
+    assert(numerus_matrix_create_dense(2, 3, values, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_identity(3, &identity) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_multiply(matrix, identity, &product) ==
+        NUMERUS_MATRIX_SUCCESS);
+    for (size_t row = 0; row < 2; row++) {
+        for (size_t column = 0; column < 3; column++) {
+            assert(matrix_value_equals(
+                product, row, column, values[row * 3 + column]
+            ));
+        }
+    }
+    numerus_matrix_destroy(product);
+
+    assert(numerus_matrix_create_zero(3, 2, &zero) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_multiply(matrix, zero, &product) ==
+        NUMERUS_MATRIX_SUCCESS);
+    for (size_t row = 0; row < 2; row++) {
+        for (size_t column = 0; column < 2; column++) {
+            assert(matrix_value_equals(product, row, column, 0.0));
+        }
+    }
+
+    numerus_matrix_destroy(product);
+    numerus_matrix_destroy(zero);
+    numerus_matrix_destroy(identity);
+    numerus_matrix_destroy(matrix);
+}
+
+static void test_shape_overflow_and_read_failures(void)
+{
+    const double values[] = {1, 2, 3, 4};
+    const double right_values[] = {1, 2};
+    numerus_matrix *root = NULL;
+    numerus_matrix *right_root = NULL;
+    numerus_matrix *wrong_shape = NULL;
+    numerus_matrix *failing = NULL;
+    numerus_matrix *huge_left = NULL;
+    numerus_matrix *small_right = NULL;
+    numerus_matrix *product = NULL;
+
+    assert(numerus_matrix_create_dense(2, 2, values, &root) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(1, 2, right_values, &right_root) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(3, 2, values, &wrong_shape) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    product = root;
+    assert(numerus_matrix_multiply(root, wrong_shape, &product) ==
+        NUMERUS_MATRIX_DIMENSION_MISMATCH);
+    assert(product == NULL);
+    assert(numerus_matrix_multiply(NULL, root, &product) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(product == NULL);
+    assert(numerus_matrix_multiply(root, root, NULL) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+
+    assert(numerus_matrix_create_from_parent_with_transforms(
+        root, 2, 2, reject_coordinates, NULL, NULL, &failing
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_multiply(failing, root, &product) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(product == NULL);
+    assert(numerus_matrix_multiply(root, failing, &product) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(product == NULL);
+
+    assert(numerus_matrix_create_from_parent(
+        root, SIZE_MAX, 1, &huge_left
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_multiply(huge_left, right_root, &product) ==
+        NUMERUS_MATRIX_OVERFLOW);
+    assert(product == NULL);
+
+    /* Avoid an unused logical helper: this shape is used as the right operand. */
+    assert(numerus_matrix_create_from_parent(
+        right_root, 1, 2, &small_right
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(small_right) == 1);
+
+    numerus_matrix_destroy(small_right);
+    numerus_matrix_destroy(huge_left);
+    numerus_matrix_destroy(failing);
+    numerus_matrix_destroy(wrong_shape);
+    numerus_matrix_destroy(right_root);
+    numerus_matrix_destroy(root);
+}
+
+static void test_non_finite_product(void)
+{
+    const double left_values[] = {0.0, INFINITY};
+    const double right_values[] = {INFINITY, 1.0};
+    numerus_matrix *left = NULL;
+    numerus_matrix *right = NULL;
+    numerus_matrix *product = NULL;
+    double value = 0.0;
+
+    assert(numerus_matrix_create_dense(1, 2, left_values, &left) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(2, 1, right_values, &right) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_multiply(left, right, &product) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get(product, 0, 0, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(isnan(value));
+
+    numerus_matrix_destroy(product);
+    numerus_matrix_destroy(right);
+    numerus_matrix_destroy(left);
+}
+
+int main(void)
+{
+    test_rectangular_product();
+    test_identity_and_zero_products();
+    test_shape_overflow_and_read_failures();
+    test_non_finite_product();
+    puts("Matrix multiplication tests passed.");
+    return 0;
+}
