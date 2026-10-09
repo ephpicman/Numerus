@@ -47,8 +47,9 @@ typedef enum {
 /**
  * @brief Cached structural properties of a Matrix.
  *
- * Properties use exact comparisons, not a numerical tolerance. A square zero
- * Matrix is also diagonal, upper-triangular, lower-triangular, and symmetric.
+ * Floating-point properties use NUMERUS_EPSILON from numerus_numeric.h.
+ * A square zero Matrix is also diagonal, upper-triangular, lower-triangular,
+ * and symmetric.
  */
 typedef struct {
     bool square;
