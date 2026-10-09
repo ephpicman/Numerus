@@ -159,7 +159,7 @@ Exit criteria: factorization reconstruction tests, numerical edge-case coverage,
 - [x] 5.4 Reference/cofactor inverse for small matrices. Added an independent test-only cofactor/adjugate oracle for 1×1–3×3 matrices and cross-checked the LU inverse. It is intentionally not a production API because the method scales poorly. (Merged in PR #96.)
 - [x] 5.5 Cache inverse results. Each Matrix may retain a bounded (64 KiB payload) owned inverse-value buffer; cache hits return independent dense results, failed cache allocations do not fail inversion, and source destruction releases the buffer. Cold-vs-hit benchmark and lifecycle tests added. (Merged in PR #98.)
 - [x] 5.6 Solve Ax=b. Matrix RHS supports multiple columns sharing one LU factorization; no inverse-times-vector default path. (Merged in PR #46.)
-- [ ] 5.7 Reuse cached factorization. Share LU among determinant, inverse, and repeated solves only after a coherent factorization cache is designed and benchmarked.
+- [x] 5.7 Reuse cached factorization. Added reference-counted LU ownership and a bounded per-Matrix cache shared by determinant, inverse, and solve; no source-Matrix pointer is retained. Cold-vs-cached solve benchmarks and source-lifetime tests pass. (Merged in PR #100.)
 - [x] 5.8 Condition estimate. One-norm estimate distinguishes conditioning from exact properties; singular inputs report infinity. (Merged in PR #47.)
 - [x] 5.9 Inverse algorithm benchmarks. LU inverse and condition estimation report CPU time, allocations, and residuals for well-conditioned and ill-conditioned inputs. No competing inverse algorithm is implemented; Gauss–Jordan/small-matrix alternatives remain deferred unless they offer a justified trade-off. (Completed in PR #50.)
 
