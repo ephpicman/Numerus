@@ -156,6 +156,7 @@ static void test_kronecker_sum(void)
     numerus_matrix *left = NULL;
     numerus_matrix *right = NULL;
     numerus_matrix *rectangular = NULL;
+    numerus_matrix *failing = NULL;
     numerus_matrix *sum = NULL;
 
     assert(numerus_matrix_create_dense(2, 2, left_values, &left) ==
@@ -179,6 +180,12 @@ static void test_kronecker_sum(void)
     sum = NULL;
     assert(numerus_matrix_create_dense(2, 3, rectangular_values, &rectangular) ==
         NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_from_parent_with_transforms(
+        left, 2, 2, reject_coordinates, NULL, NULL, &failing
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_kronecker_sum(failing, right, &sum) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(sum == NULL);
     assert(numerus_matrix_kronecker_sum(rectangular, right, &sum) ==
         NUMERUS_MATRIX_NOT_SQUARE);
     assert(sum == NULL);
@@ -186,6 +193,7 @@ static void test_kronecker_sum(void)
         NUMERUS_MATRIX_INVALID_ARGUMENT);
     assert(sum == NULL);
 
+    numerus_matrix_destroy(failing);
     numerus_matrix_destroy(rectangular);
     numerus_matrix_destroy(sum);
     numerus_matrix_destroy(right);
