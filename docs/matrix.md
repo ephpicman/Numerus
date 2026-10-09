@@ -443,12 +443,26 @@ requires a square Matrix. It accumulates in increasing diagonal index order
 using ordinary `double` addition; NaN and infinities therefore follow
 IEEE-754 arithmetic. A failed element read leaves the output scalar unchanged.
 
+## Scalar and axis aggregates
+
+`numerus_matrix_sum()`, `numerus_matrix_min()`, `numerus_matrix_max()`,
+and `numerus_matrix_mean()` return scalar results. Sum and mean use ordinary
+row-major double accumulation; min/max return NaN if any element is NaN.
+Infinities follow normal IEEE-754 arithmetic. A failed read leaves scalar
+outputs unchanged.
+
+`numerus_matrix_row_sums()` and `numerus_matrix_row_means()` return an
+independent dense rows×1 Matrix. The column variants return an independent
+dense 1×columns Matrix. These functions materialize their small output vectors
+and propagate parent read errors; on failure the output Matrix pointer remains
+NULL.
+
 ## Native tests
 
 The native Matrix tests cover storage-backed constructors, orientation
 transforms, row/column removal and swaps, composed views, lazy scalar
 multiplication, powers, Kronecker products, range slices, indexed row/column
-selection, reshape/flatten, padding, repetition, block-diagonal, and block-grid, diagonal, permutation views, trace analysis, scalar division, equality, vector constructors,
+selection, reshape/flatten, padding, repetition, block-diagonal, and block-grid, diagonal, permutation views, trace and aggregate analysis, scalar division, equality, vector constructors,
 element-wise arithmetic, materialization, and overflow/read-failure handling.
 
 Run them from the repository root:
@@ -579,6 +593,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_trace_test tests/matrix_trace_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c
 ./tests/matrix_trace_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_aggregate_test tests/matrix_aggregate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c
+./tests/matrix_aggregate_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds
