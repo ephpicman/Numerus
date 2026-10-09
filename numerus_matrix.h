@@ -604,6 +604,34 @@ int numerus_matrix_create_block_grid(
     numerus_matrix **matrix
 );
 
+/**
+ * Extract a diagonal into a 1×N row-vector view.
+ *
+ * Offset zero selects the main diagonal; positive offsets select diagonals
+ * above it, and negative offsets select diagonals below it. An offset with no
+ * elements in the Matrix returns NUMERUS_MATRIX_OUT_OF_BOUNDS. The parent is
+ * borrowed and must outlive the result.
+ */
+int numerus_matrix_create_diagonal_extract(
+    numerus_matrix *parent,
+    ptrdiff_t offset,
+    numerus_matrix **matrix
+);
+
+/**
+ * Create a square diagonal view from a row or column vector.
+ *
+ * The main diagonal is selected by offset zero; positive offsets place values
+ * above it and negative offsets below it. The output side length is the vector
+ * length plus the absolute offset, checked for overflow. Off-diagonal elements
+ * are zero. The vector is borrowed and must outlive the result.
+ */
+int numerus_matrix_create_diagonal_from_vector(
+    numerus_matrix *vector,
+    ptrdiff_t offset,
+    numerus_matrix **matrix
+);
+
 /** Create a dense Matrix. */
 int numerus_matrix_create_dense(
     size_t rows,
