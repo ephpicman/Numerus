@@ -769,6 +769,34 @@ numerus_matrix_status numerus_matrix_determinant(
 );
 
 /**
+ * Return whether any element is NaN. The output is unchanged if a read fails.
+ * The scan stops at the first matching element.
+ */
+numerus_matrix_status numerus_matrix_has_nan(
+    const numerus_matrix *matrix,
+    bool *has_nan
+);
+
+/**
+ * Return whether any element is positive or negative infinity. The output is
+ * unchanged if a read fails; the scan stops at the first matching element.
+ */
+numerus_matrix_status numerus_matrix_has_infinity(
+    const numerus_matrix *matrix,
+    bool *has_infinity
+);
+
+/**
+ * Return whether every element is finite (neither NaN nor infinity).
+ * The output is unchanged if a read fails; the scan stops at the first
+ * non-finite element.
+ */
+numerus_matrix_status numerus_matrix_is_finite(
+    const numerus_matrix *matrix,
+    bool *is_finite
+);
+
+/**
  * Compute the Frobenius norm using a stable hypot-based accumulation.
  * If any element is NaN, the result is NaN; infinities otherwise follow
  * IEEE-754 behavior. Output is unchanged if a read fails.

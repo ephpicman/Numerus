@@ -130,8 +130,8 @@ These operations correctly return scalar values/flags, not matrices.
 
 - [x] 3.1 Trace. Square matrices only; sum the main diagonal in documented order with IEEE-754 behavior. (Merged in PR #33.)
 - [x] 3.2 Element aggregates. Minimum, maximum, sum, mean, row/column sums, and row/column means; NaN and infinity behavior is documented. (Merged in PR #34.)
-- [ ] 3.3 Matrix norms. Frobenius, induced 1-norm, and induced infinity-norm. (Implementation proposed; merge pending.)
-- [ ] 3.4 Finite-value inspection. Detect NaN and infinity; distinguish a predicate from an element-transform operation.
+- [x] 3.3 Matrix norms. Frobenius, induced 1-norm, and induced infinity-norm; stable Frobenius accumulation and NaN behavior are tested. (Merged in PR #37.) (Implementation proposed; merge pending.)
+- [ ] 3.4 Finite-value inspection. Detect NaN and infinity; distinguish a predicate from an element-transform operation. (Implementation proposed; merge pending.)
 - [ ] 3.5 Structural predicates. Expose/reuse square, zero, diagonal, triangular, symmetric, and identity flags.
 - [ ] 3.6 Additional predicates. Skew-symmetric and orthogonal, with dimension requirements and epsilon semantics.
 - [ ] 3.7 Cache review. Ensure every structural cache bit has a precise definition and tests; avoid duplicating scans where one shared pass can safely compute multiple flags.

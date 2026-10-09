@@ -436,6 +436,16 @@ Repeated indices are rejected here (unlike selection views, which intentionally
 allow duplicates). The index list is copied, the view remains lazy, and the
 parent must outlive it.
 
+## Finite-value predicates
+
+`numerus_matrix_has_nan()` reports whether at least one element is NaN;
+`numerus_matrix_has_infinity()` detects either positive or negative infinity;
+and `numerus_matrix_is_finite()` is true only when every element is finite.
+These are scalar predicates, not transformations, and do not allocate a new
+Matrix. Each scan stops as soon as its answer is determined. If a required
+element read fails before the answer is determined, its status is propagated
+and the output boolean remains unchanged.
+
 ## Matrix norms
 
 `numerus_matrix_norm_frobenius()` computes the Frobenius norm using
@@ -618,6 +628,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_norm_test tests/matrix_norm_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm
 ./tests/matrix_norm_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_finite_test tests/matrix_finite_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm
+./tests/matrix_finite_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds
