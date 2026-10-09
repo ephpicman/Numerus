@@ -115,6 +115,21 @@ numbers validate the fast paths on this workload; they are not a universal
 performance guarantee. Diagonal and triangular multiplication remain generic
 because no comparably compelling specialized algorithm has been validated.
 
+
+## Sparse factorization boundary
+
+Sparse-aware multiplication is now implemented for sufficiently sparse right
+operands under a finite, nonnegative numeric precondition. Sparse factorization
+is deliberately not inferred from that result. A real sparse LU/rank
+implementation needs a sparse elimination representation, pivoting rules,
+fill-in accounting, rank tolerance semantics, and memory-growth benchmarks.
+Routing sparse input through the existing dense LU implementation would not
+provide sparse memory complexity and must not be marketed as sparse support.
+
+Keep Phase 10.5 open until those algorithm and memory contracts are designed and
+tested against matrices with controlled fill-in. The same evidence-first rule
+applies to the advanced decompositions and matrix equations in Phase 10.7.
+
 ## Follow-up work
 
 1. **Completed:** expand the benchmark to compare generic multiplication for

@@ -216,12 +216,12 @@ Exit criteria: clear scalar-vs-matrix result types, explicit NaN semantics, no h
 # Phase 10 — Specialized matrices and storage-aware algorithms
 
 - [x] 10.1 Audit current Storage kinds. Documented representation costs, generic multiplication behavior, IEEE-754 constraints, and the benchmark evidence needed before specialization in [the Storage optimization audit](matrix-storage-optimization-audit.md).
-- [x] 10.2 Specialized multiplication paths. Added exact identity/zero shortcuts guarded by finite nonnegative operands; other inputs use the generic IEEE-754 loop. Diagonal, triangular, and sparse paths remain deferred until separate benchmarks justify their complexity.
+- [x] 10.2 Specialized multiplication paths. Added exact identity/zero shortcuts guarded by finite nonnegative operands; other inputs use the generic IEEE-754 loop. Diagonal and triangular paths remain deferred; sparse-right multiplication is covered by Phase 10.4.
 - [x] 10.3 Constructor scope review. Deferred Toeplitz, Hankel, Vandermonde, Hilbert, and a separate permutation-matrix constructor because there is no current consumer; existing row/column permutation views cover the immediate need. See [the Storage optimization audit](matrix-storage-optimization-audit.md).
 - [x] 10.4 Sparse-aware multiplication. Added a guarded row-compressed path for sparse-backed right operands at ≤25% logical density; preserves dense output and falls back for negative/non-finite/signed-zero inputs. Sparse factorization remains out of scope for this phase.
-- [ ] 10.5 Sparse factorization and rank. Requires dedicated algorithm and memory benchmarks; do not promise sparse performance from dense implementations.
-- [ ] 10.6 Tensor/array boundary. Kronecker product is still a matrix operation. General N-dimensional tensors are a separate abstraction and are not silently folded into Matrix.
-- [ ] 10.7 Polar decomposition, matrix sign, Sylvester and Lyapunov equations. Treat as advanced, dependency-heavy features; prioritize only after foundational algorithms are robust.
+- [ ] 10.5 Sparse factorization and rank. Deferred until a true sparse elimination design defines pivoting, fill-in, rank tolerance, and memory bounds; dense LU on sparse inputs is not a sparse algorithm.
+- [x] 10.6 Tensor/array boundary decision. Kronecker product remains a Matrix operation; general N-dimensional tensors require a separate abstraction and are not silently folded into Matrix.
+- [ ] 10.7 Polar decomposition, matrix sign, Sylvester and Lyapunov equations. Deferred as advanced, dependency-heavy features until a concrete consumer justifies the API and implementation burden.
 
 Exit criteria: specialized paths are benchmarked against general paths and never change observable results beyond documented floating-point tolerances.
 
