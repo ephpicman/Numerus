@@ -582,3 +582,163 @@ numerus_matrix_status numerus_matrix_is_orthogonal(
     *is_orthogonal = true;
     return NUMERUS_MATRIX_SUCCESS;
 }
+
+
+numerus_matrix_status numerus_matrix_rank(
+    const numerus_matrix *matrix,
+    size_t *rank
+)
+{
+    size_t rows;
+    size_t columns;
+    size_t element_count;
+    size_t allocation_size;
+    size_t row;
+    size_t column;
+    size_t pivot_index = 0;
+    size_t pivot_limit;
+    size_t rank_result = 0;
+    double scale = 0.0;
+    double relative_threshold;
+    double *values;
+
+    if (matrix == NULL || rank == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    rows = numerus_matrix_rows(matrix);
+    columns = numerus_matrix_columns(matrix);
+    if (!numerus_size_multiply(rows, columns, &element_count) ||
+        !numerus_size_multiply(element_count, sizeof(*values), &allocation_size)) {
+        return NUMERUS_MATRIX_OVERFLOW;
+    }
+
+    values = malloc(allocation_size);
+    if (values == NULL) {
+        return NUMERUS_MATRIX_OUT_OF_MEMORY;
+    }
+
+    for (row = 0; row < rows; row++) {
+        for (column = 0; column < columns; column++) {
+            double value;
+            numerus_matrix_status status = numerus_matrix_get(
+                matrix, row, column, &value
+            );
+
+            if (status != NUMERUS_MATRIX_SUCCESS) {
+                free(values);
+                return status;
+            }
+            if (!isfinite(value)) {
+                free(values);
+                return NUMERUS_MATRIX_NON_FINITE;
+            }
+
+            values[row * columns + column] = value;
+            if (fabs(value) > scale) {
+                scale = fabs(value);
+            }
+        }
+    }
+
+    if (scale == 0.0) {
+        free(values);
+        *rank = 0;
+        return NUMERUS_MATRIX_SUCCESS;
+    }
+
+    relative_threshold = NUMERUS_EPSILON *
+        (double) (rows > columns ? rows : columns);
+    pivot_limit = rows < columns ? rows : columns;
+
+    while (pivot_index < pivot_limit) {
+        size_t pivot_row = pivot_index;
+        size_t pivot_column = pivot_index;
+        size_t candidate_row;
+        double pivot_magnitude = 0.0;
+
+        /*
+         * Complete pivoting makes the rank estimate less dependent on the
+         * original row/column ordering than a diagonal-only pivot search.
+         */
+        for (candidate_row = pivot_index;
+             candidate_row < rows;
+             candidate_row++) {
+            size_t candidate_column;
+
+            for (candidate_column = pivot_index;
+                 candidate_column < columns;
+                 candidate_column++) {
+                double magnitude = fabs(
+                    values[candidate_row * columns + candidate_column]
+                );
+
+                if (magnitude > pivot_magnitude) {
+                    pivot_magnitude = magnitude;
+                    pivot_row = candidate_row;
+                    pivot_column = candidate_column;
+                }
+            }
+        }
+
+        if (pivot_magnitude / scale <= relative_threshold) {
+            break;
+        }
+
+        if (pivot_row != pivot_index) {
+            size_t swap_column;
+
+            for (swap_column = 0; swap_column < columns; swap_column++) {
+                double temporary = values[
+                    pivot_index * columns + swap_column
+                ];
+                values[pivot_index * columns + swap_column] =
+                    values[pivot_row * columns + swap_column];
+                values[pivot_row * columns + swap_column] = temporary;
+            }
+        }
+
+        if (pivot_column != pivot_index) {
+            size_t swap_row;
+
+            for (swap_row = 0; swap_row < rows; swap_row++) {
+                double temporary = values[
+                    swap_row * columns + pivot_index
+                ];
+                values[swap_row * columns + pivot_index] =
+                    values[swap_row * columns + pivot_column];
+                values[swap_row * columns + pivot_column] = temporary;
+            }
+        }
+
+        {
+            double pivot = values[pivot_index * columns + pivot_index];
+
+            for (row = pivot_index + 1; row < rows; row++) {
+                size_t update_column;
+                double multiplier = values[row * columns + pivot_index] / pivot;
+
+                values[row * columns + pivot_index] = 0.0;
+                for (update_column = pivot_index + 1;
+                     update_column < columns;
+                     update_column++) {
+                    double updated = values[row * columns + update_column] -
+                        multiplier * values[pivot_index * columns + update_column];
+
+                    if (!isfinite(updated)) {
+                        free(values);
+                        return NUMERUS_MATRIX_NON_FINITE;
+                    }
+                    values[row * columns + update_column] = updated;
+                }
+            }
+        }
+
+        rank_result++;
+        pivot_index++;
+    }
+
+    free(values);
+    *rank = rank_result;
+    return NUMERUS_MATRIX_SUCCESS;
+}
