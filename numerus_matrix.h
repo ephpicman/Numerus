@@ -596,6 +596,17 @@ int numerus_matrix_polynomial(
 );
 
 /**
+ * Compute exp(A) using scaling-and-squaring with a degree-13 Padé
+ * approximant. Input must be square and finite; the result is independent
+ * dense Storage. Non-finite intermediate results and solver failures are
+ * reported as statuses, and the output pointer remains NULL on failure.
+ */
+int numerus_matrix_exponential(
+    const numerus_matrix *matrix,
+    numerus_matrix **exponential
+);
+
+/**
  * Compute base raised to a signed integer exponent.
  *
  * Negative exponents invert the square base once, then use exponentiation by
