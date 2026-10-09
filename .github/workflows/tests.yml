@@ -55,7 +55,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_test tests/matrix_test.c numerus_matrix.c numerus_storage.c
+            -o tests/matrix_test tests/matrix_test.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_test
 
       - name: Run native Matrix unary operation tests
@@ -63,7 +63,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_unary_test tests/matrix_unary_test.c numerus_matrix.c numerus_storage.c
+            -o tests/matrix_unary_test tests/matrix_unary_test.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_unary_test
 
       - name: Run native Matrix binary operation tests
@@ -71,7 +71,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_binary_test tests/matrix_binary_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c
+            -o tests/matrix_binary_test tests/matrix_binary_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_binary_test
 
       - name: Run native Matrix Hadamard tests
@@ -79,7 +79,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_hadamard_test tests/matrix_hadamard_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c
+            -o tests/matrix_hadamard_test tests/matrix_hadamard_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_hadamard_test
 
       - name: Run native Matrix division tests
@@ -87,7 +87,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_division_test tests/matrix_division_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c
+            -o tests/matrix_division_test tests/matrix_division_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_division_test
 
       - name: Run native Matrix materialization tests
@@ -95,7 +95,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_materialize_test tests/matrix_materialize_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_storage.c
+            -o tests/matrix_materialize_test tests/matrix_materialize_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_materialize_test
 
       - name: Run native Matrix multiplication tests
@@ -103,7 +103,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_multiply_test tests/matrix_multiply_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_storage.c
+            -o tests/matrix_multiply_test tests/matrix_multiply_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_multiply_test
 
       - name: Run native Matrix scalar division tests
@@ -111,7 +111,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_scalar_division_test tests/matrix_scalar_division_test.c numerus_matrix.c numerus_storage.c
+            -o tests/matrix_scalar_division_test tests/matrix_scalar_division_test.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_scalar_division_test
 
       - name: Run native Matrix comparison tests
@@ -119,7 +119,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_compare_test tests/matrix_compare_test.c numerus_matrix.c numerus_matrix_compare.c numerus_storage.c
+            -o tests/matrix_compare_test tests/matrix_compare_test.c numerus_matrix.c numerus_matrix_compare.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_compare_test
 
       - name: Run native Matrix vector constructor tests
@@ -127,7 +127,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_vector_constructor_test tests/matrix_vector_constructor_test.c numerus_matrix.c numerus_matrix_constructors.c numerus_storage.c
+            -o tests/matrix_vector_constructor_test tests/matrix_vector_constructor_test.c numerus_matrix.c numerus_matrix_constructors.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_vector_constructor_test
 
       - name: Run native Matrix power tests
@@ -135,7 +135,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_power_test tests/matrix_power_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_power.c numerus_storage.c
+            -o tests/matrix_power_test tests/matrix_power_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_power.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_power_test
 
       - name: Run native Matrix Kronecker tests
@@ -143,7 +143,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_kronecker_test tests/matrix_kronecker_test.c numerus_matrix.c numerus_matrix_kronecker.c numerus_storage.c
+            -o tests/matrix_kronecker_test tests/matrix_kronecker_test.c numerus_matrix.c numerus_matrix_kronecker.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_kronecker_test
 
       - name: Run native Matrix slice tests
@@ -151,7 +151,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_slice_test tests/matrix_slice_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+            -o tests/matrix_slice_test tests/matrix_slice_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_slice_test
 
       - name: Run native Matrix selection tests
@@ -159,7 +159,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_selection_test tests/matrix_selection_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+            -o tests/matrix_selection_test tests/matrix_selection_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_selection_test
 
       - name: Run native Matrix reshape tests
@@ -167,7 +167,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_reshape_test tests/matrix_reshape_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+            -o tests/matrix_reshape_test tests/matrix_reshape_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_reshape_test
 
       - name: Run native Matrix padding tests
@@ -175,7 +175,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_padding_test tests/matrix_padding_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+            -o tests/matrix_padding_test tests/matrix_padding_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_padding_test
 
       - name: Run native Matrix repeat tests
@@ -183,7 +183,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_repeat_test tests/matrix_repeat_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+            -o tests/matrix_repeat_test tests/matrix_repeat_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_repeat_test
 
       - name: Run native Matrix block-grid tests
@@ -191,7 +191,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_block_grid_test tests/matrix_block_grid_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+            -o tests/matrix_block_grid_test tests/matrix_block_grid_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_block_grid_test
 
       - name: Run native Matrix diagonal tests
@@ -199,7 +199,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_diagonal_test tests/matrix_diagonal_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+            -o tests/matrix_diagonal_test tests/matrix_diagonal_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_diagonal_test
 
       - name: Run native Matrix permutation tests
@@ -207,7 +207,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_permutation_test tests/matrix_permutation_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+            -o tests/matrix_permutation_test tests/matrix_permutation_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_permutation_test
 
       - name: Run native Matrix LU factorization tests
@@ -223,7 +223,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_determinant_test tests/matrix_determinant_test.c numerus_matrix.c numerus_storage.c
+            -o tests/matrix_determinant_test tests/matrix_determinant_test.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_determinant_test
 
       - name: Run native Matrix trace tests
@@ -231,7 +231,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_trace_test tests/matrix_trace_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm
+            -o tests/matrix_trace_test tests/matrix_trace_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm numerus_matrix_lu.c
           ./tests/matrix_trace_test
 
       - name: Run native Matrix aggregate tests
@@ -239,7 +239,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_aggregate_test tests/matrix_aggregate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm
+            -o tests/matrix_aggregate_test tests/matrix_aggregate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm numerus_matrix_lu.c
           ./tests/matrix_aggregate_test
 
       - name: Run native Matrix norm tests
@@ -247,7 +247,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_norm_test tests/matrix_norm_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm
+            -o tests/matrix_norm_test tests/matrix_norm_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm numerus_matrix_lu.c
           ./tests/matrix_norm_test
 
       - name: Run native Matrix finite-value tests
@@ -255,7 +255,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_finite_test tests/matrix_finite_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm
+            -o tests/matrix_finite_test tests/matrix_finite_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm numerus_matrix_lu.c
           ./tests/matrix_finite_test
 
       - name: Run native Matrix structural predicate tests
@@ -263,7 +263,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_structural_predicate_test tests/matrix_structural_predicate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm
+            -o tests/matrix_structural_predicate_test tests/matrix_structural_predicate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c -lm numerus_matrix_lu.c
           ./tests/matrix_structural_predicate_test
 
       - name: Run non-gating Matrix benchmarks
@@ -273,7 +273,7 @@ jobs:
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free \
-            -o benchmarks/matrix_benchmark benchmarks/matrix_benchmark.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_storage.c
+            -o benchmarks/matrix_benchmark benchmarks/matrix_benchmark.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_storage.c numerus_matrix_lu.c
           ./benchmarks/matrix_benchmark
 
       - name: Run extension tests
