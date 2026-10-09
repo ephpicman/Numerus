@@ -476,7 +476,7 @@ jobs:
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free \
-            -o benchmarks/matrix_benchmark benchmarks/matrix_benchmark.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_analysis.c numerus_matrix_inverse.c numerus_matrix_condition.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o benchmarks/matrix_benchmark benchmarks/matrix_benchmark.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_analysis.c numerus_matrix_inverse.c numerus_matrix_solve.c numerus_matrix_condition.c numerus_storage.c numerus_matrix_lu.c -lm
           ./benchmarks/matrix_benchmark
 
       - name: Run Matrix allocation-failure tests
