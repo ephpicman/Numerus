@@ -768,6 +768,18 @@ numerus_matrix_status numerus_matrix_determinant(
     double *determinant
 );
 
+/**
+ * Compute the trace of a square Matrix.
+ *
+ * Diagonal elements are accumulated in increasing index order using ordinary
+ * double addition. NaN and infinities follow IEEE-754 arithmetic. The output
+ * is unchanged if validation or any element read fails.
+ */
+numerus_matrix_status numerus_matrix_trace(
+    const numerus_matrix *matrix,
+    double *trace
+);
+
 /** Read one Matrix element with validation. */
 numerus_matrix_status numerus_matrix_get(
     const numerus_matrix *matrix,
