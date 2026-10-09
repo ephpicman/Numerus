@@ -39,7 +39,11 @@ typedef enum {
     /** The operation requires a nonsingular Matrix, but numerical rank is deficient. */
     NUMERUS_MATRIX_SINGULAR,
     /** The requested numerical solve requires full column rank, but rank is deficient. */
-    NUMERUS_MATRIX_RANK_DEFICIENT
+    NUMERUS_MATRIX_RANK_DEFICIENT,
+    /** The Matrix is not symmetric within the numerical symmetry tolerance. */
+    NUMERUS_MATRIX_NOT_SYMMETRIC,
+    /** The Matrix is not numerically positive definite. */
+    NUMERUS_MATRIX_NOT_POSITIVE_DEFINITE
 } numerus_matrix_status;
 
 /**
@@ -887,6 +891,19 @@ numerus_matrix_status numerus_matrix_null_space(
     const numerus_matrix *matrix,
     numerus_matrix **basis,
     size_t *nullity
+);
+
+/**
+ * Compute the lower-triangular Cholesky factor L for a symmetric positive-
+ * definite Matrix, so A is approximately L * transpose(L).
+ *
+ * Symmetry is checked relative to the largest absolute input element.
+ * Positive definiteness uses a scale-aware pivot threshold. On failure,
+ * *lower remains NULL.
+ */
+numerus_matrix_status numerus_matrix_cholesky(
+    const numerus_matrix *matrix,
+    numerus_matrix **lower
 );
 
 numerus_matrix_status numerus_matrix_qr_decompose(
