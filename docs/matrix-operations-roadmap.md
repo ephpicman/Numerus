@@ -167,8 +167,8 @@ Exit criteria: independent inverse Storage, explicit singular/error behavior, re
 
 # Phase 6 — Spaces and least squares
 
-- [ ] 6.1 Null space basis. Column-pivoted Householder QR returns a numerical basis, with NULL plus nullity=0 representing the trivial null space. (Implementation proposed in PR #51; merge pending.)
-- [ ] 6.2 Column-space and row-space bases. Define basis orientation and numerical-rank threshold.
+- [x] 6.1 Null space basis. Column-pivoted Householder QR returns a numerical basis; NULL plus nullity=0 represents the trivial null space. (Merged in PR #51.)
+- [ ] 6.2 Column-space and row-space bases. Column basis vectors are columns; row basis vectors are rows. Both use the documented scale-aware numerical-rank threshold. (Implementation proposed in PR #52; merge pending.)
 - [ ] 6.3 Consistency and solution classification. Distinguish inconsistent, unique, and infinitely many solutions.
 - [ ] 6.4 Least-squares solve. Prefer QR for the general path; avoid normal equations as the default because they can worsen conditioning.
 - [ ] 6.5 Weighted least squares. Add after the ordinary least-squares contract is stable.
