@@ -273,6 +273,12 @@ modes; equal infinities compare equal, and positive/negative zero compare equal.
 If a parent read fails, the status is propagated and the caller's boolean
 output is unchanged. Null arguments return `NUMERUS_MATRIX_INVALID_ARGUMENT`.
 
+The explicit `numerus_matrix_all_close()` name is an alias for the same
+all-elements predicate. `numerus_matrix_any_close()` returns true as soon as
+one corresponding pair passes `numerus_double_equals()`; otherwise it scans
+the complete matrix. Shape mismatches return false successfully. Both APIs
+preserve the output boolean if an element read fails.
+
 ## Scalar division
 
 `numerus_matrix_create_divide_scalar(parent, divisor, &result)` returns a lazy
