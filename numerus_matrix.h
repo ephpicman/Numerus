@@ -333,6 +333,26 @@ int numerus_matrix_create_scale(
     numerus_matrix **matrix
 );
 
+/**
+ * Create a lazy view that adds a scalar to every matrix element.
+ * The scalar is copied into the view and IEEE-754 addition semantics apply.
+ */
+int numerus_matrix_create_scalar_add(
+    numerus_matrix *parent,
+    double scalar,
+    numerus_matrix **matrix
+);
+
+/**
+ * Create a lazy view that subtracts a scalar from every matrix element.
+ * This computes A[i,j] - scalar (not scalar - A[i,j]).
+ */
+int numerus_matrix_create_scalar_subtract(
+    numerus_matrix *parent,
+    double scalar,
+    numerus_matrix **matrix
+);
+
 /** Create a lazy unary-negation view. */
 int numerus_matrix_create_negate(
     numerus_matrix *parent,

@@ -131,6 +131,44 @@ static numerus_matrix_status scale_value_transform(
     return NUMERUS_MATRIX_SUCCESS;
 }
 
+static numerus_matrix_status add_scalar_value_transform(
+    size_t row,
+    size_t column,
+    double parent_value,
+    double *result,
+    const void *context
+)
+{
+    const double *scalar = context;
+
+    (void) row;
+    (void) column;
+    if (scalar == NULL || result == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *result = parent_value + *scalar;
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status subtract_scalar_value_transform(
+    size_t row,
+    size_t column,
+    double parent_value,
+    double *result,
+    const void *context
+)
+{
+    const double *scalar = context;
+
+    (void) row;
+    (void) column;
+    if (scalar == NULL || result == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *result = parent_value - *scalar;
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
 static numerus_matrix_status slice_coordinate_transform(
     size_t row,
     size_t column,
@@ -818,6 +856,65 @@ int numerus_matrix_create_negate(
 )
 {
     return numerus_matrix_create_scale(parent, -1.0, matrix);
+}
+
+static numerus_matrix_status create_scalar_transform_view(
+    numerus_matrix *parent,
+    double scalar,
+    numerus_value_transform_fn transform,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix *view = NULL;
+    numerus_matrix_status status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+    if (parent == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    status = numerus_matrix_create_from_parent_with_transforms(
+        parent,
+        numerus_matrix_rows(parent),
+        numerus_matrix_columns(parent),
+        NULL,
+        transform,
+        NULL,
+        &view
+    );
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        return status;
+    }
+
+    view->transform_scalar = scalar;
+    view->transform_context = &view->transform_scalar;
+    *matrix = view;
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+int numerus_matrix_create_scalar_add(
+    numerus_matrix *parent,
+    double scalar,
+    numerus_matrix **matrix
+)
+{
+    return create_scalar_transform_view(
+        parent, scalar, add_scalar_value_transform, matrix
+    );
+}
+
+int numerus_matrix_create_scalar_subtract(
+    numerus_matrix *parent,
+    double scalar,
+    numerus_matrix **matrix
+)
+{
+    return create_scalar_transform_view(
+        parent, scalar, subtract_scalar_value_transform, matrix
+    );
 }
 
 int numerus_matrix_create_selection_view(
