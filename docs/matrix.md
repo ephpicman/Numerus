@@ -357,6 +357,25 @@ It returns `NUMERUS_MATRIX_NOT_SQUARE` for non-square (A),
 `NUMERUS_MATRIX_NON_FINITE` for non-finite inputs or intermediates. On
 failure, the output pointer remains NULL.
 
+## Numerical null-space basis
+
+`numerus_matrix_null_space(A, &basis, &nullity)` returns columns that span
+the numerical null space of A. When nullity is positive, the basis is an
+independent dense Matrix of shape columns(A)-by-nullity. If A has full column
+rank, the null space is trivial: the call succeeds with `basis == NULL` and
+`nullity == 0`. This explicitly represents the empty basis without relaxing
+the Matrix invariant that dimensions are positive.
+
+The implementation uses column-pivoted Householder QR and solves the resulting
+triangular system for each free variable. Numerical rank uses a scale-aware
+threshold based on `NUMERUS_EPSILON`, the largest absolute input value, and
+the larger input dimension. Consequently, the result is a **numerical**
+null-space basis: vectors may have small nonzero residuals for matrices near
+the rank threshold. Tests verify `A*basis` residuals for rectangular,
+rank-deficient, zero, and near-singular inputs. Non-finite values and source
+read failures propagate their status; on failure, the basis is NULL and the
+nullity output is unchanged.
+
 ## Reduced Householder QR decomposition
 
 `numerus_matrix_qr_decompose(A, &Q, &R)` computes a reduced Householder
@@ -829,6 +848,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_qr_test tests/matrix_qr_test.c numerus_matrix_qr.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
 ./tests/matrix_qr_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_null_space_test tests/matrix_null_space_test.c numerus_matrix_null_space.c numerus_matrix_qr.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+./tests/matrix_null_space_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
