@@ -155,6 +155,153 @@ static numerus_matrix_status matrix_is_finite_nonnegative(
     return NUMERUS_MATRIX_SUCCESS;
 }
 
+/*
+ * Try a row-compressed multiplication path for sparse right operands. This
+ * path is only equivalent to the generic loop when both operands are finite
+ * and nonnegative: omitted implicit-zero terms then contribute +0 and cannot
+ * change cancellation or NaN propagation. Scratch-allocation failures fall
+ * back to the generic implementation.
+ */
+static numerus_matrix_status matrix_try_sparse_right_product(
+    const numerus_matrix *left,
+    const numerus_matrix *right,
+    size_t rows,
+    size_t inner_dimension,
+    size_t columns,
+    size_t output_element_count,
+    size_t output_allocation_size,
+    numerus_matrix **matrix,
+    bool *used
+)
+{
+    size_t maximum_entries;
+    size_t row_offset_count;
+    size_t row_offsets_bytes;
+    size_t column_indices_bytes;
+    size_t sparse_values_bytes;
+    size_t *row_offsets = NULL;
+    size_t *column_indices = NULL;
+    double *sparse_values = NULL;
+    double *output = NULL;
+    size_t nonzero_count = 0;
+    size_t row;
+    size_t column;
+    size_t inner;
+    bool eligible;
+    numerus_matrix_status status;
+
+    *used = false;
+    if (rows < 2 ||
+        numerus_matrix_storage_kind(right) != NUMERUS_STORAGE_SPARSE) {
+        return NUMERUS_MATRIX_SUCCESS;
+    }
+
+    status = matrix_is_finite_nonnegative(left, &eligible);
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        return status;
+    }
+    if (!eligible) {
+        return NUMERUS_MATRIX_SUCCESS;
+    }
+
+    if (inner_dimension == SIZE_MAX ||
+        !numerus_size_multiply(inner_dimension, columns, &maximum_entries) ||
+        !numerus_size_multiply(
+            inner_dimension + 1, sizeof(*row_offsets), &row_offsets_bytes
+        ) ||
+        !numerus_size_multiply(
+            maximum_entries, sizeof(*column_indices), &column_indices_bytes
+        ) ||
+        !numerus_size_multiply(
+            maximum_entries, sizeof(*sparse_values), &sparse_values_bytes
+        )) {
+        return NUMERUS_MATRIX_SUCCESS;
+    }
+
+    row_offsets = numerus_multiply_alloc(row_offsets_bytes);
+    column_indices = numerus_multiply_alloc(column_indices_bytes);
+    sparse_values = numerus_multiply_alloc(sparse_values_bytes);
+    if (row_offsets == NULL || column_indices == NULL || sparse_values == NULL) {
+        goto fallback;
+    }
+
+    for (inner = 0; inner < inner_dimension; inner++) {
+        row_offsets[inner] = nonzero_count;
+        for (column = 0; column < columns; column++) {
+            double value;
+
+            status = numerus_matrix_get(right, inner, column, &value);
+            if (status != NUMERUS_MATRIX_SUCCESS) {
+                goto error;
+            }
+            if (!isfinite(value) || value < 0.0 ||
+                (value == 0.0 && signbit(value))) {
+                goto fallback;
+            }
+            if (value != 0.0) {
+                column_indices[nonzero_count] = column;
+                sparse_values[nonzero_count] = value;
+                nonzero_count++;
+            }
+        }
+    }
+    row_offsets[inner_dimension] = nonzero_count;
+
+    if (nonzero_count > maximum_entries / 4) {
+        goto fallback;
+    }
+
+    output = numerus_multiply_alloc(output_allocation_size);
+    if (output == NULL) {
+        goto fallback;
+    }
+    for (row = 0; row < output_element_count; row++) {
+        output[row] = 0.0;
+    }
+
+    for (row = 0; row < rows; row++) {
+        for (inner = 0; inner < inner_dimension; inner++) {
+            double left_value;
+
+            status = numerus_matrix_get(left, row, inner, &left_value);
+            if (status != NUMERUS_MATRIX_SUCCESS) {
+                goto error;
+            }
+            for (size_t entry = row_offsets[inner];
+                 entry < row_offsets[inner + 1];
+                 entry++) {
+                output[row * columns + column_indices[entry]] +=
+                    left_value * sparse_values[entry];
+            }
+        }
+    }
+
+    status = numerus_matrix_create_dense(rows, columns, output, matrix);
+    numerus_multiply_free(output);
+    numerus_multiply_free(sparse_values);
+    numerus_multiply_free(column_indices);
+    numerus_multiply_free(row_offsets);
+    if (status == NUMERUS_MATRIX_SUCCESS) {
+        *used = true;
+    }
+    return status;
+
+fallback:
+    numerus_multiply_free(output);
+    numerus_multiply_free(sparse_values);
+    numerus_multiply_free(column_indices);
+    numerus_multiply_free(row_offsets);
+    *used = false;
+    return NUMERUS_MATRIX_SUCCESS;
+
+error:
+    numerus_multiply_free(output);
+    numerus_multiply_free(sparse_values);
+    numerus_multiply_free(column_indices);
+    numerus_multiply_free(row_offsets);
+    return status;
+}
+
 /**
  * Compute a materialized matrix product using the standard triple loop.
  *
@@ -241,6 +388,16 @@ int numerus_matrix_multiply(
             if (status != NUMERUS_MATRIX_SUCCESS) return status;
             if (eligible) return create_dense_zero_result(rows, columns, matrix);
         }
+    }
+
+    {
+        bool used;
+        status = matrix_try_sparse_right_product(
+            left, right, rows, inner_dimension, columns,
+            element_count, allocation_size, matrix, &used
+        );
+        if (status != NUMERUS_MATRIX_SUCCESS) return status;
+        if (used) return NUMERUS_MATRIX_SUCCESS;
     }
 
     values = numerus_multiply_alloc(allocation_size);
