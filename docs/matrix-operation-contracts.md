@@ -93,6 +93,8 @@ own or destroy the cache entry itself. Cache population is best-effort: if the
 extra cache allocation fails, the already-computed inverse still succeeds.
 Destroying the source Matrix destroys its cache. As with existing mutable
 structural/determinant caches, concurrent cache population is not thread-safe.
-The cache adds O(n²) retained memory per Matrix that has been inverted; use the
-benchmark's cold-vs-hit comparison when deciding whether to keep or revise this
-policy.
+The cache retains at most 64 KiB of inverse element payload per Matrix; larger
+inverses are returned normally but are not retained. This bounds each entry,
+though total cache memory still scales with the number of eligible Matrix
+instances. Use the benchmark's cold-vs-hit comparison when deciding whether to
+keep or revise this policy.
