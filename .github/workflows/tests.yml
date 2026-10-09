@@ -463,6 +463,23 @@ jobs:
             -o benchmarks/matrix_benchmark benchmarks/matrix_benchmark.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_analysis.c numerus_matrix_inverse.c numerus_matrix_condition.c numerus_storage.c numerus_matrix_lu.c -lm
           ./benchmarks/matrix_benchmark
 
+      - name: Run Matrix algebra property tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_property_test tests/matrix_property_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c -lm
+          ./tests/matrix_property_test
+
+      - name: Run Matrix algebra properties with AddressSanitizer and UBSan
+        run: |
+          cc -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_property_sanitized tests/matrix_property_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c -lm
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/matrix_property_sanitized
+
       - name: Run extension tests
         run: make test TESTS='tests/*.phpt'
 
