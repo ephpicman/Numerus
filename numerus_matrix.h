@@ -37,7 +37,9 @@ typedef enum {
     /** A numerical analysis cannot classify non-finite input or intermediate values. */
     NUMERUS_MATRIX_NON_FINITE,
     /** The operation requires a nonsingular Matrix, but numerical rank is deficient. */
-    NUMERUS_MATRIX_SINGULAR
+    NUMERUS_MATRIX_SINGULAR,
+    /** The requested numerical solve requires full column rank, but rank is deficient. */
+    NUMERUS_MATRIX_RANK_DEFICIENT
 } numerus_matrix_status;
 
 /**
@@ -909,6 +911,21 @@ numerus_matrix_status numerus_matrix_classify_system(
     const numerus_matrix *matrix,
     const numerus_matrix *right_hand_side,
     numerus_matrix_solution_kind *classification
+);
+
+/**
+ * Solve the least-squares problem min_X ||A X - B||_2 using pivoted QR.
+ *
+ * Requires A to have full column rank; supports overdetermined and square
+ * systems, and multiple right-hand-side columns. The result is a dense
+ * columns(A)-by-columns(B) Matrix. Rank-deficient or underdetermined inputs
+ * return NUMERUS_MATRIX_RANK_DEFICIENT; no normal equations or inverse are
+ * formed. On failure, *solution remains NULL.
+ */
+numerus_matrix_status numerus_matrix_least_squares(
+    const numerus_matrix *matrix,
+    const numerus_matrix *right_hand_side,
+    numerus_matrix **solution
 );
 
 numerus_matrix_status numerus_matrix_solve(
