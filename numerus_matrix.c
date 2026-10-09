@@ -50,6 +50,10 @@ struct numerus_matrix {
     size_t transform_parent_columns;
     size_t *selection_indices;
     numerus_matrix_selection_axis selection_axis;
+    bool padding_view;
+    size_t padding_top;
+    size_t padding_left;
+    double padding_value;
 };
 
 static numerus_matrix_status identity_coordinate_transform(
@@ -904,6 +908,55 @@ int numerus_matrix_create_reshape_view(
     return NUMERUS_MATRIX_SUCCESS;
 }
 
+int numerus_matrix_create_padding_view(
+    numerus_matrix *parent,
+    size_t top,
+    size_t bottom,
+    size_t left,
+    size_t right,
+    double value,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix *view = NULL;
+    size_t rows_with_top;
+    size_t rows;
+    size_t columns_with_left;
+    size_t columns;
+    numerus_matrix_status status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+
+    if (parent == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    if (!numerus_size_add(numerus_matrix_rows(parent), top, &rows_with_top) ||
+        !numerus_size_add(rows_with_top, bottom, &rows) ||
+        !numerus_size_add(numerus_matrix_columns(parent), left, &columns_with_left) ||
+        !numerus_size_add(columns_with_left, right, &columns)) {
+        return NUMERUS_MATRIX_OVERFLOW;
+    }
+
+    status = numerus_matrix_create_from_parent_with_transforms(
+        parent, rows, columns, NULL, NULL, NULL, &view
+    );
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        return status;
+    }
+
+    view->padding_view = true;
+    view->padding_top = top;
+    view->padding_left = left;
+    view->padding_value = value;
+    *matrix = view;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
 int numerus_matrix_create_slice_view(
     numerus_matrix *parent,
     size_t row_start,
@@ -1626,6 +1679,33 @@ numerus_matrix_status numerus_matrix_get_unchecked(
 {
     if (matrix == NULL || value == NULL) {
         return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    if (matrix->padding_view) {
+        size_t parent_row;
+        size_t parent_column;
+
+        if (matrix->parent == NULL) {
+            return NUMERUS_MATRIX_INVALID_ARGUMENT;
+        }
+
+        if (row < matrix->padding_top || column < matrix->padding_left) {
+            *value = matrix->padding_value;
+            return NUMERUS_MATRIX_SUCCESS;
+        }
+
+        parent_row = row - matrix->padding_top;
+        parent_column = column - matrix->padding_left;
+
+        if (parent_row >= numerus_matrix_rows(matrix->parent) ||
+            parent_column >= numerus_matrix_columns(matrix->parent)) {
+            *value = matrix->padding_value;
+            return NUMERUS_MATRIX_SUCCESS;
+        }
+
+        return numerus_matrix_get(
+            matrix->parent, parent_row, parent_column, value
+        );
     }
 
     if (matrix->parent2 != NULL &&
