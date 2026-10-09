@@ -96,7 +96,7 @@ static void test_validation_and_overflow(void)
     numerus_matrix *grid = NULL;
     numerus_matrix *valid_blocks[] = {NULL, NULL};
     numerus_matrix *bad_height_blocks[] = {NULL, NULL};
-    numerus_matrix *bad_width_blocks[] = {NULL, NULL};
+    numerus_matrix *bad_width_blocks[] = {NULL, NULL, NULL, NULL};
     numerus_matrix *missing_blocks[] = {NULL, NULL};
 
     assert(numerus_matrix_create_dense(1, 2, values, &a) ==
@@ -113,7 +113,9 @@ static void test_validation_and_overflow(void)
     bad_height_blocks[0] = a;
     bad_height_blocks[1] = wrong_height;
     bad_width_blocks[0] = a;
-    bad_width_blocks[1] = wrong_width;
+    bad_width_blocks[1] = b;
+    bad_width_blocks[2] = a;
+    bad_width_blocks[3] = wrong_width;
     missing_blocks[0] = a;
     missing_blocks[1] = NULL;
 
@@ -126,7 +128,7 @@ static void test_validation_and_overflow(void)
     ) == NUMERUS_MATRIX_DIMENSION_MISMATCH);
     assert(grid == NULL);
     assert(numerus_matrix_create_block_grid(
-        bad_width_blocks, 1, 2, &grid
+        bad_width_blocks, 2, 2, &grid
     ) == NUMERUS_MATRIX_DIMENSION_MISMATCH);
     assert(grid == NULL);
     assert(numerus_matrix_create_block_grid(
