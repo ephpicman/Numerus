@@ -22,6 +22,10 @@ numerus_matrix_status numerus_matrix_lu_factorize(
     numerus_matrix_lu_factorization **factorization
 );
 
+numerus_matrix_status numerus_matrix_lu_retain(
+    numerus_matrix_lu_factorization *factorization
+);
+
 void numerus_matrix_lu_destroy(numerus_matrix_lu_factorization *factorization);
 
 /** Return factorization dimension, or zero for NULL. */
