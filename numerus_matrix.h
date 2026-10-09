@@ -12,6 +12,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #include "numerus_storage.h"
 
@@ -474,6 +475,19 @@ int numerus_matrix_create_column_vector(
 int numerus_matrix_power(
     const numerus_matrix *base,
     size_t exponent,
+    numerus_matrix **matrix
+);
+
+/**
+ * Compute base raised to a signed integer exponent.
+ *
+ * Negative exponents invert the square base once, then use exponentiation by
+ * squaring. A singular or numerically singular base returns
+ * NUMERUS_MATRIX_SINGULAR. The output is NULL on failure.
+ */
+int numerus_matrix_power_signed(
+    const numerus_matrix *base,
+    int64_t exponent,
     numerus_matrix **matrix
 );
 
