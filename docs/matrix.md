@@ -316,6 +316,15 @@ context only needs to remain valid during the call. If a source read or callback
 fails, the partial buffer is discarded and the output pointer remains NULL.
 Callbacks must not mutate the source or depend on mutable external state.
 
+## Variance and standard deviation
+
+`numerus_matrix_variance(matrix, sample, &result)` computes population variance
+when `sample=false`, and unbiased sample variance when `sample=true`.
+`numerus_matrix_standard_deviation()` returns the square root of the same
+quantity. Both use a one-pass Welford accumulation in row-major order, reject
+non-finite inputs/intermediates, and leave outputs unchanged on failure.
+Sample statistics require at least two elements.
+
 ## Normalization
 
 `numerus_matrix_create_normalized(source, axis, norm, &result)` returns an
