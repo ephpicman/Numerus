@@ -780,6 +780,69 @@ numerus_matrix_status numerus_matrix_trace(
     double *trace
 );
 
+/**
+ * Compute the sum of all elements using row-major double accumulation.
+ * NaN and infinities follow IEEE-754 arithmetic; output is unchanged on error.
+ */
+numerus_matrix_status numerus_matrix_sum(
+    const numerus_matrix *matrix,
+    double *sum
+);
+
+/**
+ * Compute the minimum element. If any element is NaN, the result is NaN.
+ * Output is unchanged if an element read fails.
+ */
+numerus_matrix_status numerus_matrix_min(
+    const numerus_matrix *matrix,
+    double *minimum
+);
+
+/**
+ * Compute the maximum element. If any element is NaN, the result is NaN.
+ * Output is unchanged if an element read fails.
+ */
+numerus_matrix_status numerus_matrix_max(
+    const numerus_matrix *matrix,
+    double *maximum
+);
+
+/** Compute the arithmetic mean using row-major sum divided by element count. */
+numerus_matrix_status numerus_matrix_mean(
+    const numerus_matrix *matrix,
+    double *mean
+);
+
+/**
+ * Return per-row sums as an independent rows×1 dense Matrix.
+ * NaN and infinities follow IEEE-754 arithmetic.
+ */
+numerus_matrix_status numerus_matrix_row_sums(
+    const numerus_matrix *matrix,
+    numerus_matrix **sums
+);
+
+/**
+ * Return per-column sums as an independent 1×columns dense Matrix.
+ * NaN and infinities follow IEEE-754 arithmetic.
+ */
+numerus_matrix_status numerus_matrix_column_sums(
+    const numerus_matrix *matrix,
+    numerus_matrix **sums
+);
+
+/** Return per-row arithmetic means as an independent rows×1 dense Matrix. */
+numerus_matrix_status numerus_matrix_row_means(
+    const numerus_matrix *matrix,
+    numerus_matrix **means
+);
+
+/** Return per-column arithmetic means as an independent 1×columns dense Matrix. */
+numerus_matrix_status numerus_matrix_column_means(
+    const numerus_matrix *matrix,
+    numerus_matrix **means
+);
+
 /** Read one Matrix element with validation. */
 numerus_matrix_status numerus_matrix_get(
     const numerus_matrix *matrix,
