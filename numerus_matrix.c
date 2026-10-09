@@ -1118,7 +1118,10 @@ int numerus_matrix_create_block_grid_view(
         for (column = 1; column < block_column_count; column++) {
             numerus_matrix *block = blocks[row * block_column_count + column];
 
-            if (block == NULL || numerus_matrix_rows(block) != block_height) {
+            if (block == NULL) {
+                return NUMERUS_MATRIX_INVALID_ARGUMENT;
+            }
+            if (numerus_matrix_rows(block) != block_height) {
                 return NUMERUS_MATRIX_DIMENSION_MISMATCH;
             }
         }
@@ -1141,7 +1144,10 @@ int numerus_matrix_create_block_grid_view(
         for (row = 1; row < block_row_count; row++) {
             numerus_matrix *block = blocks[row * block_column_count + column];
 
-            if (block == NULL || numerus_matrix_columns(block) != block_width) {
+            if (block == NULL) {
+                return NUMERUS_MATRIX_INVALID_ARGUMENT;
+            }
+            if (numerus_matrix_columns(block) != block_width) {
                 return NUMERUS_MATRIX_DIMENSION_MISMATCH;
             }
         }
