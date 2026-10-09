@@ -243,58 +243,58 @@ This inventory captures the broader feature set discussed for Numerus. It is not
 
 ### Arithmetic and element-wise
 - [x] Element-wise minimum, maximum, and clamp (Phase 9.1).
-- [ ] Addition and subtraction
+- [x] Addition and subtraction (Phase 1)
 - [ ] Scalar addition/subtraction (if useful; distinguish from matrix-wide scalar transform)
-- [ ] Scalar multiplication and division
-- [ ] Unary negation
-- [ ] Matrix multiplication
-- [ ] Hadamard product
-- [ ] Element-wise division
+- [x] Scalar multiplication and division (Phases 1 and 2)
+- [x] Unary negation (Phase 2)
+- [x] Matrix multiplication (Phase 1)
+- [x] Hadamard product (Phase 1)
+- [x] Element-wise division (Phase 1)
 - [x] Exact equality and approximate equality, including all-close and any-close predicates
-- [ ] Non-negative and negative integer matrix powers
+- [x] Non-negative and negative integer matrix powers (Phases 1 and 8)
 - [x] Kronecker product and Kronecker sum (Phase 9.6)
 - [x] Matrix polynomial (Phase 9.7)
 
 ### Structural and assembly
 - [x] Transpose, row/column flips, rotations, row/column removal and swaps, horizontal/vertical joins (already implemented)
-- [ ] Slice/submatrix
-- [ ] Row/column extraction and selection
-- [ ] Reshape/flatten
-- [ ] Padding/zero extension
-- [ ] Repetition/block assembly
-- [ ] Main and offset diagonal extraction
-- [ ] Row/column permutation
+- [x] Slice/submatrix (Phase 2)
+- [x] Row/column extraction and selection (Phase 2)
+- [x] Reshape/flatten (Phase 2)
+- [x] Padding/zero extension (Phase 2)
+- [x] Repetition/block assembly (Phase 2)
+- [x] Main and offset diagonal extraction (Phase 2)
+- [x] Row/column permutation (Phase 2)
 
 ### Scalar analyses and predicates
 - [x] Determinant (already implemented)
-- [ ] Trace
-- [ ] Rank and numerical rank
-- [ ] Norms (Frobenius, 1, infinity, spectral)
-- [ ] Condition number/condition estimate
-- [ ] Sum, mean, min, max, variance, standard deviation
-- [ ] Row/column aggregates
+- [x] Trace (Phase 3)
+- [x] Rank and numerical rank (Phase 4)
+- [x] Norms (Frobenius, 1, infinity, spectral) (Phases 3 and 8)
+- [x] Condition number/condition estimate (Phase 5)
+- [x] Sum, mean, min, max, variance, standard deviation (Phases 3 and 9)
+- [x] Row/column aggregates (Phase 3)
 - [x] Zero/identity/diagonal/triangular/symmetric flags (already implemented)
-- [ ] Skew-symmetric and orthogonal predicates
-- [ ] Finite/NaN/infinity checks
+- [x] Skew-symmetric and orthogonal predicates (Phase 3)
+- [x] Finite/NaN/infinity checks (Phase 3)
 - [ ] Positive-definite and positive-semidefinite classification
 
 ### Elimination, solving, and spaces
-- [ ] Gaussian elimination
-- [ ] Gauss–Jordan elimination
-- [ ] REF/RREF
-- [ ] LU factorization with partial pivoting
-- [ ] Solve square systems and multiple right-hand sides
-- [ ] Consistency and solution classification
-- [ ] Null space, column space, row space
-- [ ] Least squares and weighted least squares
-- [ ] Moore–Penrose pseudoinverse
+- [x] Gaussian elimination (Phase 4)
+- [x] Gauss–Jordan elimination (Phase 4)
+- [x] REF/RREF (Phase 4)
+- [x] LU factorization with partial pivoting (Phase 4)
+- [x] Solve square systems and multiple right-hand sides (Phase 5)
+- [x] Consistency and solution classification (Phase 6)
+- [x] Null space, column space, row space (Phase 6)
+- [x] Least squares and weighted least squares (Phase 6)
+- [x] Moore–Penrose pseudoinverse (Phase 6)
 
 ### Decompositions and spectral operations
-- [ ] QR
-- [ ] Cholesky
-- [ ] LDLᵀ
-- [ ] SVD
-- [ ] Eigenvalues/eigenvectors (real-only contract must be explicit)
+- [x] QR (Phase 7)
+- [x] Cholesky (Phase 7)
+- [x] LDLᵀ (Phase 7)
+- [x] SVD (Phase 7)
+- [x] Symmetric real eigenvalues/eigenvectors (Phase 8); general real-matrix eigenvalues remain deferred
 - [ ] Schur
 - [ ] Hessenberg and bidiagonal reductions
 - [ ] Polar decomposition
@@ -304,7 +304,7 @@ This inventory captures the broader feature set discussed for Numerus. It is not
 
 ### Constructors and specialized representations
 - [x] Zero, identity, constant, diagonal, triangular, symmetric, sparse, and banded constructors (already implemented)
-- [ ] Random matrices (deterministic seed contract required for reproducibility)
+- [ ] Random matrices (no current consumer; deterministic seed contract required)
 - [ ] Permutation, Vandermonde, Toeplitz, Hankel, Hilbert
 - [ ] Storage-aware dense/sparse/diagonal/triangular algorithms
 - [ ] General tensors (separate abstraction; out of Matrix scope)
@@ -319,6 +319,6 @@ This inventory captures the broader feature set discussed for Numerus. It is not
 - Implementing advanced operations without stable foundational algorithms and tests
 - Claiming numerical stability solely because an algorithm passes ordinary small-integer examples
 
-## 7. Immediate next PR
+## 7. Current execution status
 
-Start with Phase 0.1–0.3 and keep the PR narrow: define operation contracts, settle status semantics for numerical failures, and audit checked dimension/allocation arithmetic. Do not begin all arithmetic functions in one PR. Once the contracts are merged and CI is green, proceed to Phase 1 in the listed order.
+Phases 0–10 are implemented to the extent explicitly marked above; deferred items are intentional non-goals until a concrete consumer or benchmark justifies them. The remaining release gate is Phase 11 (hardening and release quality). Do not restart Phase 0 or treat the full operation inventory as a second, independent backlog. Update this roadmap as Phase 11 work is completed, and do not mark a task complete without corresponding implementation, tests, documentation, and green CI where applicable.
