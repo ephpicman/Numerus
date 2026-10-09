@@ -115,7 +115,7 @@ Some capabilities already exist. Reuse them; do not reimplement existing behavio
 
 - [x] 2.1 Slice and submatrix views. Rectangular ranges use strict zero-based bounds and positive result dimensions. (Merged in PR #25.)
 - [x] 2.2 Row/column extraction and selection. Single rows/columns are supported by a one-element index list; arbitrary lists preserve order and allow duplicates. (Merged in PR #26.)
-- [x] 2.3 Reshape and flatten views. Preserve row-major traversal order; require element counts to match and guard multiplication overflow. (Implemented in PR #27.)
+- [x] 2.3 Reshape and flatten views. Preserve row-major traversal order; require element counts to match and guard multiplication overflow. (Merged in PR #27.)
 - [ ] 2.4 Padding and zero extension. Lazy coordinate mapping when outside-parent values are constant; otherwise use suitable specialized Storage.
 - [ ] 2.5 Repetition and block matrices. Validate compatible block dimensions and all output-size arithmetic.
 - [ ] 2.6 General block assembly. Extend joins only after contracts for empty/missing blocks are explicit; preserve lazy parents where useful.
