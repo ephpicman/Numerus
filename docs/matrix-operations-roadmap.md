@@ -141,10 +141,10 @@ Exit criteria: documented semantics for NaN/infinity and approximate predicates;
 
 # Phase 4 — Determinant, rank, and foundational elimination
 
-- [x] 4.1 Determinant contract and edge cases. Singular, pivoting, triangular, zero, identity, small/large-scale, and near-singular cases are covered. (Merged in PR #40.) (Regression coverage proposed; merge pending.)
-- [ ] 4.2 Factorization infrastructure. Design reusable internal work buffers and pivot arrays without exposing mutable matrix data. (Implemented with LU in PR; merge pending.)
-- [ ] 4.3 LU with partial pivoting. Use an internal factorization/result structure with explicit permutation and lifetime rules. Test reconstruction PA ≈ LU. (Implemented in PR; merge pending.)
-- [ ] 4.4 Reuse LU for determinant. Use LU when it improves reuse/clarity, retaining specialized paths when demonstrably better.
+- [x] 4.1 Determinant contract and edge cases. Singular, pivoting, triangular, zero, identity, small/large-scale, and near-singular cases are covered. (Merged in PR #40.)
+- [x] 4.2 Factorization infrastructure. Reusable owned work buffers and pivot arrays are isolated behind a private read-only interface. (Merged in PR #41.)
+- [x] 4.3 LU with partial pivoting. Private factorization exposes permutation and L/U accessors; reconstruction tests verify PA ≈ LU. (Merged in PR #41.)
+- [ ] 4.4 Reuse LU for determinant. Use LU when it improves reuse/clarity, retaining specialized paths when demonstrably better. (Implementation proposed; merge pending.)
 - [ ] 4.5 Numerical rank. Implement via stable factorization/QR or SVD with scale-aware threshold semantics. Do not equate fixed absolute epsilon with numerical rank.
 - [ ] 4.6 REF and RREF. Use independent work buffers; document pivot tolerance and result representation. Materialize the result.
 - [ ] 4.7 Gaussian elimination and Gauss–Jordan. Reuse pivoting infrastructure; test row swaps, zero pivots, rank-deficient cases, and rectangular matrices where applicable.

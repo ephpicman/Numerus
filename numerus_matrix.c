@@ -1,6 +1,7 @@
 #include "numerus_matrix_internal.h"
 #include "numerus_size.h"
 #include "numerus_numeric.h"
+#include "numerus_matrix_lu.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -2523,9 +2524,10 @@ numerus_matrix_status numerus_matrix_determinant(
     double *determinant
 )
 {
-    size_t size, element_count, allocation_size, row, column;
-    double result = 1.0, *values;
-    int sign = 1;
+    size_t size;
+    size_t index;
+    double result = 1.0;
+    numerus_matrix_lu_factorization *factorization = NULL;
     numerus_matrix_status status;
 
     if (matrix == NULL || determinant == NULL) {
@@ -2570,71 +2572,33 @@ numerus_matrix_status numerus_matrix_determinant(
         }
     }
 
-    if (!numerus_size_multiply(size, size, &element_count) ||
-        !numerus_size_multiply(element_count, sizeof(*values), &allocation_size)) {
+    status = numerus_matrix_lu_factorize(matrix, &factorization);
+    if (status != NUMERUS_MATRIX_SUCCESS) {
         matrix->determinant_state = 0;
-        return NUMERUS_MATRIX_OVERFLOW;
-    }
-    values = numerus_matrix_alloc(allocation_size);
-    if (values == NULL) {
-        matrix->determinant_state = 0;
-        return NUMERUS_MATRIX_OUT_OF_MEMORY;
+        return status;
     }
 
-    for (row = 0; row < size; row++) {
-        for (column = 0; column < size; column++) {
-            status = numerus_matrix_get(
-                matrix, row, column, &values[row * size + column]
+    if (numerus_matrix_lu_rank(factorization) < size) {
+        result = 0.0;
+    } else {
+        result = (double) numerus_matrix_lu_permutation_sign(factorization);
+        for (index = 0; index < size; index++) {
+            double diagonal_value;
+
+            status = numerus_matrix_lu_get_upper(
+                factorization, index, index, &diagonal_value
             );
             if (status != NUMERUS_MATRIX_SUCCESS) {
-                numerus_matrix_free(values);
+                numerus_matrix_lu_destroy(factorization);
                 matrix->determinant_state = 0;
                 return status;
             }
+
+            result *= diagonal_value;
         }
     }
 
-    for (column = 0; column < size; column++) {
-        size_t pivot_row = column, candidate_row;
-        double pivot_magnitude = values[column * size + column];
-        if (pivot_magnitude < 0.0) pivot_magnitude = -pivot_magnitude;
-        for (candidate_row = column + 1; candidate_row < size; candidate_row++) {
-            double magnitude = values[candidate_row * size + column];
-            if (magnitude < 0.0) magnitude = -magnitude;
-            if (magnitude > pivot_magnitude) {
-                pivot_magnitude = magnitude;
-                pivot_row = candidate_row;
-            }
-        }
-        if (values[pivot_row * size + column] == 0.0) {
-            result = 0.0;
-            break;
-        }
-        if (pivot_row != column) {
-            size_t swap_column;
-            for (swap_column = 0; swap_column < size; swap_column++) {
-                double temporary = values[column * size + swap_column];
-                values[column * size + swap_column] =
-                    values[pivot_row * size + swap_column];
-                values[pivot_row * size + swap_column] = temporary;
-            }
-            sign = -sign;
-        }
-        {
-            double pivot = values[column * size + column];
-            result *= pivot;
-            for (row = column + 1; row < size; row++) {
-                double factor = values[row * size + column] / pivot;
-                for (candidate_row = column + 1;
-                     candidate_row < size; candidate_row++) {
-                    values[row * size + candidate_row] -=
-                        factor * values[column * size + candidate_row];
-                }
-            }
-        }
-    }
-    numerus_matrix_free(values);
-    if (sign < 0) result = -result;
+    numerus_matrix_lu_destroy(factorization);
 
 cache_result:
     matrix->cached_determinant = result;
