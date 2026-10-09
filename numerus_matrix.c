@@ -7,6 +7,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define NUMERUS_MATRIX_INVERSE_CACHE_MAX_BYTES (64U * 1024U)
+
 enum {
     NUMERUS_MATRIX_FLAG_SQUARE = UINT32_C(1) << 0,
     NUMERUS_MATRIX_FLAG_ZERO = UINT32_C(1) << 1,
@@ -2767,11 +2769,21 @@ void numerus_matrix_store_inverse_cache(
 )
 {
     numerus_matrix *mutable_matrix;
+    size_t element_count;
+    size_t value_bytes;
 
     if (inverse == NULL) {
         return;
     }
-    if (matrix == NULL) {
+    if (matrix == NULL ||
+        !numerus_size_multiply(
+            numerus_matrix_rows(matrix), numerus_matrix_columns(matrix),
+            &element_count
+        ) ||
+        !numerus_size_multiply(
+            element_count, sizeof(double), &value_bytes
+        ) ||
+        value_bytes > NUMERUS_MATRIX_INVERSE_CACHE_MAX_BYTES) {
         numerus_matrix_destroy(inverse);
         return;
     }
