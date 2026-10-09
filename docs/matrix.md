@@ -53,6 +53,20 @@ by Storage and are not retained.
 Dimensions must be positive. Constructors that use square-only representations
 return `NUMERUS_MATRIX_NOT_SQUARE` when rows and columns differ.
 
+## Range slices
+
+`numerus_matrix_create_slice(parent, row_start, row_count, column_start,
+column_count, &result)` creates a lazy rectangular view using zero-based
+coordinates. Row and column counts must be positive. The complete requested
+range must fit within the parent; an invalid range returns
+`NUMERUS_MATRIX_OUT_OF_BOUNDS`, while a zero count or null argument returns
+`NUMERUS_MATRIX_INVALID_ARGUMENT`.
+
+Slices compose with other views, including nested slices. The coordinate
+offsets are stored in the slice itself, not in a caller-owned stack context.
+The parent remains non-owning and must outlive the slice. Read errors from
+the parent propagate without changing the caller's output value.
+
 ## Vector-shaped constructors
 
 `numerus_matrix_create_row_vector(length, values, &matrix)` creates a dense
@@ -340,9 +354,9 @@ determinism requirements.
 
 The native Matrix tests cover storage-backed constructors, orientation
 transforms, row/column removal and swaps, composed views, lazy scalar
-multiplication, powers, Kronecker products, scalar division, exact/approximate
-equality, vector constructors, element-wise arithmetic, nested-view
-materialization, overflow/read-failure handling, and cached structural flags.
+multiplication, powers, Kronecker products, range slices and nested views,
+scalar division, exact/approximate equality, vector constructors, element-wise
+arithmetic, materialization, overflow/read-failure handling, and structural flags.
 
 Run them from the repository root:
 
@@ -418,6 +432,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_kronecker_test tests/matrix_kronecker_test.c numerus_matrix.c numerus_matrix_kronecker.c numerus_storage.c
 ./tests/matrix_kronecker_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_slice_test tests/matrix_slice_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+./tests/matrix_slice_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds
