@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define NUMERUS_MATRIX_INVERSE_CACHE_MAX_BYTES (64U * 1024U)
+#define NUMERUS_MATRIX_CACHE_MAX_BYTES (64U * 1024U)
 
 enum {
     NUMERUS_MATRIX_FLAG_SQUARE = UINT32_C(1) << 0,
@@ -2740,8 +2740,8 @@ numerus_storage_kind numerus_matrix_storage_kind(
  */
 
 /*
- * The inverse cache owns a bounded copy of dense values. The cache is logically
- * transparent, contains no parent references, and is destroyed with its owner.
+ * Numerical caches own bounded values/factorizations, contain no parent
+ * references, and are destroyed with their owner.
  * Cache population is not thread-safe; concurrent mutation of one Matrix's
  * lazy caches is outside the current API contract.
  */
@@ -2779,7 +2779,7 @@ void numerus_matrix_store_inverse_cache(
     if (matrix == NULL || values == NULL ||
         !numerus_size_multiply(matrix->rows, matrix->columns, &element_count) ||
         !numerus_size_multiply(element_count, sizeof(*values), &value_bytes) ||
-        value_bytes > NUMERUS_MATRIX_INVERSE_CACHE_MAX_BYTES) {
+        value_bytes > NUMERUS_MATRIX_CACHE_MAX_BYTES) {
         return;
     }
 
@@ -2868,7 +2868,7 @@ void numerus_matrix_store_lu_cache(
         !numerus_size_multiply(element_count, sizeof(double), &values_bytes) ||
         !numerus_size_multiply(matrix->rows, sizeof(size_t), &permutation_bytes) ||
         !numerus_size_add(values_bytes, permutation_bytes, &total_bytes) ||
-        total_bytes > NUMERUS_MATRIX_INVERSE_CACHE_MAX_BYTES) {
+        total_bytes > NUMERUS_MATRIX_CACHE_MAX_BYTES) {
         return;
     }
 
@@ -2894,6 +2894,7 @@ void numerus_matrix_destroy(numerus_matrix *matrix)
         numerus_storage_destroy(matrix->storage);
     }
 
+    numerus_matrix_lu_destroy(matrix->cached_lu_factorization);
     numerus_matrix_lu_destroy(matrix->cached_lu_factorization);
     numerus_matrix_free(matrix->cached_inverse_values);
     numerus_matrix_free(matrix->selection_indices);
