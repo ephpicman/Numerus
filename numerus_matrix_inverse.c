@@ -160,11 +160,7 @@ numerus_matrix_status numerus_matrix_inverse(
     );
     free(values);
     if (status == NUMERUS_MATRIX_SUCCESS) {
-        numerus_matrix *cached_inverse = NULL;
-        if (numerus_matrix_materialize(*inverse, &cached_inverse) ==
-            NUMERUS_MATRIX_SUCCESS) {
-            numerus_matrix_store_inverse_cache(matrix, cached_inverse);
-        }
+        numerus_matrix_store_inverse_cache(matrix, values);
     }
     return status;
 
