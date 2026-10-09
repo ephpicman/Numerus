@@ -173,6 +173,20 @@ the output pointer remains NULL; a partially populated result is never
 published. Materialization has O(rows × columns) time and O(rows × columns)
 temporary memory, in addition to the independent dense result Storage.
 
+## Kronecker product
+
+`numerus_matrix_kronecker_product(left, right, &result)` computes the
+Kronecker product without requiring matching input dimensions. For A of shape
+m×n and B of shape p×q, the result has shape (m·p)×(n·q), with
+`C[i*p + k, j*q + l] = A[i,j] * B[k,l]`. The result is independent dense
+Storage.
+
+All output-dimension, element-count, and byte-count arithmetic is checked.
+Parent read failures are propagated, temporary memory is released, and no
+partial result is published. The operation uses O(m·n·p·q) time and O(m·p·n·q)
+temporary/result memory. Values follow ordinary IEEE-754 multiplication
+semantics, including NaN from zero multiplied by infinity.
+
 ## Non-negative integer matrix powers
 
 `numerus_matrix_power(base, exponent, &result)` requires a square Matrix.
@@ -326,9 +340,9 @@ determinism requirements.
 
 The native Matrix tests cover storage-backed constructors, orientation
 transforms, row/column removal and swaps, composed views, lazy scalar
-multiplication and powers, scalar division, exact/approximate equality, vector
-constructors, element-wise arithmetic, nested-view materialization, rectangular
-products, overflow/read-failure handling, and cached structural flags.
+multiplication, powers, Kronecker products, scalar division, exact/approximate
+equality, vector constructors, element-wise arithmetic, nested-view
+materialization, overflow/read-failure handling, and cached structural flags.
 
 Run them from the repository root:
 
@@ -398,6 +412,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_power_test tests/matrix_power_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_power.c numerus_storage.c
 ./tests/matrix_power_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_kronecker_test tests/matrix_kronecker_test.c numerus_matrix.c numerus_matrix_kronecker.c numerus_storage.c
+./tests/matrix_kronecker_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds
