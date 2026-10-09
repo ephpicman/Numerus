@@ -582,13 +582,19 @@ int numerus_matrix_power(
     numerus_matrix **matrix
 );
 
-/**
- * Evaluate c[0] + c[1]A + ... + c[count - 1]A^(count - 1) by Horner's
+/ * Evaluate c[0] + c[1]A + ... + c[count - 1]A^(count - 1) by Horner's
  * method. Coefficients are ordered from the constant term upward. The base
  * must be square and count must be positive; the result is independent dense
  * Storage. The output pointer remains NULL on failure.
  */
-int /**
+int numerus_matrix_polynomial(
+    const numerus_matrix *base,
+    const double *coefficients,
+    size_t coefficient_count,
+    numerus_matrix **matrix
+);
+
+/**
  * Compute exp(A) using scaling-and-squaring with a degree-13 Padé
  * approximant. Input must be square and finite; the result is independent
  * dense Storage. Non-finite intermediate results and solver failures are
@@ -597,13 +603,6 @@ int /**
 int numerus_matrix_exponential(
     const numerus_matrix *matrix,
     numerus_matrix **exponential
-);
-
-numerus_matrix_polynomial(
-    const numerus_matrix *base,
-    const double *coefficients,
-    size_t coefficient_count,
-    numerus_matrix **matrix
 );
 
 /**
