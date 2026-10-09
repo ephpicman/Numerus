@@ -52,7 +52,7 @@ static void test_repeat_tiles_parent(void)
     assert(numerus_matrix_columns(repeated) == 6);
     assert(matrix_value_equals(repeated, 0, 0, 1.0));
     assert(matrix_value_equals(repeated, 0, 2, 1.0));
-    assert(matrix_value_equals(repeated, 1, 5, 2.0));
+    assert(matrix_value_equals(repeated, 1, 5, 4.0));
     assert(matrix_value_equals(repeated, 2, 0, 1.0));
     assert(matrix_value_equals(repeated, 3, 5, 4.0));
 
