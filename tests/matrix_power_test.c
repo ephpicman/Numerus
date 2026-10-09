@@ -1,6 +1,7 @@
 #include "../numerus_matrix.h"
 
 #include <assert.h>
+#include <math.h>
 #include <stdio.h>
 
 static int matrix_value_equals(
@@ -143,7 +144,8 @@ static void test_signed_power(void)
     const double rectangular_values[] = {1, 2, 3, 4, 5, 6};
     numerus_matrix *base = NULL;
     numerus_matrix *power = NULL;
-    numerus_matrix *rectangular = NULL;
+    numerus_matrix *product = NULL;
+    numerus_matrix *inverse_once = NULL;
     double value;
 
     assert(numerus_matrix_create_dense(2, 2, values, &base) ==
@@ -151,20 +153,31 @@ static void test_signed_power(void)
 
     assert(numerus_matrix_power_signed(base, -1, &power) ==
         NUMERUS_MATRIX_SUCCESS);
-    assert(fabs(numerus_matrix_rows(power) - 2) < 1e-12);
+    assert(numerus_matrix_rows(power) == 2);
+    assert(numerus_matrix_columns(power) == 2);
     assert(numerus_matrix_get(power, 0, 0, &value) == NUMERUS_MATRIX_SUCCESS);
     assert(fabs(value - 0.6) < 1e-12);
     assert(numerus_matrix_get(power, 0, 1, &value) == NUMERUS_MATRIX_SUCCESS);
     assert(fabs(value + 0.7) < 1e-12);
-    numerus_matrix_destroy(power);
+    inverse_once = power;
+    power = NULL;
+    assert(numerus_matrix_multiply(base, inverse_once, &product) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert_2x2(product, 1, 0, 0, 1);
+    numerus_matrix_destroy(product);
+    product = NULL;
 
     assert(numerus_matrix_power_signed(base, -2, &power) ==
         NUMERUS_MATRIX_SUCCESS);
-    assert(numerus_matrix_multiply(base, power, &rectangular) ==
+    assert(numerus_matrix_multiply(base, power, &product) ==
         NUMERUS_MATRIX_SUCCESS);
-    assert_2x2(rectangular, 1, 0, 0, 1);
-    numerus_matrix_destroy(rectangular);
+    assert(numerus_matrix_get(product, 0, 0, &value) == NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value - 0.6) < 1e-12);
+    assert(numerus_matrix_get(product, 0, 1, &value) == NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value + 0.7) < 1e-12);
+    numerus_matrix_destroy(product);
     numerus_matrix_destroy(power);
+    numerus_matrix_destroy(inverse_once);
     numerus_matrix_destroy(base);
 
     assert(numerus_matrix_create_dense(
