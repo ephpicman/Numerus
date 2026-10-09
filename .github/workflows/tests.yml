@@ -378,7 +378,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_solve_test tests/matrix_solve_test.c numerus_matrix_solve.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+            -o tests/matrix_solve_test tests/matrix_solve_test.c numerus_matrix_solve.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
           ./tests/matrix_solve_test
 
       - name: Run native Matrix Gauss-Jordan inverse tests
