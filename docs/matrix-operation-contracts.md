@@ -122,3 +122,24 @@ all generated linear combinations and products, and every squaring step for
 non-finite values. Solver failures are propagated, and the output remains NULL
 on failure. This implementation does not claim arbitrary-precision behavior;
 results use C `double` arithmetic.
+
+
+## Symmetric matrix functions
+
+The first real matrix square-root/logarithm APIs deliberately support a clearly
+defined class rather than pretending to handle arbitrary non-normal matrices:
+`numerus_matrix_symmetric_square_root()` accepts symmetric positive-semidefinite
+input and returns its principal symmetric square root;
+`numerus_matrix_symmetric_logarithm()` accepts symmetric positive-definite
+input. Both use the symmetric eigendecomposition and a scale-relative
+eigenvalue tolerance. A square root clamps only small negative eigenvalues
+within tolerance; a materially negative eigenvalue returns
+`NUMERUS_MATRIX_NOT_POSITIVE_SEMIDEFINITE`. The logarithm rejects eigenvalues
+at or below its positivity tolerance with
+`NUMERUS_MATRIX_NOT_POSITIVE_DEFINITE`.
+
+`numerus_matrix_symmetric_sine()` and
+`numerus_matrix_symmetric_cosine()` evaluate sine/cosine spectrally for real
+symmetric inputs. All four operations return independent dense results and
+leave output pointers NULL on failure. General non-symmetric square roots,
+logarithms, sine and cosine are not claimed by these APIs.
