@@ -40,6 +40,32 @@ Any specialized path must choose and document one of these policies before imple
 
 Do not silently change the numerical contract in the name of performance. Preserve dimension/status behavior, output-pointer failure guarantees, and materialized-result ownership.
 
+## Initial multiplication measurements
+
+The benchmark harness was extended to five samples of three multiplications each
+for 64×64 operands. Results below are medians from one PHP 8.5 CI run, not
+portable performance claims. Each sample includes result allocation and
+destruction; allocation metrics are per sample.
+
+| Workload | Median seconds / 3 products | Median allocations | Median requested bytes |
+| --- | ---: | ---: | ---: |
+| Dense × dense | 0.010159 | 12 | 197,520 |
+| Dense × identity | 0.010724 | 12 | 197,520 |
+| Identity × dense | 0.010673 | 12 | 197,520 |
+| Dense × zero | 0.010654 | 12 | 197,520 |
+| Dense × diagonal | 0.010737 | 12 | 197,520 |
+| Dense × upper triangular | 0.010917 | 12 | 197,520 |
+| Dense × sparse | 0.017660 | 12 | 197,520 |
+
+Source: [CI benchmark run](https://github.com/ephpicman/Numerus/actions/runs/37986233768).
+
+These measurements show no useful speedup from the generic loop on structured
+operands; sparse reads are noticeably slower. They justify testing identity and
+zero fast paths, but not assuming diagonal or triangular shortcuts will win.
+The narrow identity/zero paths added next are guarded by exact structure checks
+and a finite, nonnegative operand precondition. Negative values, signed zero,
+NaN, and infinities retain the generic implementation's IEEE-754 behavior.
+
 ## Recommended sequence
 
 1. Expand the standalone benchmark to compare generic multiplication against candidate paths for identity, zero, diagonal, triangular, sparse, symmetric, and banded operands across small and medium shapes.
