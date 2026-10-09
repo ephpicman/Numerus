@@ -111,3 +111,14 @@ values plus permutation fit within the same 64 KiB per-entry payload limit.
 Allocation or retention failure skips caching rather than failing the numerical
 operation. As with other lazy caches, concurrent cache population is not
 thread-safe.
+
+
+## Matrix exponential
+
+`numerus_matrix_exponential(A)` computes the real matrix exponential with
+scaling-and-squaring and a degree-13 Padé approximant. It requires a square,
+finite input and returns an independent dense Matrix. It checks the 1-norm,
+all generated linear combinations and products, and every squaring step for
+non-finite values. Solver failures are propagated, and the output remains NULL
+on failure. This implementation does not claim arbitrary-precision behavior;
+results use C `double` arithmetic.
