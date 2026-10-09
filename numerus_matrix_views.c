@@ -166,3 +166,27 @@ int numerus_matrix_create_block_grid(
         blocks, block_row_count, block_column_count, matrix
     );
 }
+
+/** Extract a main or offset diagonal as a lazy row-vector view. */
+int numerus_matrix_create_diagonal_extract(
+    numerus_matrix *parent,
+    ptrdiff_t offset,
+    numerus_matrix **matrix
+)
+{
+    return numerus_matrix_create_diagonal_extract_view(
+        parent, offset, matrix
+    );
+}
+
+/** Create a lazy square diagonal view from a row or column vector. */
+int numerus_matrix_create_diagonal_from_vector(
+    numerus_matrix *vector,
+    ptrdiff_t offset,
+    numerus_matrix **matrix
+)
+{
+    return numerus_matrix_create_diagonal_from_vector_view(
+        vector, offset, matrix
+    );
+}

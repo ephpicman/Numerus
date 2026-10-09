@@ -413,12 +413,25 @@ not the matrix data, so every source Matrix must outlive the assembled view.
 Block counts, allocation sizes, and total dimensions are checked for overflow.
 Reads are dispatched to the corresponding source block and propagate its errors.
 
+## Diagonal extraction and construction
+
+`numerus_matrix_create_diagonal_extract()` returns a lazy 1×N row-vector
+view of a selected diagonal. Offset zero selects the main diagonal; positive
+offsets select diagonals above it, and negative offsets select diagonals below
+it. Offsets with no cells in the parent return `NUMERUS_MATRIX_OUT_OF_BOUNDS`.
+
+`numerus_matrix_create_diagonal_from_vector()` creates a lazy square view
+from either a row or column vector. The vector values occupy the requested
+main or offset diagonal, and all other cells read as zero. Its side length is
+the vector length plus the absolute offset, with overflow checked. Both APIs
+borrow their parent and propagate parent read errors.
+
 ## Native tests
 
 The native Matrix tests cover storage-backed constructors, orientation
 transforms, row/column removal and swaps, composed views, lazy scalar
 multiplication, powers, Kronecker products, range slices, indexed row/column
-selection, reshape/flatten, padding, repetition, block-diagonal, and block-grid views, scalar division, equality, vector constructors,
+selection, reshape/flatten, padding, repetition, block-diagonal, and block-grid and diagonal views, scalar division, equality, vector constructors,
 element-wise arithmetic, materialization, and overflow/read-failure handling.
 
 Run them from the repository root:
@@ -531,6 +544,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_block_grid_test tests/matrix_block_grid_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
 ./tests/matrix_block_grid_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_diagonal_test tests/matrix_diagonal_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+./tests/matrix_diagonal_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds
