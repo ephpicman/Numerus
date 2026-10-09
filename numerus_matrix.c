@@ -54,6 +54,8 @@ struct numerus_matrix {
     size_t padding_top;
     size_t padding_left;
     double padding_value;
+    bool repeat_view;
+    bool block_diagonal_view;
 };
 
 static numerus_matrix_status identity_coordinate_transform(
@@ -497,6 +499,8 @@ static int allocate_matrix(numerus_matrix **matrix)
     (*matrix)->padding_top = 0;
     (*matrix)->padding_left = 0;
     (*matrix)->padding_value = 0.0;
+    (*matrix)->repeat_view = false;
+    (*matrix)->block_diagonal_view = false;
 
     return NUMERUS_MATRIX_SUCCESS;
 }
@@ -958,6 +962,89 @@ int numerus_matrix_create_padding_view(
     view->padding_value = value;
     *matrix = view;
 
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+int numerus_matrix_create_repeat_view(
+    numerus_matrix *parent,
+    size_t row_repetitions,
+    size_t column_repetitions,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix *view = NULL;
+    size_t rows;
+    size_t columns;
+    numerus_matrix_status status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+
+    if (parent == NULL || row_repetitions == 0 || column_repetitions == 0) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    if (!numerus_size_multiply(
+            numerus_matrix_rows(parent), row_repetitions, &rows
+        ) ||
+        !numerus_size_multiply(
+            numerus_matrix_columns(parent), column_repetitions, &columns
+        )) {
+        return NUMERUS_MATRIX_OVERFLOW;
+    }
+
+    status = numerus_matrix_create_from_parent_with_transforms(
+        parent, rows, columns, NULL, NULL, NULL, &view
+    );
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        return status;
+    }
+
+    view->repeat_view = true;
+    *matrix = view;
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+int numerus_matrix_create_block_diagonal_view(
+    numerus_matrix *parent,
+    size_t repetitions,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix *view = NULL;
+    size_t rows;
+    size_t columns;
+    numerus_matrix_status status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+
+    if (parent == NULL || repetitions == 0) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    if (!numerus_size_multiply(
+            numerus_matrix_rows(parent), repetitions, &rows
+        ) ||
+        !numerus_size_multiply(
+            numerus_matrix_columns(parent), repetitions, &columns
+        )) {
+        return NUMERUS_MATRIX_OVERFLOW;
+    }
+
+    status = numerus_matrix_create_from_parent_with_transforms(
+        parent, rows, columns, NULL, NULL, NULL, &view
+    );
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        return status;
+    }
+
+    view->block_diagonal_view = true;
+    *matrix = view;
     return NUMERUS_MATRIX_SUCCESS;
 }
 
@@ -1709,6 +1796,46 @@ numerus_matrix_status numerus_matrix_get_unchecked(
 
         return numerus_matrix_get(
             matrix->parent, parent_row, parent_column, value
+        );
+    }
+
+    if (matrix->repeat_view) {
+        size_t parent_rows;
+        size_t parent_columns;
+
+        if (matrix->parent == NULL) {
+            return NUMERUS_MATRIX_INVALID_ARGUMENT;
+        }
+
+        parent_rows = numerus_matrix_rows(matrix->parent);
+        parent_columns = numerus_matrix_columns(matrix->parent);
+        return numerus_matrix_get(
+            matrix->parent, row % parent_rows, column % parent_columns, value
+        );
+    }
+
+    if (matrix->block_diagonal_view) {
+        size_t parent_rows;
+        size_t parent_columns;
+        size_t block_row;
+        size_t block_column;
+
+        if (matrix->parent == NULL) {
+            return NUMERUS_MATRIX_INVALID_ARGUMENT;
+        }
+
+        parent_rows = numerus_matrix_rows(matrix->parent);
+        parent_columns = numerus_matrix_columns(matrix->parent);
+        block_row = row / parent_rows;
+        block_column = column / parent_columns;
+
+        if (block_row != block_column) {
+            *value = 0.0;
+            return NUMERUS_MATRIX_SUCCESS;
+        }
+
+        return numerus_matrix_get(
+            matrix->parent, row % parent_rows, column % parent_columns, value
         );
     }
 

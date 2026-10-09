@@ -391,12 +391,23 @@ return the padding value without allocating a dense buffer. Parent read errors
 are propagated unchanged. The parent must outlive the view, and padded
 dimension arithmetic is checked for overflow.
 
+## Repetition and block-diagonal views
+
+`numerus_matrix_create_repeat()` lazily tiles the parent by positive row and
+column repetition counts. `numerus_matrix_create_block_diagonal()` lazily
+places repeated copies of the parent along the diagonal and returns zero for
+off-diagonal blocks. Block-diagonal construction also supports rectangular
+parent matrices; the output shape scales both parent dimensions by the
+repetition count. Both operations check dimension multiplication for overflow,
+propagate parent read failures, allocate no element buffer, and borrow the
+parent, which must outlive the resulting view.
+
 ## Native tests
 
 The native Matrix tests cover storage-backed constructors, orientation
 transforms, row/column removal and swaps, composed views, lazy scalar
 multiplication, powers, Kronecker products, range slices, indexed row/column
-selection, reshape/flatten and padding views, scalar division, equality, vector constructors,
+selection, reshape/flatten, padding, repetition, and block-diagonal views, scalar division, equality, vector constructors,
 element-wise arithmetic, materialization, and overflow/read-failure handling.
 
 Run them from the repository root:
@@ -497,6 +508,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_padding_test tests/matrix_padding_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
 ./tests/matrix_padding_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_repeat_test tests/matrix_repeat_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+./tests/matrix_repeat_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds

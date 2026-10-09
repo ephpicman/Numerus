@@ -560,6 +560,33 @@ int numerus_matrix_create_zero_extend(
     numerus_matrix **matrix
 );
 
+/**
+ * Tile a Matrix lazily row_repetitions × column_repetitions times.
+ *
+ * Repetition counts must be positive. The parent is borrowed and must outlive
+ * the view; output dimensions are checked for overflow.
+ */
+int numerus_matrix_create_repeat(
+    numerus_matrix *parent,
+    size_t row_repetitions,
+    size_t column_repetitions,
+    numerus_matrix **matrix
+);
+
+/**
+ * Create a lazy block-diagonal Matrix containing repetitions copies of parent.
+ *
+ * Off-diagonal blocks are zero. The parent may be rectangular; result
+ * dimensions are (parent.rows * repetitions) ×
+ * (parent.columns * repetitions). Repetitions must be positive, and the
+ * borrowed parent must outlive the view.
+ */
+int numerus_matrix_create_block_diagonal(
+    numerus_matrix *parent,
+    size_t repetitions,
+    numerus_matrix **matrix
+);
+
 /** Create a dense Matrix. */
 int numerus_matrix_create_dense(
     size_t rows,

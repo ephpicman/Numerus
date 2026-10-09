@@ -61,6 +61,21 @@ int numerus_matrix_create_padding_view(
     numerus_matrix **matrix
 );
 
+/** Private checked constructor for a tiled repetition view. */
+int numerus_matrix_create_repeat_view(
+    numerus_matrix *parent,
+    size_t row_repetitions,
+    size_t column_repetitions,
+    numerus_matrix **matrix
+);
+
+/** Private checked constructor for a repeated block-diagonal view. */
+int numerus_matrix_create_block_diagonal_view(
+    numerus_matrix *parent,
+    size_t repetitions,
+    numerus_matrix **matrix
+);
+
 /** Private checked constructor for a lazy range slice. */
 int numerus_matrix_create_slice_view(
     numerus_matrix *parent,
