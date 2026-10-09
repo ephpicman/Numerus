@@ -973,7 +973,8 @@ int numerus_matrix_create_binary_view(
         return NUMERUS_MATRIX_INVALID_ARGUMENT;
     }
     if (operation != NUMERUS_MATRIX_BINARY_ADD &&
-        operation != NUMERUS_MATRIX_BINARY_SUBTRACT) {
+        operation != NUMERUS_MATRIX_BINARY_SUBTRACT &&
+        operation != NUMERUS_MATRIX_BINARY_HADAMARD) {
         return NUMERUS_MATRIX_INVALID_ARGUMENT;
     }
     if (numerus_matrix_rows(left) != numerus_matrix_rows(right) ||
@@ -1309,6 +1310,8 @@ numerus_matrix_status numerus_matrix_get_unchecked(
             result_value = left_value + right_value;
         } else if (matrix->binary_operation == NUMERUS_MATRIX_BINARY_SUBTRACT) {
             result_value = left_value - right_value;
+        } else if (matrix->binary_operation == NUMERUS_MATRIX_BINARY_HADAMARD) {
+            result_value = left_value * right_value;
         } else {
             return NUMERUS_MATRIX_INVALID_ARGUMENT;
         }
