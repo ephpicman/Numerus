@@ -20,7 +20,7 @@ numerus_matrix_status numerus_matrix_inverse_gauss_jordan(
     size_t row;
     size_t column;
     double scale = 0.0;
-    double threshold;
+    double relative_threshold;
     double *augmented = NULL;
     double *result = NULL;
     numerus_matrix_status status;
@@ -84,7 +84,7 @@ numerus_matrix_status numerus_matrix_inverse_gauss_jordan(
         }
     }
 
-    threshold = scale * NUMERUS_EPSILON * (double) size;
+    relative_threshold = NUMERUS_EPSILON * (double) size;
     for (column = 0; column < size; column++) {
         size_t pivot_row = column;
         size_t candidate;
@@ -100,7 +100,8 @@ numerus_matrix_status numerus_matrix_inverse_gauss_jordan(
             }
         }
 
-        if (pivot_magnitude <= threshold || !isfinite(pivot_magnitude)) {
+        if (scale == 0.0 || pivot_magnitude / scale <= relative_threshold ||
+            !isfinite(pivot_magnitude)) {
             status = NUMERUS_MATRIX_SINGULAR;
             goto failure;
         }
