@@ -923,6 +923,21 @@ numerus_matrix_status numerus_matrix_null_space(
  * floating-point error. Outputs are independent dense Matrices; all are NULL
  * on failure.
  */
+/**
+ * Compute the eigendecomposition of a real symmetric Matrix.
+ *
+ * Eigenvalues are returned as an n-by-1 column vector sorted in descending
+ * algebraic order. Eigenvectors are the corresponding columns of an n-by-n
+ * orthonormal Matrix V, so A is approximately V * D * transpose(V).
+ * Symmetry and convergence use scale-aware tolerances. Outputs remain NULL
+ * on failure.
+ */
+numerus_matrix_status numerus_matrix_symmetric_eigen(
+    const numerus_matrix *matrix,
+    numerus_matrix **eigenvalues,
+    numerus_matrix **eigenvectors
+);
+
 numerus_matrix_status numerus_matrix_svd(
     const numerus_matrix *matrix,
     numerus_matrix **u,
