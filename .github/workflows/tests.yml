@@ -274,6 +274,14 @@ jobs:
             -o tests/matrix_svd_test tests/matrix_svd_test.c numerus_matrix_svd.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
           ./tests/matrix_svd_test
 
+      - name: Run native Matrix pseudoinverse tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_pseudoinverse_test tests/matrix_pseudoinverse_test.c numerus_matrix_pseudoinverse.c numerus_matrix_svd.c numerus_matrix_multiply.c numerus_matrix_views.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+          ./tests/matrix_pseudoinverse_test
+
       - name: Run native Matrix LDLT tests
         run: |
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
