@@ -1,6 +1,7 @@
 #include "../numerus_matrix.h"
 
 #include <assert.h>
+#include <math.h>
 #include <stdio.h>
 
 static int matrix_value_equals(
@@ -136,9 +137,83 @@ static void test_invalid_shapes_and_read_failures(void)
     numerus_matrix_destroy(rectangular);
 }
 
+static void test_signed_power(void)
+{
+    const double values[] = {4, 7, 2, 6};
+    const double singular_values[] = {1, 2, 2, 4};
+    const double rectangular_values[] = {1, 2, 3, 4, 5, 6};
+    numerus_matrix *base = NULL;
+    numerus_matrix *power = NULL;
+    numerus_matrix *product = NULL;
+    numerus_matrix *inverse_once = NULL;
+    double value;
+
+    assert(numerus_matrix_create_dense(2, 2, values, &base) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    assert(numerus_matrix_power_signed(base, -1, &power) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(power) == 2);
+    assert(numerus_matrix_columns(power) == 2);
+    assert(numerus_matrix_get(power, 0, 0, &value) == NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value - 0.6) < 1e-12);
+    assert(numerus_matrix_get(power, 0, 1, &value) == NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value + 0.7) < 1e-12);
+    inverse_once = power;
+    power = NULL;
+    assert(numerus_matrix_multiply(base, inverse_once, &product) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get(product, 0, 0, &value) == NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value - 1.0) < 1e-12);
+    assert(numerus_matrix_get(product, 0, 1, &value) == NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value) < 1e-12);
+    assert(numerus_matrix_get(product, 1, 0, &value) == NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value) < 1e-12);
+    assert(numerus_matrix_get(product, 1, 1, &value) == NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value - 1.0) < 1e-12);
+    numerus_matrix_destroy(product);
+    product = NULL;
+
+    assert(numerus_matrix_power_signed(base, -2, &power) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_multiply(base, power, &product) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get(product, 0, 0, &value) == NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value - 0.6) < 1e-12);
+    assert(numerus_matrix_get(product, 0, 1, &value) == NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value + 0.7) < 1e-12);
+    numerus_matrix_destroy(product);
+    numerus_matrix_destroy(power);
+    numerus_matrix_destroy(inverse_once);
+    numerus_matrix_destroy(base);
+
+    assert(numerus_matrix_create_dense(
+        2, 2, singular_values, &base
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_power_signed(base, -1, &power) ==
+        NUMERUS_MATRIX_SINGULAR);
+    assert(power == NULL);
+    numerus_matrix_destroy(base);
+
+    assert(numerus_matrix_create_dense(
+        2, 3, rectangular_values, &base
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_power_signed(base, -1, &power) ==
+        NUMERUS_MATRIX_NOT_SQUARE);
+    assert(power == NULL);
+    numerus_matrix_destroy(base);
+
+    assert(numerus_matrix_power_signed(NULL, -1, &power) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(power == NULL);
+    assert(numerus_matrix_power_signed(NULL, 0, NULL) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+}
+
 int main(void)
 {
     test_power_exponents();
+    test_signed_power();
     test_invalid_shapes_and_read_failures();
     puts("Matrix power tests passed.");
     return 0;

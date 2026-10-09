@@ -135,7 +135,7 @@ jobs:
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_power_test tests/matrix_power_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_power.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_power_test tests/matrix_power_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_power.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_storage.c numerus_matrix_lu.c -lm
           ./tests/matrix_power_test
 
       - name: Run native Matrix Kronecker tests

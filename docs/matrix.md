@@ -231,6 +231,19 @@ partial result is published. The operation uses O(m·n·p·q) time and O(m·p·n
 temporary/result memory. Values follow ordinary IEEE-754 multiplication
 semantics, including NaN from zero multiplied by infinity.
 
+## Signed integer matrix powers
+
+`numerus_matrix_power_signed(base, exponent, &result)` extends the
+non-negative power API to signed 64-bit exponents. For a negative exponent it
+computes one LU-based inverse and then uses exponentiation by squaring on that
+inverse. The base must be square and numerically nonsingular for negative
+powers; singular inputs return `NUMERUS_MATRIX_SINGULAR`. The result is
+independent dense Storage, and the output remains NULL on failure.
+
+The implementation computes the magnitude without directly negating
+`INT64_MIN`, avoiding signed overflow. The existing `numerus_matrix_power()`
+API remains available with its non-negative `size_t` contract.
+
 ## Non-negative integer matrix powers
 
 `numerus_matrix_power(base, exponent, &result)` requires a square Matrix.
@@ -860,7 +873,7 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_power_test tests/matrix_power_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_power.c numerus_storage.c numerus_matrix_lu.c
+  -o tests/matrix_power_test tests/matrix_power_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_power.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_storage.c numerus_matrix_lu.c -lm
 ./tests/matrix_power_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
