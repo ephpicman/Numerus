@@ -205,7 +205,7 @@ Exit criteria: convergence tests, residual checks, explicit real-only limitation
 
 - [x] 9.1 Element-wise min/max and clamp. NaN propagates; clamp rejects NaN bounds and reversed intervals while permitting infinite bounds. Results are independent dense matrices and source-read failures propagate.
 - [x] 9.2 Map/apply. Lazy map borrows deterministic callback/context and parent; eager apply materializes independent dense Storage and propagates callback/read failures.
-- [ ] 9.3 Normalize. Support explicitly named norms/axes; reject zero-norm normalization or define its behavior.
+- [x] 9.3 Normalize. Supports global, row, and column axes with L1/L2/infinity norms; rejects non-finite inputs and zero-norm vectors without publishing partial output.
 - [ ] 9.4 Variance and standard deviation. Define population vs sample semantics and numerical accumulation strategy.
 - [ ] 9.5 All-close / any-close. Use established comparison policy and provide exact equality separately.
 - [ ] 9.6 Kronecker sum and selected structured products. Add only when built on stable product primitives.

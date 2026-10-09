@@ -90,6 +90,14 @@ jobs:
             -o tests/matrix_map_test tests/matrix_map_test.c numerus_matrix_map.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
           ./tests/matrix_map_test
 
+      - name: Run native Matrix normalization tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_normalize_test tests/matrix_normalize_test.c numerus_matrix_normalize.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+          ./tests/matrix_normalize_test
+
       - name: Run native Matrix Hadamard tests
         run: |
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \

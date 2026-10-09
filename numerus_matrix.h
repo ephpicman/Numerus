@@ -51,6 +51,18 @@ typedef enum {
     NUMERUS_MATRIX_NO_CONVERGENCE
 } numerus_matrix_status;
 
+typedef enum {
+    NUMERUS_MATRIX_NORMALIZE_WHOLE = 0,
+    NUMERUS_MATRIX_NORMALIZE_ROWS,
+    NUMERUS_MATRIX_NORMALIZE_COLUMNS
+} numerus_matrix_normalize_axis;
+
+typedef enum {
+    NUMERUS_MATRIX_NORMALIZE_L1 = 0,
+    NUMERUS_MATRIX_NORMALIZE_L2,
+    NUMERUS_MATRIX_NORMALIZE_INFINITY
+} numerus_matrix_normalize_norm;
+
 /**
  * Numerical classification of the solutions to A X = B.
  */
@@ -414,6 +426,17 @@ int numerus_matrix_create_map(
 int numerus_matrix_apply(
     const numerus_matrix *source, numerus_value_transform_fn transform,
     const void *context, numerus_matrix **matrix
+);
+
+/**
+ * Normalize globally, by rows, or by columns using the selected norm. Inputs
+ * must be finite; zero-norm vectors return DIVISION_BY_ZERO. Result is dense.
+ */
+int numerus_matrix_create_normalized(
+    const numerus_matrix *source,
+    numerus_matrix_normalize_axis axis,
+    numerus_matrix_normalize_norm norm,
+    numerus_matrix **matrix
 );
 
 /**
