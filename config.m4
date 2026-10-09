@@ -4,5 +4,7 @@ PHP_ARG_ENABLE([numerus],
   [no])
 
 if test "$PHP_NUMERUS" != "no"; then
+  PHP_ADD_LIBRARY([m],, [NUMERUS_SHARED_LIBADD])
+  PHP_SUBST([NUMERUS_SHARED_LIBADD])
   PHP_NEW_EXTENSION([numerus], [numerus.c numerus_storage.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_compare.c numerus_matrix_constructors.c numerus_matrix_power.c numerus_matrix_kronecker.c numerus_matrix_views.c numerus_matrix_analysis.c], [$ext_shared])
 fi
