@@ -36,7 +36,6 @@ numerus_matrix_status numerus_matrix_classify_system(
     size_t row;
     size_t *permutation = NULL;
     double *rhs = NULL;
-    double *residual = NULL;
     double *projection = NULL;
     numerus_matrix_solution_kind result_kind;
     numerus_matrix_status status;
@@ -63,8 +62,7 @@ numerus_matrix_status numerus_matrix_classify_system(
 
     permutation = matrix_classify_alloc(permutation_bytes);
     rhs = matrix_classify_alloc(vector_bytes);
-    residual = matrix_classify_alloc(vector_bytes);
-    if (permutation == NULL || rhs == NULL || residual == NULL) {
+    if (permutation == NULL || rhs == NULL) {
         status = NUMERUS_MATRIX_OUT_OF_MEMORY;
         goto cleanup;
     }
@@ -149,7 +147,6 @@ numerus_matrix_status numerus_matrix_classify_system(
                     goto cleanup;
                 }
             }
-            residual[row] = value;
             residual_norm = hypot(residual_norm, value);
             if (!isfinite(residual_norm)) {
                 status = NUMERUS_MATRIX_NON_FINITE;
@@ -168,7 +165,6 @@ numerus_matrix_status numerus_matrix_classify_system(
 
 cleanup:
     if (projection != NULL) matrix_classify_free(projection);
-    if (residual != NULL) matrix_classify_free(residual);
     if (rhs != NULL) matrix_classify_free(rhs);
     if (permutation != NULL) matrix_classify_free(permutation);
     numerus_matrix_destroy(r);
