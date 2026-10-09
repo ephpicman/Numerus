@@ -385,3 +385,84 @@ numerus_matrix_status numerus_matrix_norm_infinity(
 {
     return matrix_induced_norm(matrix, false, norm);
 }
+
+
+typedef enum {
+    MATRIX_FINITE_PREDICATE_HAS_NAN,
+    MATRIX_FINITE_PREDICATE_HAS_INFINITY,
+    MATRIX_FINITE_PREDICATE_ALL_FINITE
+} matrix_finite_predicate;
+
+static numerus_matrix_status matrix_evaluate_finite_predicate(
+    const numerus_matrix *matrix,
+    matrix_finite_predicate predicate,
+    bool *result
+)
+{
+    size_t row;
+    size_t column;
+
+    if (matrix == NULL || result == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    for (row = 0; row < numerus_matrix_rows(matrix); row++) {
+        for (column = 0; column < numerus_matrix_columns(matrix); column++) {
+            double value;
+            numerus_matrix_status status = numerus_matrix_get(
+                matrix, row, column, &value
+            );
+
+            if (status != NUMERUS_MATRIX_SUCCESS) {
+                return status;
+            }
+
+            if (predicate == MATRIX_FINITE_PREDICATE_HAS_NAN && isnan(value)) {
+                *result = true;
+                return NUMERUS_MATRIX_SUCCESS;
+            }
+            if (predicate == MATRIX_FINITE_PREDICATE_HAS_INFINITY && isinf(value)) {
+                *result = true;
+                return NUMERUS_MATRIX_SUCCESS;
+            }
+            if (predicate == MATRIX_FINITE_PREDICATE_ALL_FINITE && !isfinite(value)) {
+                *result = false;
+                return NUMERUS_MATRIX_SUCCESS;
+            }
+        }
+    }
+
+    *result = predicate == MATRIX_FINITE_PREDICATE_ALL_FINITE
+        || false;
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+numerus_matrix_status numerus_matrix_has_nan(
+    const numerus_matrix *matrix,
+    bool *has_nan
+)
+{
+    return matrix_evaluate_finite_predicate(
+        matrix, MATRIX_FINITE_PREDICATE_HAS_NAN, has_nan
+    );
+}
+
+numerus_matrix_status numerus_matrix_has_infinity(
+    const numerus_matrix *matrix,
+    bool *has_infinity
+)
+{
+    return matrix_evaluate_finite_predicate(
+        matrix, MATRIX_FINITE_PREDICATE_HAS_INFINITY, has_infinity
+    );
+}
+
+numerus_matrix_status numerus_matrix_is_finite(
+    const numerus_matrix *matrix,
+    bool *is_finite
+)
+{
+    return matrix_evaluate_finite_predicate(
+        matrix, MATRIX_FINITE_PREDICATE_ALL_FINITE, is_finite
+    );
+}
