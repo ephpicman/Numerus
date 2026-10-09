@@ -109,6 +109,27 @@ static numerus_matrix_status scale_value_transform(
     return NUMERUS_MATRIX_SUCCESS;
 }
 
+static numerus_matrix_status divide_scalar_value_transform(
+    size_t row,
+    size_t column,
+    double parent_value,
+    double *result,
+    const void *context
+)
+{
+    const double *divisor = context;
+
+    (void) row;
+    (void) column;
+
+    if (divisor == NULL || result == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *result = parent_value / *divisor;
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
 static numerus_matrix_status transpose_coordinate_transform(
     size_t row,
     size_t column,
@@ -656,6 +677,47 @@ int numerus_matrix_create_negate(
 )
 {
     return numerus_matrix_create_scale(parent, -1.0, matrix);
+}
+
+int numerus_matrix_create_divide_scalar(
+    numerus_matrix *parent,
+    double divisor,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix *view = NULL;
+    numerus_matrix_status status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+
+    if (parent == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    if (divisor == 0.0) {
+        return NUMERUS_MATRIX_DIVISION_BY_ZERO;
+    }
+
+    status = numerus_matrix_create_from_parent_with_transforms(
+        parent,
+        numerus_matrix_rows(parent),
+        numerus_matrix_columns(parent),
+        NULL,
+        divide_scalar_value_transform,
+        NULL,
+        &view
+    );
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        return status;
+    }
+
+    view->transform_scalar = divisor;
+    view->transform_context = &view->transform_scalar;
+    *matrix = view;
+
+    return NUMERUS_MATRIX_SUCCESS;
 }
 
 int numerus_matrix_create_transpose(
