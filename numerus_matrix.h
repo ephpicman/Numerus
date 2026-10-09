@@ -1284,9 +1284,32 @@ numerus_matrix_status numerus_matrix_max(
     double *maximum
 );
 
-/** Compute the arithmetic mean using row-major sum divided by element count. */
-numerus_matrix_status numerus_matrix_variance(const numerus_matrix *matrix, bool sample, double *variance);
-numerus_matrix_status numerus_matrix_standard_deviation(const numerus_matrix *matrix, bool sample, double *standard_deviation);
+/**
+ * Compute the population or sample variance using Welford accumulation.
+ *
+ * When sample is false, divide by N; when true, divide by N - 1 and require
+ * at least two elements. Input elements must be finite. The output is
+ * unchanged on invalid input, insufficient sample size, read failure, or
+ * non-finite intermediate/result.
+ */
+numerus_matrix_status numerus_matrix_variance(
+    const numerus_matrix *matrix,
+    bool sample,
+    double *variance
+);
+
+/**
+ * Compute the population or sample standard deviation.
+ *
+ * Uses the corresponding variance definition selected by sample and returns
+ * its square root. Input elements must be finite; sample mode requires at
+ * least two elements. The output is unchanged on failure.
+ */
+numerus_matrix_status numerus_matrix_standard_deviation(
+    const numerus_matrix *matrix,
+    bool sample,
+    double *standard_deviation
+);
 
 numerus_matrix_status numerus_matrix_mean(
     const numerus_matrix *matrix,
