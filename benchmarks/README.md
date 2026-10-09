@@ -33,7 +33,11 @@ Manager.
 - 64×128 joined-view reads.
 - 1,000 scalar-view constructions.
 - Three materializations of a transpose view.
-- Three 32×32 dense matrix multiplications.\n- Three 32×32 LU-based inverses and condition estimates. The inverse input is diagonally dominant to avoid benchmarking a singular matrix.\n- One maximum residual check, `max|A*A⁻¹-I|`, outside the timed interval.
+- Three 32×32 dense matrix multiplications.
+- Three 64×64 generic matrix multiplications for dense×dense, dense×identity,
+  identity×dense, dense×zero, dense×diagonal, dense×upper-triangular, and
+  dense×sparse operands. These establish comparison points before any
+  Storage-specific fast path is introduced.\n- Three 32×32 LU-based inverses and condition estimates. The inverse input is diagonally dominant to avoid benchmarking a singular matrix.\n- One maximum residual check, `max|A*A⁻¹-I|`, outside the timed interval.
 
 The source matrices are constructed before counters and timers are reset for
 each measured case. Read workloads perform full checked-coordinate scans;
