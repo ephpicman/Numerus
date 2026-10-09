@@ -100,7 +100,7 @@ Exit criteria: documented contracts, robust size checks, reusable tests, and a d
 - [x] 1.3 Hadamard product. Element-wise multiplication with equal-dimension validation. (Merged in PR #15.)
 - [x] 1.4 Element-wise division. Define division-by-zero and non-finite behavior before implementation; do not silently invent a rule. IEEE-754 infinities/NaN are successful numeric results, not status errors. (Merged in PR #16.)
 - [x] 1.5 Materialization API. Copy any logical Matrix (including nested views/joins) into independent Storage. Check allocation overflow and callback errors. (Merged in PR #17.)
-- [ ] 1.6 Matrix multiplication. Validate inner dimensions and overflow. Default to materializing the result because a naive lazy getter repeats each dot product on every read; benchmark dense and specialized inputs before adding optimized paths.
+- [x] 1.6 Matrix multiplication. Validate inner dimensions and overflow. Default to materializing the result because a naive lazy getter repeats each dot product on every read; benchmark dense and specialized inputs before adding optimized paths. (Merged in PR #18; baseline benchmark harness is being added in the Phase 0.6 follow-up.)
 - [ ] 1.7 Scalar division. Reject a zero divisor according to the documented numeric contract.
 - [ ] 1.8 Approximate and exact matrix equality. Exact equality is separate from epsilon-based close comparison; define shape mismatch behavior.
 - [ ] 1.9 Constructors and diagonal utilities. Add missing constant/identity/diagonal/row-vector/column-vector constructors needed by later algorithms; do not add a separate Vector type unless it provides concrete value.
