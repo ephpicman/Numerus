@@ -1,6 +1,6 @@
 #include "../numerus_matrix.h"
 
-#include <stdint.h>
+#include <math.h>\n#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -203,6 +203,123 @@ static void benchmark_multiplication(
     );
 }
 
+
+static void benchmark_inverse(
+    const numerus_matrix *matrix,
+    size_t iterations
+)
+{
+    size_t iteration;
+    size_t size = numerus_matrix_rows(matrix);
+    clock_t start;
+    clock_t end;
+
+    reset_allocation_stats();
+    start = clock();
+
+    for (iteration = 0; iteration < iterations; iteration++) {
+        numerus_matrix *inverse = NULL;
+        double value;
+        int status = numerus_matrix_inverse(matrix, &inverse);
+
+        if (status != NUMERUS_MATRIX_SUCCESS) {
+            fprintf(stderr, "inverse benchmark failed: %d\\n", status);
+            exit(EXIT_FAILURE);
+        }
+        status = numerus_matrix_get(inverse, 0, 0, &value);
+        if (status != NUMERUS_MATRIX_SUCCESS) {
+            fprintf(stderr, "inverse result read failed: %d\\n", status);
+            numerus_matrix_destroy(inverse);
+            exit(EXIT_FAILURE);
+        }
+        benchmark_sink += value;
+        numerus_matrix_destroy(inverse);
+    }
+
+    end = clock();
+    report_measurement("LU inverse", size, size, iterations, start, end);
+}
+
+static void benchmark_condition_estimate(
+    const numerus_matrix *matrix,
+    size_t iterations
+)
+{
+    size_t iteration;
+    size_t size = numerus_matrix_rows(matrix);
+    clock_t start;
+    clock_t end;
+
+    reset_allocation_stats();
+    start = clock();
+
+    for (iteration = 0; iteration < iterations; iteration++) {
+        double condition_estimate;
+        int status = numerus_matrix_condition_estimate_one(
+            matrix, &condition_estimate
+        );
+
+        if (status != NUMERUS_MATRIX_SUCCESS) {
+            fprintf(stderr, "condition estimate benchmark failed: %d\\n", status);
+            exit(EXIT_FAILURE);
+        }
+        benchmark_sink += condition_estimate;
+    }
+
+    end = clock();
+    report_measurement(
+        "condition estimate", size, size, iterations, start, end
+    );
+}
+
+static void verify_inverse_residual(const numerus_matrix *matrix)
+{
+    numerus_matrix *inverse = NULL;
+    size_t size = numerus_matrix_rows(matrix);
+    size_t row;
+    double maximum_residual = 0.0;
+    int status = numerus_matrix_inverse(matrix, &inverse);
+
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        fprintf(stderr, "inverse residual check failed: %d\\n", status);
+        exit(EXIT_FAILURE);
+    }
+
+    for (row = 0; row < size; row++) {
+        size_t column;
+
+        for (column = 0; column < size; column++) {
+            size_t k;
+            double product = 0.0;
+            double expected = row == column ? 1.0 : 0.0;
+
+            for (k = 0; k < size; k++) {
+                double left;
+                double right;
+
+                status = numerus_matrix_get(matrix, row, k, &left);
+                if (status != NUMERUS_MATRIX_SUCCESS) goto failure;
+                status = numerus_matrix_get(inverse, k, column, &right);
+                if (status != NUMERUS_MATRIX_SUCCESS) goto failure;
+                product += left * right;
+            }
+
+            if (fabs(product - expected) > maximum_residual) {
+                maximum_residual = fabs(product - expected);
+            }
+        }
+    }
+
+    printf("LU inverse residual: max|A*A^-1-I|=%.6e\\n", maximum_residual);
+    numerus_matrix_destroy(inverse);
+    return;
+
+failure:
+    fprintf(stderr, "inverse residual read failed: %d\\n", status);
+    numerus_matrix_destroy(inverse);
+    exit(EXIT_FAILURE);
+}
+
 static void benchmark_scale_view_creation(
     numerus_matrix *parent,
     size_t iterations
@@ -324,7 +441,7 @@ int main(void)
     benchmark_reads("binary view read", sum, READ_ITERATIONS);
     benchmark_scale_view_creation(dense, 1000);
     benchmark_materialize(transpose, OPERATION_ITERATIONS);
-    benchmark_multiplication(small, small, OPERATION_ITERATIONS);
+    benchmark_multiplication(small, small, OPERATION_ITERATIONS);\n    benchmark_inverse(small, OPERATION_ITERATIONS);\n    benchmark_condition_estimate(small, OPERATION_ITERATIONS);\n    verify_inverse_residual(small);
 
     numerus_matrix_destroy(small);
     numerus_matrix_destroy(sum);
