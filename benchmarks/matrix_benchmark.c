@@ -334,6 +334,21 @@ static void benchmark_analysis_cache(const numerus_matrix *source)
         }
     }
 
+    /* Warm the source explicitly so the hit cases are genuinely cache hits. */
+    status = numerus_matrix_get_flags(source, &flags);
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        fprintf(stderr, "structural flags cache benchmark warmup failed: %d\\n", status);
+        goto cleanup;
+    }
+    {
+        double determinant;
+        status = numerus_matrix_determinant((numerus_matrix *) source, &determinant);
+        if (status != NUMERUS_MATRIX_SUCCESS) {
+            fprintf(stderr, "determinant cache benchmark warmup failed: %d\\n", status);
+            goto cleanup;
+        }
+    }
+
     reset_allocation_stats();
     start = clock();
     for (i = 0; i < CACHE_BENCHMARK_ITERATIONS; i++) {
