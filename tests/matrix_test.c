@@ -254,7 +254,7 @@ static numerus_matrix_status transpose_coordinates(
     size_t column,
     size_t *parent_row,
     size_t *parent_column,
-    void *context
+    const void *context
 )
 {
     (void) context;
@@ -270,7 +270,7 @@ static numerus_matrix_status diagonal_index_values(
     size_t column,
     double parent_value,
     double *result,
-    void *context
+    const void *context
 )
 {
     (void) context;
@@ -285,7 +285,7 @@ static numerus_matrix_status invalid_coordinates(
     size_t column,
     size_t *parent_row,
     size_t *parent_column,
-    void *context
+    const void *context
 )
 {
     (void) row;
@@ -302,7 +302,7 @@ static numerus_matrix_status out_of_bounds_coordinates(
     size_t column,
     size_t *parent_row,
     size_t *parent_column,
-    void *context
+    const void *context
 )
 {
     (void) context;
@@ -318,7 +318,7 @@ static numerus_matrix_status invalid_value(
     size_t column,
     double parent_value,
     double *result,
-    void *context
+    const void *context
 )
 {
     (void) row;
