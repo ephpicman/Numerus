@@ -62,6 +62,10 @@ struct numerus_matrix {
     size_t *block_column_offsets;
     size_t block_row_count;
     size_t block_column_count;
+    bool diagonal_matrix_view;
+    bool diagonal_offset_positive;
+    size_t diagonal_offset_magnitude;
+    size_t diagonal_vector_length;
 };
 
 static numerus_matrix_status identity_coordinate_transform(
@@ -141,6 +145,27 @@ static numerus_matrix_status slice_coordinate_transform(
     }
 
     *parent_row = view->transform_row_offset + row;
+    *parent_column = view->transform_column_offset + column;
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status diagonal_extract_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    const numerus_matrix *view = context;
+
+    (void) row;
+
+    if (view == NULL || parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = view->transform_row_offset + column;
     *parent_column = view->transform_column_offset + column;
     return NUMERUS_MATRIX_SUCCESS;
 }
@@ -513,6 +538,10 @@ static int allocate_matrix(numerus_matrix **matrix)
     (*matrix)->block_column_offsets = NULL;
     (*matrix)->block_row_count = 0;
     (*matrix)->block_column_count = 0;
+    (*matrix)->diagonal_matrix_view = false;
+    (*matrix)->diagonal_offset_positive = true;
+    (*matrix)->diagonal_offset_magnitude = 0;
+    (*matrix)->diagonal_vector_length = 0;
 
     return NUMERUS_MATRIX_SUCCESS;
 }
@@ -1201,6 +1230,119 @@ int numerus_matrix_create_block_grid_view(
     view->block_column_count = block_column_count;
     *matrix = view;
 
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+int numerus_matrix_create_diagonal_extract_view(
+    numerus_matrix *parent,
+    ptrdiff_t offset,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix *view = NULL;
+    size_t parent_rows;
+    size_t parent_columns;
+    size_t row_offset = 0;
+    size_t column_offset = 0;
+    size_t length;
+    numerus_matrix_status status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+
+    if (parent == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    parent_rows = numerus_matrix_rows(parent);
+    parent_columns = numerus_matrix_columns(parent);
+
+    if (offset >= 0) {
+        column_offset = (size_t) offset;
+        if (column_offset >= parent_columns) {
+            return NUMERUS_MATRIX_OUT_OF_BOUNDS;
+        }
+        length = parent_columns - column_offset;
+        if (length > parent_rows) {
+            length = parent_rows;
+        }
+    } else {
+        row_offset = (size_t) (-(offset + 1)) + 1;
+        if (row_offset >= parent_rows) {
+            return NUMERUS_MATRIX_OUT_OF_BOUNDS;
+        }
+        length = parent_rows - row_offset;
+        if (length > parent_columns) {
+            length = parent_columns;
+        }
+    }
+
+    status = numerus_matrix_create_from_parent_with_transforms(
+        parent, 1, length, diagonal_extract_coordinate_transform,
+        NULL, NULL, &view
+    );
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        return status;
+    }
+
+    view->transform_row_offset = row_offset;
+    view->transform_column_offset = column_offset;
+    view->transform_context = view;
+    *matrix = view;
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+int numerus_matrix_create_diagonal_from_vector_view(
+    numerus_matrix *vector,
+    ptrdiff_t offset,
+    numerus_matrix **matrix
+)
+{
+    numerus_matrix *view = NULL;
+    size_t vector_length;
+    size_t offset_magnitude;
+    size_t size;
+    numerus_matrix_status status;
+
+    if (matrix == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+    *matrix = NULL;
+
+    if (vector == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    if (numerus_matrix_rows(vector) == 1) {
+        vector_length = numerus_matrix_columns(vector);
+    } else if (numerus_matrix_columns(vector) == 1) {
+        vector_length = numerus_matrix_rows(vector);
+    } else {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    offset_magnitude = offset >= 0
+        ? (size_t) offset
+        : (size_t) (-(offset + 1)) + 1;
+
+    if (!numerus_size_add(vector_length, offset_magnitude, &size)) {
+        return NUMERUS_MATRIX_OVERFLOW;
+    }
+
+    status = numerus_matrix_create_from_parent_with_transforms(
+        vector, size, size, NULL, NULL, NULL, &view
+    );
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        return status;
+    }
+
+    view->diagonal_matrix_view = true;
+    view->diagonal_offset_positive = offset >= 0;
+    view->diagonal_offset_magnitude = offset_magnitude;
+    view->diagonal_vector_length = vector_length;
+    *matrix = view;
     return NUMERUS_MATRIX_SUCCESS;
 }
 
@@ -1992,6 +2134,44 @@ numerus_matrix_status numerus_matrix_get_unchecked(
 
         return numerus_matrix_get(
             matrix->parent, row % parent_rows, column % parent_columns, value
+        );
+    }
+
+    if (matrix->diagonal_matrix_view) {
+        size_t diagonal_index;
+
+        if (matrix->parent == NULL) {
+            return NUMERUS_MATRIX_INVALID_ARGUMENT;
+        }
+
+        if (matrix->diagonal_offset_positive) {
+            if (column < row ||
+                column - row != matrix->diagonal_offset_magnitude) {
+                *value = 0.0;
+                return NUMERUS_MATRIX_SUCCESS;
+            }
+            diagonal_index = row;
+        } else {
+            if (row < column ||
+                row - column != matrix->diagonal_offset_magnitude) {
+                *value = 0.0;
+                return NUMERUS_MATRIX_SUCCESS;
+            }
+            diagonal_index = column;
+        }
+
+        if (diagonal_index >= matrix->diagonal_vector_length) {
+            *value = 0.0;
+            return NUMERUS_MATRIX_SUCCESS;
+        }
+
+        if (numerus_matrix_rows(matrix->parent) == 1) {
+            return numerus_matrix_get(
+                matrix->parent, 0, diagonal_index, value
+            );
+        }
+        return numerus_matrix_get(
+            matrix->parent, diagonal_index, 0, value
         );
     }
 
