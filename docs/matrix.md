@@ -176,16 +176,18 @@ summary of a joined Matrix's representations.
 Each Matrix has a per-object analysis cache. It stores structural metadata and
 scalar results, not element values, so it does not change the lazy-view model.
 
-`numerus_matrix_get_flags()` computes and caches exact structural properties:
+`numerus_matrix_get_flags()` computes and caches structural properties:
 square, zero, diagonal, upper-triangular, lower-triangular, symmetric, and
 identity. These flags describe the logical values exposed by that Matrix,
-including views and joins. Comparisons use exact floating-point equality; no
-tolerance is applied. A square zero Matrix is also diagonal, upper-triangular,
+including views and joins. Floating-point classification uses the comparison
+policy in `numerus_numeric.h` (`NUMERUS_EPSILON = 1e-9`): zero checks use an
+absolute tolerance, while equality checks use combined absolute/relative
+tolerance. A square zero Matrix is also diagonal, upper-triangular,
 lower-triangular, and symmetric.
 
 `numerus_matrix_determinant()` caches a successfully computed determinant.
 Structural flags use `NUMERUS_EPSILON` (`1e-9`) with an absolute tolerance
-near zero and a scale-aware relative tolerance for comparing two nonzero values.
+for zero checks and a scale-aware combined tolerance for equality checks.
 The determinant elimination pivot check remains exact-zero: applying a fixed
 epsilon there would incorrectly classify small but valid matrices as singular.
 The general path uses Gaussian elimination with partial pivoting. If flags
