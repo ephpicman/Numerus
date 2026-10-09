@@ -102,7 +102,7 @@ static void test_validation_and_rank_failure(void)
     const double rhs_values[] = {1, 2, 3};
     const double bad_weights[] = {1, -1, 1};
     const double nan_weights[] = {1, NAN, 1};
-    const double zero_weights[] = {1, 1, 0};
+    const double zero_weights[] = {1, 0, 0};
     numerus_matrix *matrix = NULL;
     numerus_matrix *rhs = NULL;
     numerus_matrix *solution = (void *) 1;
