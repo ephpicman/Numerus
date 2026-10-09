@@ -64,7 +64,7 @@ numerus_matrix_status numerus_matrix_inverse(
         return NUMERUS_MATRIX_OUT_OF_MEMORY;
     }
 
-    status = numerus_matrix_lu_factorize(matrix, &factorization);
+    status = numerus_matrix_get_or_factorize_lu(matrix, &factorization);
     if (status != NUMERUS_MATRIX_SUCCESS) {
         free(work);
         free(values);
