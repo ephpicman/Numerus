@@ -53,6 +53,21 @@ by Storage and are not retained.
 Dimensions must be positive. Constructors that use square-only representations
 return `NUMERUS_MATRIX_NOT_SQUARE` when rows and columns differ.
 
+## Reshape and flatten
+
+`numerus_matrix_create_reshape(parent, rows, columns, &result)` creates a
+lazy view with a new shape but the same logical element count. Traversal is
+row-major: reading the reshaped result in row-major order yields the same
+sequence as reading the parent in row-major order. Both dimensions must be
+positive. Overflow in either element-count calculation returns
+`NUMERUS_MATRIX_OVERFLOW`; unequal counts return
+`NUMERUS_MATRIX_DIMENSION_MISMATCH`.
+
+`numerus_matrix_create_flatten(parent, &result)` is the row-vector
+specialization, producing shape 1 × (rows·columns). Both operations compose
+with existing views and propagate parent read failures. They do not copy
+element data; the parent is borrowed and must outlive the result.
+
 ## Row and column selection
 
 `numerus_matrix_create_select_rows(parent, indices, count, &result)` and
@@ -370,7 +385,7 @@ determinism requirements.
 The native Matrix tests cover storage-backed constructors, orientation
 transforms, row/column removal and swaps, composed views, lazy scalar
 multiplication, powers, Kronecker products, range slices, indexed row/column
-selection, scalar division, exact/approximate equality, vector constructors,
+selection, reshape/flatten views, scalar division, equality, vector constructors,
 element-wise arithmetic, materialization, and overflow/read-failure handling.
 
 Run them from the repository root:
@@ -459,6 +474,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_selection_test tests/matrix_selection_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
 ./tests/matrix_selection_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_reshape_test tests/matrix_reshape_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c
+./tests/matrix_reshape_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds
