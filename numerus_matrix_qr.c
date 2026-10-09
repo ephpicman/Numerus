@@ -1,4 +1,5 @@
 #include "numerus_matrix.h"
+#include "numerus_matrix_qr.h"
 #include "numerus_size.h"
 #include "numerus_numeric.h"
 
