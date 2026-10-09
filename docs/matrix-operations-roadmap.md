@@ -153,15 +153,15 @@ Exit criteria: factorization reconstruction tests, numerical edge-case coverage,
 
 # Phase 5 — Inverse and linear-system solving
 
-- [x] 5.1 Define singularity and failure semantics. Singular and near-singular inputs use scale-aware numerical rank; failures return statuses and no result. (Defined in inverse PR; merge pending.)
+- [x] 5.1 Define singularity and failure semantics. Singular and near-singular inputs use scale-aware numerical rank; failures return statuses and no result. (Implemented and merged in PR #45.)
 - [x] 5.2 Inverse via LU solves. Materialize the inverse as independent Storage-backed Matrix; no adjugate/determinant path. (Merged in PR #45.)
 - [ ] 5.3 Inverse via Gauss–Jordan. Implement as a separate selectable algorithm only if it adds educational value or a measured trade-off; test independently.
 - [ ] 5.4 Reference/cofactor inverse for small matrices. Optional, primarily as a reference/test oracle for tiny matrices, not a default production algorithm. Do not present it as generally stable or fast.
 - [ ] 5.5 Cache inverse results. Choose a cache ownership design first: a retained immutable result with clear destruction, or a separate reusable factorization/result object. Never store a raw pointer to a Matrix whose lifetime is not owned. Bound memory and avoid cycles.
 - [x] 5.6 Solve Ax=b. Matrix RHS supports multiple columns sharing one LU factorization; no inverse-times-vector default path. (Merged in PR #46.)
 - [ ] 5.7 Reuse cached factorization. Share LU among determinant, inverse, and repeated solves only after a coherent factorization cache is designed and benchmarked.
-- [ ] 5.8 Condition estimate. Help users identify unreliable results; distinguish estimate from exact property. (One-norm estimate proposed; merge pending.)
-- [ ] 5.9 Inverse algorithm benchmarks. Compare LU-based inverse, Gauss–Jordan, and optional small-matrix path on time, allocations, residual norm, and ill-conditioned inputs. Do not choose solely by raw speed.
+- [x] 5.8 Condition estimate. One-norm estimate distinguishes conditioning from exact properties; singular inputs report infinity. (Merged in PR #47.)
+- [ ] 5.9 Inverse algorithm benchmarks. Initial timings/allocation counts and inverse residual measurement now cover LU inverse and condition estimation. Comparative Gauss–Jordan/small-matrix algorithms remain deferred until a justified alternative exists; ill-conditioned inputs still need a dedicated benchmark.
 
 Exit criteria: independent inverse Storage, explicit singular/error behavior, residual and stability tests, documented caching/lifetime policy.
 
