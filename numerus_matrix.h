@@ -806,6 +806,19 @@ numerus_matrix_status numerus_matrix_reduced_row_echelon_form(
  * threshold. The returned Matrix owns independent dense Storage. On failure,
  * *inverse remains NULL; singular inputs return NUMERUS_MATRIX_SINGULAR.
  */
+/**
+ * Solve A X = B for square, numerically nonsingular A.
+ *
+ * B may contain one or multiple right-hand-side columns. One LU
+ * factorization is reused across all columns. The result is an independent
+ * dense Matrix; on failure, *solution remains NULL.
+ */
+numerus_matrix_status numerus_matrix_solve(
+    const numerus_matrix *matrix,
+    const numerus_matrix *right_hand_side,
+    numerus_matrix **solution
+);
+
 numerus_matrix_status numerus_matrix_inverse(
     const numerus_matrix *matrix,
     numerus_matrix **inverse
