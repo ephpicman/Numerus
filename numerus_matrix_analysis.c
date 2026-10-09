@@ -1,5 +1,6 @@
 #include "numerus_matrix.h"
 #include "numerus_size.h"
+#include "numerus_numeric.h"
 
 #include <math.h>
 #include <stdlib.h>
@@ -464,4 +465,120 @@ numerus_matrix_status numerus_matrix_is_finite(
     return matrix_evaluate_finite_predicate(
         matrix, MATRIX_FINITE_PREDICATE_ALL_FINITE, is_finite
     );
+}
+
+
+numerus_matrix_status numerus_matrix_is_skew_symmetric(
+    const numerus_matrix *matrix,
+    bool *is_skew_symmetric
+)
+{
+    size_t row;
+    size_t column;
+    bool result = true;
+
+    if (matrix == NULL || is_skew_symmetric == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    if (numerus_matrix_rows(matrix) != numerus_matrix_columns(matrix)) {
+        *is_skew_symmetric = false;
+        return NUMERUS_MATRIX_SUCCESS;
+    }
+
+    for (row = 0; row < numerus_matrix_rows(matrix); row++) {
+        for (column = row; column < numerus_matrix_columns(matrix); column++) {
+            double value;
+            double transposed_value;
+            numerus_matrix_status status = numerus_matrix_get(
+                matrix, row, column, &value
+            );
+
+            if (status != NUMERUS_MATRIX_SUCCESS) {
+                return status;
+            }
+
+            if (row == column) {
+                if (!numerus_double_is_zero(value)) {
+                    result = false;
+                    goto done;
+                }
+                continue;
+            }
+
+            status = numerus_matrix_get(
+                matrix, column, row, &transposed_value
+            );
+            if (status != NUMERUS_MATRIX_SUCCESS) {
+                return status;
+            }
+
+            if (!numerus_double_equals(value, -transposed_value)) {
+                result = false;
+                goto done;
+            }
+        }
+    }
+
+done:
+    *is_skew_symmetric = result;
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+numerus_matrix_status numerus_matrix_is_orthogonal(
+    const numerus_matrix *matrix,
+    bool *is_orthogonal
+)
+{
+    size_t size;
+    size_t row;
+    size_t other_row;
+
+    if (matrix == NULL || is_orthogonal == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    size = numerus_matrix_rows(matrix);
+    if (size != numerus_matrix_columns(matrix)) {
+        *is_orthogonal = false;
+        return NUMERUS_MATRIX_SUCCESS;
+    }
+
+    for (row = 0; row < size; row++) {
+        for (other_row = row; other_row < size; other_row++) {
+            double dot_product = 0.0;
+            size_t column;
+
+            for (column = 0; column < size; column++) {
+                double left_value;
+                double right_value;
+                numerus_matrix_status status = numerus_matrix_get(
+                    matrix, row, column, &left_value
+                );
+
+                if (status != NUMERUS_MATRIX_SUCCESS) {
+                    return status;
+                }
+
+                status = numerus_matrix_get(
+                    matrix, other_row, column, &right_value
+                );
+                if (status != NUMERUS_MATRIX_SUCCESS) {
+                    return status;
+                }
+
+                dot_product += left_value * right_value;
+            }
+
+            if (!numerus_double_equals(
+                    dot_product, row == other_row ? 1.0 : 0.0
+                )) {
+                *is_orthogonal = false;
+                return NUMERUS_MATRIX_SUCCESS;
+            }
+        }
+    }
+
+    *is_orthogonal = true;
+    return NUMERUS_MATRIX_SUCCESS;
 }
