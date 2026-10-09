@@ -16,6 +16,8 @@ A Matrix has positive row and column counts and is one of three forms:
   value transforms when an element is read.
 - **Joined view:** refers to two parent Matrices and delegates each read to the
   appropriate parent.
+- **Binary arithmetic view:** refers to two equally shaped parents and combines
+  their corresponding values on each read.
 
 The Matrix structure is opaque. Callers cannot access or change its internal
 fields through the public header.
@@ -129,6 +131,16 @@ Dimension addition is checked for `size_t` overflow. Incompatible dimensions
 return `NUMERUS_MATRIX_DIMENSION_MISMATCH`; overflow returns
 `NUMERUS_MATRIX_OVERFLOW`. Nested joins remain lazy.
 
+## Element-wise addition and subtraction
+
+`numerus_matrix_create_add()` and `numerus_matrix_create_subtract()` create
+lazy two-parent nodes. Both parents must have identical row and column counts;
+otherwise the constructor returns `NUMERUS_MATRIX_DIMENSION_MISMATCH` and leaves
+the output pointer NULL. Each read obtains the corresponding value from both
+parents, propagates either parent's read failure, then applies ordinary IEEE-754
+`double` addition or subtraction. The operation does not mutate or materialize
+either input. Both parents must outlive the result.
+
 ## Ownership and lifetime
 
 Ownership is deliberately simple but important:
@@ -136,6 +148,7 @@ Ownership is deliberately simple but important:
 - A root Matrix owns and destroys its Storage.
 - A derived view does not own its parent.
 - A joined view does not own either parent.
+- A binary arithmetic view does not own either parent.
 - Destroying a view does not destroy its parent.
 - Every parent must remain alive while any dependent view can be read.
 
@@ -173,10 +186,10 @@ Only use it when the Matrix and coordinate preconditions are satisfied.
 The metadata functions `numerus_matrix_rows()` and
 `numerus_matrix_columns()` return zero for a NULL pointer.
 `numerus_matrix_storage_kind()` reports the root Storage kind for ordinary
-derived views and returns `NUMERUS_STORAGE_ZERO` for NULL. For a joined Matrix,
+derived views and returns `NUMERUS_STORAGE_ZERO` for NULL. For a joined or binary arithmetic Matrix,
 the implementation currently follows the first parent; therefore, this value
-does not describe both sides of a join and should not be treated as a complete
-summary of a joined Matrix's representations.
+does not describe both sides of the node and should not be treated as a complete
+summary of its input representations.
 
 
 ## Cached analysis
@@ -220,10 +233,10 @@ determinism requirements.
 ## Native tests
 
 The native Matrix tests cover storage-backed constructors, orientation
-transforms, row/column removal and swaps, composed views, custom value
-transforms, lazy scalar multiplication and negation, callback error propagation,
-joins, dimension mismatch and overflow handling, cached structural flags,
-determinant calculations, and output-value preservation after failures.
+transforms, row/column removal and swaps, composed views, lazy scalar
+multiplication and negation, element-wise addition and subtraction, callback
+error propagation, joins, dimension mismatch and overflow handling, cached
+structural flags, determinant calculations, and output-value preservation after failures.
 
 Run them from the repository root:
 
@@ -239,6 +252,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_unary_test tests/matrix_unary_test.c numerus_matrix.c numerus_storage.c
 ./tests/matrix_unary_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_binary_test tests/matrix_binary_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c
+./tests/matrix_binary_test
 ```
 
 The standalone allocator defines are only for native tests. Extension builds
