@@ -203,6 +203,14 @@ and byte-count arithmetic are checked before allocation. Parent read failures
 are propagated and the output pointer remains NULL on failure. Non-finite
 values follow IEEE-754 arithmetic; they are not status errors.
 
+Exact identity and zero operands use guarded fast paths when the other operand
+contains only finite, nonnegative values and no negative zero. Sparse-backed
+right operands can use a row-compressed multiplication path when at most 25%
+of logical entries are nonzero and both operands satisfy that same numeric
+precondition. These paths preserve the independent dense result contract.
+Negative values, signed zero, NaN, and infinities fall back to the generic loop
+so implicit zero terms retain their IEEE-754 behavior.
+
 ## Materialization
 
 `numerus_matrix_materialize(source, &result)` copies the logical values exposed

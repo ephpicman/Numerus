@@ -235,6 +235,42 @@ static void test_safe_shortcuts(void)
     numerus_matrix_destroy(matrix);
 }
 
+static void test_sparse_right_product(void)
+{
+    const double left_values[] = {1, 2, 3, 4, 5, 6, 7, 8};
+    const double non_finite_values[] = {INFINITY, 2, 3, 4, 5, 6, 7, 8};
+    const numerus_storage_sparse_entry entries[] = {
+        {0, 2}, {5, 3}, {10, 4}, {15, 5}
+    };
+    numerus_matrix *left = NULL, *sparse = NULL, *non_finite = NULL;
+    numerus_matrix *product = NULL;
+    double value;
+
+    assert(numerus_matrix_create_dense(2, 4, left_values, &left) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_sparse(4, 4, 0.0, entries, 4, &sparse) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_multiply(left, sparse, &product) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_storage_kind(product) == NUMERUS_STORAGE_DENSE);
+    assert(matrix_value_equals(product, 0, 0, 2));
+    assert(matrix_value_equals(product, 0, 1, 6));
+    assert(matrix_value_equals(product, 0, 2, 12));
+    assert(matrix_value_equals(product, 0, 3, 20));
+    assert(matrix_value_equals(product, 1, 0, 10));
+    assert(matrix_value_equals(product, 1, 1, 18));
+    assert(matrix_value_equals(product, 1, 2, 28));
+    assert(matrix_value_equals(product, 1, 3, 40));
+    numerus_matrix_destroy(product); product = NULL;
+
+    assert(numerus_matrix_create_dense(2, 4, non_finite_values, &non_finite) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_multiply(non_finite, sparse, &product) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get(product, 0, 1, &value) == NUMERUS_MATRIX_SUCCESS);
+    assert(isnan(value)); /* Sparse skipping must not erase 0 × infinity. */
+
+    numerus_matrix_destroy(product);
+    numerus_matrix_destroy(non_finite);
+    numerus_matrix_destroy(sparse);
+    numerus_matrix_destroy(left);
+}
+
 int main(void)
 {
     test_rectangular_product();
@@ -242,6 +278,7 @@ int main(void)
     test_shape_overflow_and_read_failures();
     test_non_finite_product();
     test_safe_shortcuts();
+    test_sparse_right_product();
     puts("Matrix multiplication tests passed.");
     return 0;
 }
