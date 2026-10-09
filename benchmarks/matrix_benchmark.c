@@ -314,7 +314,7 @@ static void benchmark_condition_estimate(
 
 #define CACHE_BENCHMARK_ITERATIONS 128
 
-static void benchmark_analysis_cache(const numerus_matrix *source)
+static void benchmark_analysis_cache(numerus_matrix *source)
 {
     numerus_matrix *fresh[CACHE_BENCHMARK_ITERATIONS] = {NULL};
     numerus_matrix_flags flags;
@@ -342,7 +342,7 @@ static void benchmark_analysis_cache(const numerus_matrix *source)
     }
     {
         double determinant;
-        status = numerus_matrix_determinant((numerus_matrix *) source, &determinant);
+        status = numerus_matrix_determinant(source, &determinant);
         if (status != NUMERUS_MATRIX_SUCCESS) {
             fprintf(stderr, "determinant cache benchmark warmup failed: %d\\n", status);
             goto cleanup;
