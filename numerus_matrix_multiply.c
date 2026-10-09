@@ -207,12 +207,37 @@ static numerus_matrix_status matrix_try_sparse_right_product(
         !numerus_size_multiply(inner_dimension, columns, &maximum_entries) ||
         !numerus_size_multiply(
             inner_dimension + 1, sizeof(*row_offsets), &row_offsets_bytes
+        )) {
+        return NUMERUS_MATRIX_SUCCESS;
+    }
+
+    /* Count nonzero entries before allocating storage proportional to nnz. */
+    for (inner = 0; inner < inner_dimension; inner++) {
+        for (column = 0; column < columns; column++) {
+            double value;
+
+            status = numerus_matrix_get(right, inner, column, &value);
+            if (status != NUMERUS_MATRIX_SUCCESS) {
+                return status;
+            }
+            if (!isfinite(value) || value < 0.0 ||
+                (value == 0.0 && signbit(value))) {
+                return NUMERUS_MATRIX_SUCCESS;
+            }
+            if (value != 0.0) {
+                nonzero_count++;
+            }
+        }
+    }
+
+    if (nonzero_count == 0 || nonzero_count > maximum_entries / 4) {
+        return NUMERUS_MATRIX_SUCCESS;
+    }
+    if (!numerus_size_multiply(
+            nonzero_count, sizeof(*column_indices), &column_indices_bytes
         ) ||
         !numerus_size_multiply(
-            maximum_entries, sizeof(*column_indices), &column_indices_bytes
-        ) ||
-        !numerus_size_multiply(
-            maximum_entries, sizeof(*sparse_values), &sparse_values_bytes
+            nonzero_count, sizeof(*sparse_values), &sparse_values_bytes
         )) {
         return NUMERUS_MATRIX_SUCCESS;
     }
@@ -224,30 +249,35 @@ static numerus_matrix_status matrix_try_sparse_right_product(
         goto fallback;
     }
 
-    for (inner = 0; inner < inner_dimension; inner++) {
-        row_offsets[inner] = nonzero_count;
-        for (column = 0; column < columns; column++) {
-            double value;
+    {
+        size_t entry_count = 0;
+        for (inner = 0; inner < inner_dimension; inner++) {
+            row_offsets[inner] = entry_count;
+            for (column = 0; column < columns; column++) {
+                double value;
 
-            status = numerus_matrix_get(right, inner, column, &value);
-            if (status != NUMERUS_MATRIX_SUCCESS) {
-                goto error;
+                status = numerus_matrix_get(right, inner, column, &value);
+                if (status != NUMERUS_MATRIX_SUCCESS) {
+                    goto error;
+                }
+                if (!isfinite(value) || value < 0.0 ||
+                    (value == 0.0 && signbit(value))) {
+                    goto fallback;
+                }
+                if (value != 0.0) {
+                    if (entry_count >= nonzero_count) {
+                        goto fallback;
+                    }
+                    column_indices[entry_count] = column;
+                    sparse_values[entry_count] = value;
+                    entry_count++;
+                }
             }
-            if (!isfinite(value) || value < 0.0 ||
-                (value == 0.0 && signbit(value))) {
-                goto fallback;
-            }
-            if (value != 0.0) {
-                column_indices[nonzero_count] = column;
-                sparse_values[nonzero_count] = value;
-                nonzero_count++;
-            }
+            row_offsets[inner + 1] = entry_count;
         }
-    }
-    row_offsets[inner_dimension] = nonzero_count;
-
-    if (nonzero_count > maximum_entries / 4) {
-        goto fallback;
+        if (entry_count != nonzero_count) {
+            goto fallback;
+        }
     }
 
     output = numerus_multiply_alloc(output_allocation_size);
