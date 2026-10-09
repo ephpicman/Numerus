@@ -217,7 +217,7 @@ Exit criteria: clear scalar-vs-matrix result types, explicit NaN semantics, no h
 
 - [x] 10.1 Audit current Storage kinds. Documented representation costs, generic multiplication behavior, IEEE-754 constraints, and the benchmark evidence needed before specialization in [the Storage optimization audit](matrix-storage-optimization-audit.md).
 - [x] 10.2 Specialized multiplication paths. Added exact identity/zero shortcuts guarded by finite nonnegative operands; other inputs use the generic IEEE-754 loop. Diagonal, triangular, and sparse paths remain deferred until separate benchmarks justify their complexity.
-- [ ] 10.3 Toeplitz, Hankel, Vandermonde, Hilbert, and permutation constructors. Add only if use cases justify public API surface.
+- [x] 10.3 Constructor scope review. Deferred Toeplitz, Hankel, Vandermonde, Hilbert, and a separate permutation-matrix constructor because there is no current consumer; existing row/column permutation views cover the immediate need. See [the Storage optimization audit](matrix-storage-optimization-audit.md).
 - [ ] 10.4 Sparse-aware multiplication and factorization. Avoid densifying large sparse inputs unnecessarily; define sparse fill-in behavior.
 - [ ] 10.5 Sparse factorization and rank. Requires dedicated algorithm and memory benchmarks; do not promise sparse performance from dense implementations.
 - [ ] 10.6 Tensor/array boundary. Kronecker product is still a matrix operation. General N-dimensional tensors are a separate abstraction and are not silently folded into Matrix.
