@@ -357,6 +357,25 @@ It returns `NUMERUS_MATRIX_NOT_SQUARE` for non-square (A),
 `NUMERUS_MATRIX_NON_FINITE` for non-finite inputs or intermediates. On
 failure, the output pointer remains NULL.
 
+## Reduced Householder QR decomposition
+
+`numerus_matrix_qr_decompose(A, &Q, &R)` computes a reduced Householder
+factorization with A approximately equal to Q times R. If m is the row count,
+n the column count, and k = min(m, n), then Q has shape m-by-k and R has
+shape k-by-n. The columns of Q are orthonormal within floating-point error;
+R is upper trapezoidal.
+
+The implementation uses unpivoted Householder reflectors and materializes
+both outputs as independent dense Matrices. It supports tall, wide,
+rank-deficient, and zero matrices. It is **not rank-revealing**: column
+permutation and numerical-rank classification are deliberately separate
+concerns. Non-finite inputs or intermediates return
+`NUMERUS_MATRIX_NON_FINITE`; source read failures propagate unchanged. Both
+output pointers are NULL on failure.
+
+The algorithm costs O(m*n*k) arithmetic and O(m*n + m*k + k*n) temporary
+storage, in addition to the two output Matrices.
+
 ## Condition estimate
 
 `numerus_matrix_condition_estimate_one()` estimates the 1-norm condition
@@ -793,6 +812,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_condition_test tests/matrix_condition_test.c numerus_matrix_condition.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
 ./tests/matrix_condition_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_qr_test tests/matrix_qr_test.c numerus_matrix_qr.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+./tests/matrix_qr_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
