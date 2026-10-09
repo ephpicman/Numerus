@@ -104,7 +104,7 @@ Exit criteria: documented contracts, robust size checks, reusable tests, and a d
 - [x] 1.7 Scalar division. Reject a zero divisor with `NUMERUS_MATRIX_DIVISION_BY_ZERO`; direct division is used instead of multiplying by a reciprocal. (Merged in PR #20.)
 - [x] 1.8 Approximate and exact matrix equality. Exact equality is separate from epsilon-based close comparison; shape mismatch returns success with `false`. (Merged in PR #21.)
 - [x] 1.9 Constructors and diagonal utilities. Existing constant/identity/diagonal constructors were retained; row-vector and column-vector constructors were added as ordinary dense Matrices, without a separate Vector type. (Merged in PR #22.)
-- [ ] 1.10 Matrix power for non-negative integer exponents. Use identity for exponent zero and exponentiation by squaring. Materialize computed results except for well-defined trivial cases.
+- [x] 1.10 Matrix power for non-negative integer exponents. Use identity for exponent zero and exponentiation by squaring. Materialize computed results except for well-defined trivial cases. (Merged in PR #23.)
 - [ ] 1.11 Kronecker product. Validate output dimensions and allocation overflow; materialize by default.
 
 Exit criteria: fundamental arithmetic and multiplication have shape, overflow, non-finite, and representation tests; benchmarks establish a baseline.

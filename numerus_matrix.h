@@ -451,6 +451,19 @@ int numerus_matrix_power(
     numerus_matrix **matrix
 );
 
+/**
+ * Compute the Kronecker product left ⊗ right into independent dense Storage.
+ *
+ * Result dimensions are left.rows × right.rows by left.columns × right.columns.
+ * All dimension, element-count, and byte-count arithmetic is checked. On
+ * failure, the output pointer remains NULL.
+ */
+int numerus_matrix_kronecker_product(
+    const numerus_matrix *left,
+    const numerus_matrix *right,
+    numerus_matrix **matrix
+);
+
 /** Create a dense Matrix. */
 int numerus_matrix_create_dense(
     size_t rows,
