@@ -50,6 +50,17 @@ int numerus_matrix_create_selection_view(
     numerus_matrix **matrix
 );
 
+/** Private checked constructor for a constant-padded view. */
+int numerus_matrix_create_padding_view(
+    numerus_matrix *parent,
+    size_t top,
+    size_t bottom,
+    size_t left,
+    size_t right,
+    double value,
+    numerus_matrix **matrix
+);
+
 /** Private checked constructor for a lazy range slice. */
 int numerus_matrix_create_slice_view(
     numerus_matrix *parent,
