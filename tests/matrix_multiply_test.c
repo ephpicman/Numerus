@@ -186,12 +186,47 @@ static void test_non_finite_product(void)
     numerus_matrix_destroy(left);
 }
 
+static void test_safe_shortcuts(void)
+{
+    const double a[] = {1, 2, 3, 4};
+    const double b[] = {INFINITY, 1, 2, 3};
+    numerus_matrix *matrix = NULL, *identity = NULL, *zero = NULL;
+    numerus_matrix *nonfinite = NULL, *result = NULL;
+    double value;
+
+    assert(numerus_matrix_create_dense(2, 2, a, &matrix) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_identity(2, &identity) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_zero(2, 2, &zero) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_multiply(matrix, identity, &result) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_storage_kind(result) == NUMERUS_STORAGE_DENSE);
+    numerus_matrix_destroy(result); result = NULL;
+    assert(numerus_matrix_multiply(matrix, zero, &result) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_storage_kind(result) == NUMERUS_STORAGE_ZERO);
+    numerus_matrix_destroy(result); result = NULL;
+
+    assert(numerus_matrix_create_dense(2, 2, b, &nonfinite) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_multiply(nonfinite, identity, &result) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get(result, 0, 1, &value) == NUMERUS_MATRIX_SUCCESS);
+    assert(isnan(value));
+    numerus_matrix_destroy(result); result = NULL;
+    assert(numerus_matrix_multiply(nonfinite, zero, &result) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get(result, 0, 0, &value) == NUMERUS_MATRIX_SUCCESS);
+    assert(isnan(value));
+
+    numerus_matrix_destroy(result);
+    numerus_matrix_destroy(nonfinite);
+    numerus_matrix_destroy(zero);
+    numerus_matrix_destroy(identity);
+    numerus_matrix_destroy(matrix);
+}
+
 int main(void)
 {
     test_rectangular_product();
     test_identity_and_zero_products();
     test_shape_overflow_and_read_failures();
     test_non_finite_product();
+    test_safe_shortcuts();
     puts("Matrix multiplication tests passed.");
     return 0;
 }
