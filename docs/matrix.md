@@ -342,6 +342,19 @@ does not describe both sides of the node and should not be treated as a complete
 summary of its input representations.
 
 
+## Matrix inverse
+
+`numerus_matrix_inverse()` computes the inverse through LU factorization and
+triangular solves for each identity-column right-hand side. It does not form an
+adjugate or multiply by the inverse of the determinant, and it returns a new
+dense Matrix independent of the input.
+
+Numerical singularity uses `numerus_matrix_rank()` and its scale-aware
+threshold. A deficient rank returns `NUMERUS_MATRIX_SINGULAR`; non-square
+input returns `NUMERUS_MATRIX_NOT_SQUARE`; non-finite values and allocation or
+read failures propagate their specific status. On any failure, the output
+pointer remains NULL. Inverse results are not cached.
+
 ## Row-echelon forms
 
 `numerus_matrix_row_echelon_form()` and
@@ -732,6 +745,12 @@ cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_elimination_test tests/matrix_elimination_test.c numerus_matrix_elimination.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
 ./tests/matrix_elimination_test
+
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+  -o tests/matrix_inverse_test tests/matrix_inverse_test.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+./tests/matrix_inverse_test
 
 cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
