@@ -98,7 +98,7 @@ static void test_orthogonal(void)
 
 static void test_validation_and_read_failure(void)
 {
-    const double values[] = {1, 2, 3, 4};
+    const double values[] = {0, -1, 1, 0};
     numerus_matrix *root = NULL;
     numerus_matrix *failing = NULL;
     bool result = true;
