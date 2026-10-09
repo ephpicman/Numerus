@@ -76,13 +76,16 @@ typedef struct numerus_matrix numerus_matrix;
  *
  * The callback must write both parent coordinates on success. It must return
  * a Matrix status on failure; the status is propagated to the caller.
+ * The callback must be deterministic and must not depend on mutable external
+ * state. The context is borrowed, read-only, and must remain valid and
+ * logically unchanged for the lifetime of the child Matrix.
  */
 typedef numerus_matrix_status (*numerus_coordinate_transform_fn)(
     size_t row,
     size_t column,
     size_t *parent_row,
     size_t *parent_column,
-    void *context
+    const void *context
 );
 
 /**
@@ -90,13 +93,16 @@ typedef numerus_matrix_status (*numerus_coordinate_transform_fn)(
  *
  * row and column are the original coordinates requested from the child.
  * The callback writes result only when it returns NUMERUS_MATRIX_SUCCESS.
+ * The callback must be deterministic and must not depend on mutable external
+ * state. The context is borrowed, read-only, and must remain valid and
+ * logically unchanged for the lifetime of the child Matrix.
  */
 typedef numerus_matrix_status (*numerus_value_transform_fn)(
     size_t row,
     size_t column,
     double parent_value,
     double *result,
-    void *context
+    const void *context
 );
 
 /**
@@ -142,7 +148,12 @@ int numerus_matrix_create_from_parent(
  * @brief Create a child Matrix with coordinate and value transforms.
  *
  * A NULL callback selects its identity/pass-through default. The context is
- * non-owning and must remain alive while the child may be read.
+ * borrowed and is never modified or freed by Matrix. It must remain valid and
+ * logically unchanged for the child's lifetime. Callbacks must be deterministic
+ * and must not depend on mutable external state; this contract is required for
+ * the child to remain logically immutable. The const qualifier documents and
+ * enforces read-only access through this API, but cannot prevent a caller from
+ * mutating the same object through another alias.
  */
 int numerus_matrix_create_from_parent_with_transforms(
     numerus_matrix *parent,
@@ -150,7 +161,7 @@ int numerus_matrix_create_from_parent_with_transforms(
     size_t columns,
     numerus_coordinate_transform_fn coordinate_transform,
     numerus_value_transform_fn value_transform,
-    void *context,
+    const void *context,
     numerus_matrix **matrix
 );
 
