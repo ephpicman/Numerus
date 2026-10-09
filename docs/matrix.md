@@ -65,6 +65,21 @@ Supported convenience views:
 | `numerus_matrix_create_rotate_90_clockwise()` | Clockwise quarter-turn; dimensions are swapped |
 | `numerus_matrix_create_rotate_180()` | Half-turn; dimensions are unchanged |
 | `numerus_matrix_create_rotate_90_counterclockwise()` | Counter-clockwise quarter-turn; dimensions are swapped |
+| `numerus_matrix_create_remove_row(parent, row, ...)` | Omits one zero-based row; result has one fewer row |
+| `numerus_matrix_create_remove_column(parent, column, ...)` | Omits one zero-based column; result has one fewer column |
+| `numerus_matrix_create_swap_rows(parent, row1, row2, ...)` | Exchanges two zero-based row positions |
+| `numerus_matrix_create_swap_columns(parent, column1, column2, ...)` | Exchanges two zero-based column positions |
+
+Row/column removal and swaps are coordinate transforms. They do not mutate the
+parent or copy element data. Removing the only row or only column is rejected
+with `NUMERUS_MATRIX_INVALID_ARGUMENT`, because Matrix dimensions must remain
+positive. An index outside the corresponding parent dimension returns
+`NUMERUS_MATRIX_OUT_OF_BOUNDS`. Swapping an index with itself is valid and
+produces an identity mapping.
+
+The convenience constructors above use the generic coordinate-transform
+mechanism internally. Use `numerus_matrix_create_from_parent_with_transforms()`
+when a custom coordinate mapping or value transformation is needed.
 
 Views can be composed: a view can use another view or a joined Matrix as its
 parent. This composes the read mapping without copying element data.
@@ -190,10 +205,11 @@ determinism requirements.
 
 ## Native tests
 
-The native Matrix tests cover storage-backed constructors, views and their
-coordinate mappings, composed views, custom value transforms, callback error
-propagation, joins, dimension mismatch and overflow handling, cached structural
-flags, determinant calculations, and output-value preservation after failures.
+The native Matrix tests cover storage-backed constructors, orientation
+transforms, row/column removal and swaps, composed views, custom value
+transforms, callback error propagation, joins, dimension mismatch and overflow
+handling, cached structural flags, determinant calculations, and
+output-value preservation after failures.
 
 Run them from the repository root:
 

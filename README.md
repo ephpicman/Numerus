@@ -33,10 +33,17 @@ Storage is opaque and immutable. Its representation is private to
 
 ### Matrix
 
-Matrix can be created as a storage-backed root or as a lazy view. Supported
-views include transpose, row/column flips, 90-degree and 180-degree rotations,
-and horizontal/vertical joins. Views do not copy element data: they map a read
-to their parent Matrix (or, for joins, to one of two parents).
+Matrix can be created as a storage-backed root or as a lazy view.
+Supported coordinate views include transpose, row/column flips, 90-degree and
+180-degree rotations, removing one row or column, and swapping two selected
+rows or columns. Horizontal and vertical joins combine two parent Matrices.
+Views do not copy element data: they map reads to their parent Matrix (or, for
+joins, to one of two parents). The Matrix API also supports generic coordinate
+and value callbacks for custom views.
+
+Removal and swap operations are views, not mutations. Coordinates are
+zero-based. Removing the only row or only column is rejected because Matrix
+dimensions must remain positive; invalid indices return an error status.
 
 Parent references are **non-owning**. A caller must keep every parent alive
 while a child or joined Matrix can be read. The eventual PHP object layer must
