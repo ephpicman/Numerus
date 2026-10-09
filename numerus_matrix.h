@@ -830,6 +830,23 @@ numerus_matrix_status numerus_matrix_reduced_row_echelon_form(
  * rank-revealing permutation. Both outputs own independent dense Storage.
  * On failure, both output pointers remain NULL.
  */
+/**
+ * Compute a basis for the numerical null space of a Matrix.
+ *
+ * For nullity > 0, *basis is a dense Matrix with one basis vector per column.
+ * For full-column-rank input, the null space is trivial and the successful
+ * result is *basis == NULL with *nullity == 0; Matrix dimensions remain
+ * strictly positive. Numerical rank uses NUMERUS_EPSILON scaled by the
+ * larger input dimension and the largest absolute input element.
+ *
+ * On failure, *basis remains NULL and *nullity remains unchanged.
+ */
+numerus_matrix_status numerus_matrix_null_space(
+    const numerus_matrix *matrix,
+    numerus_matrix **basis,
+    size_t *nullity
+);
+
 numerus_matrix_status numerus_matrix_qr_decompose(
     const numerus_matrix *matrix,
     numerus_matrix **q,
