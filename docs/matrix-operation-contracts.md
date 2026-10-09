@@ -70,3 +70,14 @@ algorithm comparison and education, not as a claim of better stability or
 performance. It returns an independently materialized dense matrix; on invalid,
 non-square, singular, non-finite, overflow, or allocation failure, the output
 pointer remains NULL. The LU-based inverse remains the recommended default.
+
+
+## Scalar addition and subtraction
+
+`numerus_matrix_create_scalar_add(A, c)` returns a lazy view whose elements are
+`A[i,j] + c`; `numerus_matrix_create_scalar_subtract(A, c)` returns a lazy view
+whose elements are `A[i,j] - c`. These are distinct from element-wise
+matrix/matrix addition and subtraction and from scalar multiplication. The
+scalar is copied into the allocated view, not borrowed from the caller.
+Operations use ordinary IEEE-754 `double` semantics; NaN and infinities are
+successful values, and the borrowed parent must outlive the view.
