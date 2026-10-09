@@ -15,7 +15,7 @@ cc -std=c11 -O2 -Wall -Wextra -Wpedantic -Werror \
   -o benchmarks/matrix_benchmark \
   benchmarks/matrix_benchmark.c \
   numerus_matrix.c numerus_matrix_binary.c \
-  numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_storage.c
+  numerus_matrix_materialize.c numerus_matrix_multiply.c \\\n  numerus_matrix_analysis.c numerus_matrix_lu.c \\\n  numerus_matrix_inverse.c numerus_matrix_condition.c numerus_storage.c
 ./benchmarks/matrix_benchmark
 ```
 
@@ -32,11 +32,11 @@ Manager.
 - 64×128 joined-view reads.
 - 1,000 scalar-view constructions.
 - Three materializations of a transpose view.
-- Three 32×32 dense matrix multiplications.
+- Three 32×32 dense matrix multiplications.\n- Three 32×32 LU-based inverses and condition estimates. The inverse input is diagonally dominant to avoid benchmarking a singular matrix.\n- One maximum residual check, `max|A*A⁻¹-I|`, outside the timed interval.
 
 The source matrices are constructed before counters and timers are reset for
 each measured case. Read workloads perform full checked-coordinate scans;
-operation workloads create and destroy each result inside the timed interval.
+operation workloads create and destroy each result inside the timed interval. Inverse residual validation is deliberately outside the timed interval.
 A volatile sink prevents the read results from being trivially discarded.
 
 These numbers are intended as a reproducible starting point, not universal
