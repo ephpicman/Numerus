@@ -71,8 +71,6 @@ Supported convenience views:
 | `numerus_matrix_create_swap_columns(parent, column1, column2, ...)` | Exchanges two zero-based column positions |
 | `numerus_matrix_create_scale(parent, scalar, ...)` | Multiplies each logical value by a copied scalar |
 | `numerus_matrix_create_negate(parent, ...)` | Negates each logical value |
-| `numerus_matrix_create_add(left, right, ...)` | Adds corresponding elements from equal-shaped parents |
-| `numerus_matrix_create_subtract(left, right, ...)` | Subtracts corresponding elements from equal-shaped parents |
 
 Row/column removal and swaps are coordinate transforms. They do not mutate the
 parent or copy element data. Removing the only row or only column is rejected
