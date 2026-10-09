@@ -22,7 +22,7 @@ struct numerus_matrix {
     numerus_matrix_join_type join_type;
     numerus_coordinate_transform_fn coordinate_transform;
     numerus_value_transform_fn value_transform;
-    void *transform_context;
+    const void *transform_context;
 };
 
 static numerus_matrix_status identity_coordinate_transform(
@@ -30,7 +30,7 @@ static numerus_matrix_status identity_coordinate_transform(
     size_t column,
     size_t *parent_row,
     size_t *parent_column,
-    void *context
+    const void *context
 )
 {
     (void) context;
@@ -50,7 +50,7 @@ static numerus_matrix_status passthrough_value_transform(
     size_t column,
     double parent_value,
     double *result,
-    void *context
+    const void *context
 )
 {
     (void) row;
@@ -71,7 +71,7 @@ static numerus_matrix_status transpose_coordinate_transform(
     size_t column,
     size_t *parent_row,
     size_t *parent_column,
-    void *context
+    const void *context
 )
 {
     (void) context;
@@ -91,7 +91,7 @@ static numerus_matrix_status flip_rows_coordinate_transform(
     size_t column,
     size_t *parent_row,
     size_t *parent_column,
-    void *context
+    const void *context
 )
 {
     const numerus_matrix *parent = context;
@@ -111,7 +111,7 @@ static numerus_matrix_status flip_columns_coordinate_transform(
     size_t column,
     size_t *parent_row,
     size_t *parent_column,
-    void *context
+    const void *context
 )
 {
     const numerus_matrix *parent = context;
@@ -131,7 +131,7 @@ static numerus_matrix_status rotate_90_clockwise_coordinate_transform(
     size_t column,
     size_t *parent_row,
     size_t *parent_column,
-    void *context
+    const void *context
 )
 {
     const numerus_matrix *parent = context;
@@ -151,7 +151,7 @@ static numerus_matrix_status rotate_180_coordinate_transform(
     size_t column,
     size_t *parent_row,
     size_t *parent_column,
-    void *context
+    const void *context
 )
 {
     const numerus_matrix *parent = context;
@@ -171,7 +171,7 @@ static numerus_matrix_status rotate_90_counterclockwise_coordinate_transform(
     size_t column,
     size_t *parent_row,
     size_t *parent_column,
-    void *context
+    const void *context
 )
 {
     const numerus_matrix *parent = context;
@@ -426,7 +426,7 @@ int numerus_matrix_create_from_parent_with_transforms(
     size_t columns,
     numerus_coordinate_transform_fn coordinate_transform,
     numerus_value_transform_fn value_transform,
-    void *context,
+    const void *context,
     numerus_matrix **matrix
 )
 {
