@@ -179,8 +179,8 @@ Exit criteria: rectangular and rank-deficient test suites; residual-based valida
 # Phase 7 — Additional decompositions
 
 - [x] 7.1 QR decomposition. Reduced Householder QR defines Q as m×min(m,n) and R as min(m,n)×n; unpivoted QR is not rank-revealing. (Merged in PR #49.)
-- [ ] 7.2 Cholesky decomposition. Require symmetric positive-definite input within documented tolerance; report failure cleanly.
-- [ ] 7.3 LDLᵀ decomposition. Define pivoting support and supported matrix classes.
+- [x] 7.2 Cholesky decomposition. Scale-aware symmetry and positive-pivot checks; semidefinite/indefinite inputs return explicit statuses. (Merged in PR #56.)
+- [ ] 7.3 LDLᵀ decomposition. Unpivoted LDLᵀ supports symmetric matrices with safely nonzero leading pivots, including some indefinite matrices; pivot-required cases return an explicit small-pivot status. (Implementation proposed in PR #57; merge pending.)
 - [ ] 7.4 SVD. Select a proven algorithm and test reconstruction, orthogonality, singular-value ordering, and rank-deficient cases.
 - [ ] 7.5 Schur decomposition. Add after a reliable eigenvalue foundation exists.
 - [ ] 7.6 Hessenberg and bidiagonal reductions. Implement as internal building blocks when required by eigenvalue/SVD algorithms.
