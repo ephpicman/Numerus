@@ -4,5 +4,5 @@ PHP_ARG_ENABLE([numerus],
   [no])
 
 if test "$PHP_NUMERUS" != "no"; then
-  PHP_NEW_EXTENSION([numerus], [numerus.c numerus_storage.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_compare.c numerus_matrix_constructors.c numerus_matrix_power.c numerus_matrix_kronecker.c numerus_matrix_views.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix_elimination.c numerus_matrix_inverse.c numerus_matrix_solve.c numerus_matrix_condition.c numerus_matrix_qr.c numerus_matrix_null_space.c numerus_matrix_spaces.c], [$ext_shared])
+  PHP_NEW_EXTENSION([numerus], [numerus.c numerus_storage.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_compare.c numerus_matrix_constructors.c numerus_matrix_power.c numerus_matrix_kronecker.c numerus_matrix_views.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix_elimination.c numerus_matrix_inverse.c numerus_matrix_solve.c numerus_matrix_condition.c numerus_matrix_qr.c numerus_matrix_null_space.c numerus_matrix_spaces.c numerus_matrix_system.c], [$ext_shared])
 fi
