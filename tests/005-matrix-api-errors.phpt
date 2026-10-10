@@ -39,6 +39,12 @@ try {
 } catch (Exception $e) {
     echo "singular inverse rejected\n";
 }
+
+try {
+    clone Matrix::fromRows([[1]]);
+} catch (Error $e) {
+    echo "cloning rejected\n";
+}
 ?>
 --EXPECT--
 ragged rows rejected
@@ -46,3 +52,4 @@ empty row rejected
 negative coordinate rejected
 incompatible product rejected
 singular inverse rejected
+cloning rejected
