@@ -16,6 +16,7 @@
 
 #include <math.h>
 #include <stdint.h>
+#include <string.h>
 
 typedef struct {
     numerus_matrix *matrix;
