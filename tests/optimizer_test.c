@@ -618,8 +618,12 @@ static void test_result_accessor_invalid_arguments(void)
     numerus_optimizer_result_destroy(result);
 }
 
+static size_t invalid_options_case = 0;
+
 static void assert_invalid_options(numerus_optimizer_options options)
 {
+    invalid_options_case++;
+    fprintf(stderr, "checking invalid optimizer options case %zu\\n", invalid_options_case);
     const double initial[] = {1.0};
     scalar_context context = {SCALAR_QUADRATIC, 0.0, 0.0};
     numerus_optimizer_result *result = (void *) 1;
