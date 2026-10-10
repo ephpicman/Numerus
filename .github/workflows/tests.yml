@@ -580,7 +580,7 @@ jobs:
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free \
-            -o tests/matrix_allocation_failure_test tests/matrix_allocation_failure_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+            -o tests/matrix_allocation_failure_test tests/matrix_allocation_failure_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_binary.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_allocation_failure_test
 
       - name: Run adversarial Matrix numerical tests
@@ -699,6 +699,75 @@ jobs:
             -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
             -o tests/statistical_property_sanitized tests/statistical_property_test.c src/core/numerus_numeric.c src/statistics/numerus_optimizer.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/statistics/numerus_rng_sampling.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/statistical_property_sanitized
+
+      - name: Run native Storage tests with AddressSanitizer and UBSan
+        run: |
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/storage_sanitized tests/storage_test.c src/storage/numerus_storage.c
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/storage_sanitized
+
+      - name: Run Matrix adversarial tests with AddressSanitizer and UBSan
+        run: |
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_adversarial_sanitized tests/matrix_adversarial_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_statistics.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/matrix_adversarial_sanitized
+
+      - name: Run Matrix allocation-failure tests with AddressSanitizer and UBSan
+        run: |
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_allocation_failure_sanitized tests/matrix_allocation_failure_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_binary.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c \
+            -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/matrix_allocation_failure_sanitized
+
+
+
+      - name: Run Matrix LU tests with AddressSanitizer and UBSan
+        run: |
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_lu_sanitized tests/matrix_lu_test.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/matrix_lu_sanitized
+
+      - name: Run Matrix Cholesky tests with AddressSanitizer and UBSan
+        run: |
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_cholesky_sanitized tests/matrix_cholesky_test.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/matrix_cholesky_sanitized
+
+      - name: Run Matrix QR tests with AddressSanitizer and UBSan
+        run: |
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_qr_sanitized tests/matrix_qr_test.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/matrix_qr_sanitized
+
+      - name: Run Matrix SVD tests with AddressSanitizer and UBSan
+        run: |
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_svd_sanitized tests/matrix_svd_test.c src/matrix/numerus_matrix_svd.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/matrix_svd_sanitized
+
+      - name: Run Matrix pseudoinverse tests with AddressSanitizer and UBSan
+        run: |
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_pseudoinverse_sanitized tests/matrix_pseudoinverse_test.c src/matrix/numerus_matrix_pseudoinverse.c src/matrix/numerus_matrix_svd.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_views.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/matrix_pseudoinverse_sanitized
 
       - name: Run extension tests
         run: make test TESTS='tests/*.phpt'

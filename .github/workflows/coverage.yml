@@ -1,0 +1,103 @@
+name: Native coverage
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  native-coverage:
+    name: Native line and branch coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install coverage tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gcc gcovr
+
+      - name: Build and run instrumented native tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          build_root="$RUNNER_TEMP/numerus-coverage"
+          object_dir="$build_root/objects"
+          test_dir="$build_root/tests"
+          mkdir -p "$object_dir" "$test_dir"
+          source_objects=()
+
+          while IFS= read -r -d '' source; do
+            object_name="${source//\//_}"
+            object="$object_dir/${object_name%.c}.o"
+            gcc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics \
+              -std=c11 -O0 -g --coverage -fprofile-abs-path \
+              -Wall -Wextra -Wpedantic -Werror \
+              -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+              -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+              -DNUMERUS_PROBABILITY_USE_LIBC_ALLOC \
+              -DNUMERUS_RNG_USE_LIBC_ALLOC \
+              -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
+              -c "$source" -o "$object"
+            source_objects+=("$object")
+          done < <(find src -name '*.c' ! -path 'src/numerus.c' -print0 | sort -z)
+
+          compile_suite() {
+            local name="$1"
+            local source="$2"
+            gcc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics \
+              -std=c11 -O0 -g --coverage -fprofile-abs-path \
+              -Wall -Wextra -Wpedantic -Werror \
+              -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+              -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+              -DNUMERUS_PROBABILITY_USE_LIBC_ALLOC \
+              -DNUMERUS_RNG_USE_LIBC_ALLOC \
+              -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
+              -Dmain="numerus_coverage_${name}_main" \
+              -c "$source" -o "$test_dir/$name.o"
+          }
+
+          compile_suite storage tests/storage_test.c
+          compile_suite matrix_property tests/matrix_property_test.c
+          compile_suite matrix_adversarial tests/matrix_adversarial_test.c
+          compile_suite statistical_property tests/statistical_property_test.c
+
+          gcc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics \
+            -std=c11 -O0 -g --coverage -fprofile-abs-path \
+            -Wall -Wextra -Wpedantic -Werror \
+            -c tests/coverage_driver.c -o "$test_dir/coverage_driver.o"
+
+          gcc --coverage "${source_objects[@]}" \
+            "$test_dir/storage.o" \
+            "$test_dir/matrix_property.o" \
+            "$test_dir/matrix_adversarial.o" \
+            "$test_dir/statistical_property.o" \
+            "$test_dir/coverage_driver.o" -lm -o "$build_root/native-coverage"
+          "$build_root/native-coverage"
+
+      - name: Generate line and branch coverage reports
+        run: |
+          mkdir -p coverage
+          gcovr \
+            --root "$GITHUB_WORKSPACE" \
+            --filter '.*/src/.*' \
+            --object-directory "$RUNNER_TEMP/numerus-coverage" \
+            --branches \
+            --txt coverage/summary.txt \
+            --xml-pretty --xml coverage/coverage.xml \
+            --html-details coverage/index.html
+          cat coverage/summary.txt
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-coverage-${{ github.event_name }}
+          path: coverage/
+          if-no-files-found: error
+          retention-days: 14
