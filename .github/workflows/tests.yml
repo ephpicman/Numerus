@@ -560,6 +560,14 @@ jobs:
             -o tests/matrix_property_sanitized tests/matrix_property_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/matrix_property_sanitized
 
+      - name: Run RNG state tests with AddressSanitizer and UBSan
+        run: |
+          cc -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -DNUMERUS_RNG_TEST_ALLOCATOR \
+            -o tests/rng_state_sanitized tests/rng_state_test.c numerus_rng.c
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/rng_state_sanitized
+
       - name: Run extension tests
         run: make test TESTS='tests/*.phpt'
 
