@@ -53,7 +53,7 @@ Do not create one long-lived branch for the whole roadmap. One issue, one branch
 9. **[#114 — Stable log-determinant](https://github.com/ephpicman/Numerus/issues/114)** — **Completed in PR #136**  
    The audit and #111 contract confirmed the gap. This adds signed log-absolute-determinant using LU factors, preserving outputs on failure.
 
-10. **[#122 — OLS/WLS/GLS reference workflow tests](https://github.com/ephpicman/Numerus/issues/122)** — **Tests added in this PR**  
+10. **[#122 — OLS/WLS/GLS reference workflow tests](https://github.com/ephpicman/Numerus/issues/122)** — **Completed in PR #137**  
     The new native workflow test composes OLS, diagonal WLS, GLS whitening, Cholesky and log determinant, with ill-scaled/rank-deficient and invalid-covariance cases. These are composition tests, not model-fitting APIs.
 
 ### Stage 3 — Reproducible RNG and resampling
