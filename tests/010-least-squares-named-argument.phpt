@@ -8,7 +8,7 @@ if (!extension_loaded('numerus')) {
 ?>
 --FILE--
 <?php
-use Numerus\\Matrix;
+use Numerus\Matrix;
 
 $design = Matrix::fromRows([
     [1.0, 1.0],
