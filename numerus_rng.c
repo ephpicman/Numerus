@@ -2,7 +2,12 @@
 
 #include <stdlib.h>
 
-#ifndef NUMERUS_RNG_USE_LIBC_ALLOC
+#if defined(NUMERUS_RNG_TEST_ALLOCATOR)
+void *numerus_rng_test_alloc(size_t size);
+void numerus_rng_test_free(void *pointer);
+# define numerus_rng_alloc(size) numerus_rng_test_alloc(size)
+# define numerus_rng_free(pointer) numerus_rng_test_free(pointer)
+#elif !defined(NUMERUS_RNG_USE_LIBC_ALLOC)
 # include "php.h"
 # include "Zend/zend_alloc.h"
 # define numerus_rng_alloc(size) emalloc(size)
