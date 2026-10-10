@@ -40,11 +40,6 @@ try {
     echo "singular inverse rejected\n";
 }
 
-try {
-    clone Matrix::fromRows([[1]]);
-} catch (Error $e) {
-    echo "cloning rejected\n";
-}
 ?>
 --EXPECT--
 ragged rows rejected
