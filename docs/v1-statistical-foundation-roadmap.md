@@ -247,3 +247,8 @@ The supported/tested build matrix and numerical input/error policy are recorded 
 ## 14. Triangular solve implementation
 
 Issue #113 is implemented by adding `numerus_matrix_solve_triangular()`, including transpose and multiple-RHS support, strict triangular-structure validation, finite checks, and failure-safe output handling. Native tests are registered in CI. The API is an internal C primitive; covariance whitening/GLS composition tests remain tracked by #122. This section becomes complete only after the implementation PR's CI is green and merged.
+
+
+## 15. Stable signed log determinant
+
+Issue #114 adds `numerus_matrix_log_determinant()`, calculating the determinant sign and log absolute magnitude from LU factors without multiplying pivots. It validates finite inputs and factorization intermediates, distinguishes singularity, and preserves scalar outputs on failure. Native tests cover identity, positive/negative determinant, SPD, row permutation, ill-conditioning, extreme scales, singularity and non-finite input. GLS/Gaussian composition tests remain separate from this primitive.
