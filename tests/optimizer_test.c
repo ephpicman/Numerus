@@ -107,6 +107,46 @@ enum {
     SCALAR_FAIL_OFF_INITIAL
 };
 
+
+static bool constant_finite_objective(
+    const double *parameters,
+    size_t count,
+    const void *context,
+    double *value
+)
+{
+    (void) parameters;
+    (void) context;
+
+    if (count != 1 || value == NULL) {
+        return false;
+    }
+    *value = 0.0;
+    return true;
+}
+
+static bool opposite_extreme_objective(
+    const double *parameters,
+    size_t count,
+    const void *context,
+    double *value
+)
+{
+    (void) context;
+
+    if (count != 1 || value == NULL) {
+        return false;
+    }
+    if (parameters[0] > 0.0) {
+        *value = DBL_MAX;
+    } else if (parameters[0] < 0.0) {
+        *value = -DBL_MAX;
+    } else {
+        *value = 0.0;
+    }
+    return true;
+}
+
 static bool scalar_objective(
     const double *parameters,
     size_t count,
@@ -636,6 +676,61 @@ static void test_all_optimizer_option_boundaries(void)
     assert_invalid_options(options);
 }
 
+
+static void test_finite_difference_extreme_boundaries(void)
+{
+    numerus_optimizer_options options;
+    numerus_optimizer_result *result = NULL;
+    numerus_optimizer_termination termination;
+    const double positive_extreme[] = {DBL_MAX};
+    const double negative_extreme[] = {-DBL_MAX};
+    const double origin[] = {0.0};
+    scalar_context unused = {SCALAR_QUADRATIC, 0.0, 0.0};
+
+    assert(numerus_optimizer_default_options(&options) ==
+        NUMERUS_OPTIMIZER_SUCCESS);
+    options.finite_difference_relative_step = 0.5;
+
+    assert(numerus_optimizer_minimize(
+        constant_finite_objective, NULL, NULL,
+        positive_extreme, 1, &options, &result
+    ) == NUMERUS_OPTIMIZER_SUCCESS);
+    assert(result != NULL);
+    assert(numerus_optimizer_result_get_termination(
+        result, &termination
+    ) == NUMERUS_OPTIMIZER_SUCCESS);
+    assert(termination == NUMERUS_OPTIMIZER_GRADIENT_EVALUATION_FAILED);
+    numerus_optimizer_result_destroy(result);
+    result = NULL;
+
+    assert(numerus_optimizer_minimize(
+        constant_finite_objective, NULL, NULL,
+        negative_extreme, 1, &options, &result
+    ) == NUMERUS_OPTIMIZER_SUCCESS);
+    assert(result != NULL);
+    assert(numerus_optimizer_result_get_termination(
+        result, &termination
+    ) == NUMERUS_OPTIMIZER_SUCCESS);
+    assert(termination == NUMERUS_OPTIMIZER_GRADIENT_EVALUATION_FAILED);
+    numerus_optimizer_result_destroy(result);
+    result = NULL;
+
+    assert(numerus_optimizer_default_options(&options) ==
+        NUMERUS_OPTIMIZER_SUCCESS);
+    assert(numerus_optimizer_minimize(
+        opposite_extreme_objective, NULL, NULL,
+        origin, 1, &options, &result
+    ) == NUMERUS_OPTIMIZER_SUCCESS);
+    assert(result != NULL);
+    assert(numerus_optimizer_result_get_termination(
+        result, &termination
+    ) == NUMERUS_OPTIMIZER_SUCCESS);
+    assert(termination == NUMERUS_OPTIMIZER_NON_FINITE_GRADIENT);
+    numerus_optimizer_result_destroy(result);
+
+    (void) unused;
+}
+
 int main(void)
 {
     test_quadratic_with_analytic_gradient_and_result_fields();
@@ -646,6 +741,7 @@ int main(void)
     test_invalid_arguments_and_allocation_failures();
     test_result_accessor_invalid_arguments();
     test_all_optimizer_option_boundaries();
+    test_finite_difference_extreme_boundaries();
     assert(live_allocations == 0);
     puts("Generic optimizer tests passed.");
     return 0;
