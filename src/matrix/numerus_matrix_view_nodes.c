@@ -66,6 +66,301 @@ static numerus_matrix_status slice_coordinate_transform(
     return NUMERUS_MATRIX_SUCCESS;
 }
 
+static numerus_matrix_status diagonal_extract_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    const numerus_matrix *view = context;
+
+    (void) row;
+
+    if (view == NULL || parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = view->transform_row_offset + column;
+    *parent_column = view->transform_column_offset + column;
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status selection_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    const numerus_matrix *view = context;
+
+    if (view == NULL || view->selection_indices == NULL ||
+        parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    if (view->selection_axis == NUMERUS_MATRIX_SELECTION_ROWS) {
+        *parent_row = view->selection_indices[row];
+        *parent_column = column;
+        return NUMERUS_MATRIX_SUCCESS;
+    }
+
+    if (view->selection_axis == NUMERUS_MATRIX_SELECTION_COLUMNS) {
+        *parent_row = row;
+        *parent_column = view->selection_indices[column];
+        return NUMERUS_MATRIX_SUCCESS;
+    }
+
+    return NUMERUS_MATRIX_INVALID_ARGUMENT;
+}
+
+static numerus_matrix_status reshape_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    const numerus_matrix *view = context;
+    size_t linear_index;
+
+    if (view == NULL || parent_row == NULL || parent_column == NULL ||
+        view->transform_parent_columns == 0) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    /*
+     * Construction verifies rows * columns is representable. Coordinates
+     * reaching this callback are within those dimensions, so this linear
+     * index is bounded by the validated logical element count.
+     */
+    linear_index = row * view->columns + column;
+    *parent_row = linear_index / view->transform_parent_columns;
+    *parent_column = linear_index % view->transform_parent_columns;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status transpose_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    (void) context;
+
+    if (parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = column;
+    *parent_column = row;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status flip_rows_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    const numerus_matrix *parent = context;
+
+    if (parent == NULL || parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = numerus_matrix_rows(parent) - 1 - row;
+    *parent_column = column;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status flip_columns_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    const numerus_matrix *parent = context;
+
+    if (parent == NULL || parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = row;
+    *parent_column = numerus_matrix_columns(parent) - 1 - column;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status remove_row_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    const numerus_matrix *view = context;
+
+    if (view == NULL || view->parent == NULL ||
+        parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = row >= view->transform_index1 ? row + 1 : row;
+    *parent_column = column;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status remove_column_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    const numerus_matrix *view = context;
+
+    if (view == NULL || view->parent == NULL ||
+        parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = row;
+    *parent_column = column >= view->transform_index1 ? column + 1 : column;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status swap_rows_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    const numerus_matrix *view = context;
+
+    if (view == NULL || view->parent == NULL ||
+        parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    if (row == view->transform_index1) {
+        row = view->transform_index2;
+    } else if (row == view->transform_index2) {
+        row = view->transform_index1;
+    }
+
+    *parent_row = row;
+    *parent_column = column;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status swap_columns_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    const numerus_matrix *view = context;
+
+    if (view == NULL || view->parent == NULL ||
+        parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    if (column == view->transform_index1) {
+        column = view->transform_index2;
+    } else if (column == view->transform_index2) {
+        column = view->transform_index1;
+    }
+
+    *parent_row = row;
+    *parent_column = column;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status rotate_90_clockwise_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    const numerus_matrix *parent = context;
+
+    if (parent == NULL || parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = numerus_matrix_rows(parent) - 1 - column;
+    *parent_column = row;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status rotate_180_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    const numerus_matrix *parent = context;
+
+    if (parent == NULL || parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = numerus_matrix_rows(parent) - 1 - row;
+    *parent_column = numerus_matrix_columns(parent) - 1 - column;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static numerus_matrix_status rotate_90_counterclockwise_coordinate_transform(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    const numerus_matrix *parent = context;
+
+    if (parent == NULL || parent_row == NULL || parent_column == NULL) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = column;
+    *parent_column = numerus_matrix_columns(parent) - 1 - row;
+
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
 int numerus_matrix_create_selection_view(
     numerus_matrix *parent,
     const size_t *indices,
@@ -1146,297 +1441,28 @@ int numerus_matrix_create_join_vertical(
     );
 }
 
-static numerus_matrix_status diagonal_extract_coordinate_transform(
-    size_t row,
-    size_t column,
-    size_t *parent_row,
-    size_t *parent_column,
-    const void *context
-)
-{
-    const numerus_matrix *view = context;
 
-    (void) row;
 
-    if (view == NULL || parent_row == NULL || parent_column == NULL) {
-        return NUMERUS_MATRIX_INVALID_ARGUMENT;
-    }
 
-    *parent_row = view->transform_row_offset + column;
-    *parent_column = view->transform_column_offset + column;
-    return NUMERUS_MATRIX_SUCCESS;
-}
 
-static numerus_matrix_status selection_coordinate_transform(
-    size_t row,
-    size_t column,
-    size_t *parent_row,
-    size_t *parent_column,
-    const void *context
-)
-{
-    const numerus_matrix *view = context;
 
-    if (view == NULL || view->selection_indices == NULL ||
-        parent_row == NULL || parent_column == NULL) {
-        return NUMERUS_MATRIX_INVALID_ARGUMENT;
-    }
 
-    if (view->selection_axis == NUMERUS_MATRIX_SELECTION_ROWS) {
-        *parent_row = view->selection_indices[row];
-        *parent_column = column;
-        return NUMERUS_MATRIX_SUCCESS;
-    }
 
-    if (view->selection_axis == NUMERUS_MATRIX_SELECTION_COLUMNS) {
-        *parent_row = row;
-        *parent_column = view->selection_indices[column];
-        return NUMERUS_MATRIX_SUCCESS;
-    }
 
-    return NUMERUS_MATRIX_INVALID_ARGUMENT;
-}
 
-static numerus_matrix_status reshape_coordinate_transform(
-    size_t row,
-    size_t column,
-    size_t *parent_row,
-    size_t *parent_column,
-    const void *context
-)
-{
-    const numerus_matrix *view = context;
-    size_t linear_index;
 
-    if (view == NULL || parent_row == NULL || parent_column == NULL ||
-        view->transform_parent_columns == 0) {
-        return NUMERUS_MATRIX_INVALID_ARGUMENT;
-    }
 
-    /*
-     * Construction verifies rows * columns is representable. Coordinates
-     * reaching this callback are within those dimensions, so this linear
-     * index is bounded by the validated logical element count.
-     */
-    linear_index = row * view->columns + column;
-    *parent_row = linear_index / view->transform_parent_columns;
-    *parent_column = linear_index % view->transform_parent_columns;
 
-    return NUMERUS_MATRIX_SUCCESS;
-}
 
-static numerus_matrix_status transpose_coordinate_transform(
-    size_t row,
-    size_t column,
-    size_t *parent_row,
-    size_t *parent_column,
-    const void *context
-)
-{
-    (void) context;
 
-    if (parent_row == NULL || parent_column == NULL) {
-        return NUMERUS_MATRIX_INVALID_ARGUMENT;
-    }
 
-    *parent_row = column;
-    *parent_column = row;
 
-    return NUMERUS_MATRIX_SUCCESS;
-}
 
-static numerus_matrix_status flip_rows_coordinate_transform(
-    size_t row,
-    size_t column,
-    size_t *parent_row,
-    size_t *parent_column,
-    const void *context
-)
-{
-    const numerus_matrix *parent = context;
 
-    if (parent == NULL || parent_row == NULL || parent_column == NULL) {
-        return NUMERUS_MATRIX_INVALID_ARGUMENT;
-    }
 
-    *parent_row = numerus_matrix_rows(parent) - 1 - row;
-    *parent_column = column;
 
-    return NUMERUS_MATRIX_SUCCESS;
-}
 
-static numerus_matrix_status flip_columns_coordinate_transform(
-    size_t row,
-    size_t column,
-    size_t *parent_row,
-    size_t *parent_column,
-    const void *context
-)
-{
-    const numerus_matrix *parent = context;
 
-    if (parent == NULL || parent_row == NULL || parent_column == NULL) {
-        return NUMERUS_MATRIX_INVALID_ARGUMENT;
-    }
 
-    *parent_row = row;
-    *parent_column = numerus_matrix_columns(parent) - 1 - column;
 
-    return NUMERUS_MATRIX_SUCCESS;
-}
 
-static numerus_matrix_status remove_row_coordinate_transform(
-    size_t row,
-    size_t column,
-    size_t *parent_row,
-    size_t *parent_column,
-    const void *context
-)
-{
-    const numerus_matrix *view = context;
-
-    if (view == NULL || view->parent == NULL ||
-        parent_row == NULL || parent_column == NULL) {
-        return NUMERUS_MATRIX_INVALID_ARGUMENT;
-    }
-
-    *parent_row = row >= view->transform_index1 ? row + 1 : row;
-    *parent_column = column;
-
-    return NUMERUS_MATRIX_SUCCESS;
-}
-
-static numerus_matrix_status remove_column_coordinate_transform(
-    size_t row,
-    size_t column,
-    size_t *parent_row,
-    size_t *parent_column,
-    const void *context
-)
-{
-    const numerus_matrix *view = context;
-
-    if (view == NULL || view->parent == NULL ||
-        parent_row == NULL || parent_column == NULL) {
-        return NUMERUS_MATRIX_INVALID_ARGUMENT;
-    }
-
-    *parent_row = row;
-    *parent_column = column >= view->transform_index1 ? column + 1 : column;
-
-    return NUMERUS_MATRIX_SUCCESS;
-}
-
-static numerus_matrix_status swap_rows_coordinate_transform(
-    size_t row,
-    size_t column,
-    size_t *parent_row,
-    size_t *parent_column,
-    const void *context
-)
-{
-    const numerus_matrix *view = context;
-
-    if (view == NULL || view->parent == NULL ||
-        parent_row == NULL || parent_column == NULL) {
-        return NUMERUS_MATRIX_INVALID_ARGUMENT;
-    }
-
-    if (row == view->transform_index1) {
-        row = view->transform_index2;
-    } else if (row == view->transform_index2) {
-        row = view->transform_index1;
-    }
-
-    *parent_row = row;
-    *parent_column = column;
-
-    return NUMERUS_MATRIX_SUCCESS;
-}
-
-static numerus_matrix_status swap_columns_coordinate_transform(
-    size_t row,
-    size_t column,
-    size_t *parent_row,
-    size_t *parent_column,
-    const void *context
-)
-{
-    const numerus_matrix *view = context;
-
-    if (view == NULL || view->parent == NULL ||
-        parent_row == NULL || parent_column == NULL) {
-        return NUMERUS_MATRIX_INVALID_ARGUMENT;
-    }
-
-    if (column == view->transform_index1) {
-        column = view->transform_index2;
-    } else if (column == view->transform_index2) {
-        column = view->transform_index1;
-    }
-
-    *parent_row = row;
-    *parent_column = column;
-
-    return NUMERUS_MATRIX_SUCCESS;
-}
-
-static numerus_matrix_status rotate_90_clockwise_coordinate_transform(
-    size_t row,
-    size_t column,
-    size_t *parent_row,
-    size_t *parent_column,
-    const void *context
-)
-{
-    const numerus_matrix *parent = context;
-
-    if (parent == NULL || parent_row == NULL || parent_column == NULL) {
-        return NUMERUS_MATRIX_INVALID_ARGUMENT;
-    }
-
-    *parent_row = numerus_matrix_rows(parent) - 1 - column;
-    *parent_column = row;
-
-    return NUMERUS_MATRIX_SUCCESS;
-}
-
-static numerus_matrix_status rotate_180_coordinate_transform(
-    size_t row,
-    size_t column,
-    size_t *parent_row,
-    size_t *parent_column,
-    const void *context
-)
-{
-    const numerus_matrix *parent = context;
-
-    if (parent == NULL || parent_row == NULL || parent_column == NULL) {
-        return NUMERUS_MATRIX_INVALID_ARGUMENT;
-    }
-
-    *parent_row = numerus_matrix_rows(parent) - 1 - row;
-    *parent_column = numerus_matrix_columns(parent) - 1 - column;
-
-    return NUMERUS_MATRIX_SUCCESS;
-}
-
-static numerus_matrix_status rotate_90_counterclockwise_coordinate_transform(
-    size_t row,
-    size_t column,
-    size_t *parent_row,
-    size_t *parent_column,
-    const void *context
-)
-{
-    const numerus_matrix *parent = context;
-
-    if (parent == NULL || parent_row == NULL || parent_column == NULL) {
-        return NUMERUS_MATRIX_INVALID_ARGUMENT;
-    }
-
-    *parent_row = column;
-    *parent_column = numerus_matrix_columns(parent) - 1 - row;
-
-    return NUMERUS_MATRIX_SUCCESS;
-}
