@@ -1,6 +1,6 @@
 # Scalar and Log-Domain Utility Selection
 
-Status: selected v1 scope for implementation issue #118. No scalar API beyond the existing comparison helpers is implemented by this decision.
+Status: selected v1 scope, implemented in #118 and covered by native tests.
 
 ## Decision summary
 
