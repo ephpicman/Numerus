@@ -11,15 +11,19 @@ if (!extension_loaded('numerus')) {
 use Numerus\Matrix;
 
 $matrix = Matrix::fromRows([[1.0]]);
+$cloneRejected = false;
 
 try {
     clone $matrix;
 } catch (Error $e) {
-    echo "clone rejected\n";
-    return;
+    $cloneRejected = true;
 }
 
-throw new RuntimeException('Cloning Numerus\\Matrix unexpectedly succeeded');
+if (!$cloneRejected) {
+    throw new RuntimeException('Cloning Numerus\\Matrix unexpectedly succeeded');
+}
+
+echo "clone rejected\n";
 ?>
 --EXPECT--
 clone rejected
