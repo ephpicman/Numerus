@@ -50,7 +50,7 @@ jobs:
         run: |
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_RNG_TEST_ALLOCATOR \
-            -o tests/rng_state_test tests/rng_state_test.c numerus_rng.c
+            -o tests/rng_state_test tests/rng_state_test.c numerus_rng.c -lm
           ./tests/rng_state_test
 
       - name: Run native RNG variate tests
@@ -572,7 +572,7 @@ jobs:
           cc -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
             -fsanitize=address,undefined -fno-omit-frame-pointer \
             -DNUMERUS_RNG_TEST_ALLOCATOR \
-            -o tests/rng_state_sanitized tests/rng_state_test.c numerus_rng.c
+            -o tests/rng_state_sanitized tests/rng_state_test.c numerus_rng.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/rng_state_sanitized
 
       - name: Run RNG variate tests with AddressSanitizer and UBSan
