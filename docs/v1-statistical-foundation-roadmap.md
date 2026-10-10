@@ -217,3 +217,8 @@ Other planned optimizer, RNG, scalar log-domain and Gaussian probability primiti
 ## 8. API boundary decision
 
 The C-first implementation and PHP façade release gate are defined in [Statistical Foundation API Boundary](statistical-api-boundary.md) (issue #108). New statistical algorithms are to be specified and tested as internal C APIs first. This does not make the C-only foundation userland-ready: overall v1 readiness requires a separately designed and tested minimal PHP façade, with ownership-safe Matrix views, explicit RNG state, and documented mapping of C failures. No model-specific estimator APIs are authorized by this decision.
+
+
+## 9. GLS and log-determinant contract
+
+The accepted design contract for the GLS covariance-whitening path and signed log-absolute-determinant is recorded in [GLS Whitening and Log-Determinant Contracts](gls-whitening-and-log-determinant-contracts.md) (issue #111). The audit confirms #113 (triangular solve/whitening) and #114 (stable signed log determinant) as real implementation gaps. Neither capability is considered implemented by the design document; their implementations and executable native tests remain separate issues.
