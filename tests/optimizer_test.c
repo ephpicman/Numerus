@@ -528,6 +528,56 @@ static void test_invalid_arguments_and_allocation_failures(void)
     assert(live_allocations == before);
 }
 
+
+static void test_result_accessor_invalid_arguments(void)
+{
+    const double initial[] = {1.0};
+    scalar_context context = {SCALAR_QUADRATIC, 0.0, 0.0};
+    numerus_optimizer_options options;
+    numerus_optimizer_result *result = NULL;
+    numerus_optimizer_termination termination = NUMERUS_OPTIMIZER_CONVERGED;
+    double value = 987.0;
+
+    assert(numerus_optimizer_result_parameter_count(NULL) == 0);
+    assert(!numerus_optimizer_result_objective_value_valid(NULL));
+    assert(numerus_optimizer_result_iterations(NULL) == 0);
+    assert(numerus_optimizer_result_objective_evaluations(NULL) == 0);
+    assert(numerus_optimizer_result_gradient_evaluations(NULL) == 0);
+
+    assert(numerus_optimizer_result_get_parameter(
+        NULL, 0, &value
+    ) == NUMERUS_OPTIMIZER_INVALID_ARGUMENT);
+    assert(value == 987.0);
+    assert(numerus_optimizer_result_get_objective(
+        NULL, &value
+    ) == NUMERUS_OPTIMIZER_INVALID_ARGUMENT);
+    assert(value == 987.0);
+    assert(numerus_optimizer_result_get_termination(
+        NULL, &termination
+    ) == NUMERUS_OPTIMIZER_INVALID_ARGUMENT);
+    assert(termination == NUMERUS_OPTIMIZER_CONVERGED);
+
+    assert(numerus_optimizer_default_options(&options) ==
+        NUMERUS_OPTIMIZER_SUCCESS);
+    assert(numerus_optimizer_minimize(
+        scalar_objective, scalar_gradient, &context,
+        initial, 1, &options, &result
+    ) == NUMERUS_OPTIMIZER_SUCCESS);
+    assert(result != NULL);
+
+    assert(numerus_optimizer_result_get_parameter(
+        result, 0, NULL
+    ) == NUMERUS_OPTIMIZER_INVALID_ARGUMENT);
+    assert(numerus_optimizer_result_get_objective(
+        result, NULL
+    ) == NUMERUS_OPTIMIZER_INVALID_ARGUMENT);
+    assert(numerus_optimizer_result_get_termination(
+        result, NULL
+    ) == NUMERUS_OPTIMIZER_INVALID_ARGUMENT);
+
+    numerus_optimizer_result_destroy(result);
+}
+
 int main(void)
 {
     test_quadratic_with_analytic_gradient_and_result_fields();
@@ -536,6 +586,7 @@ int main(void)
     test_iteration_limit_and_small_step_are_not_convergence();
     test_callback_failures_and_nonfinite_values();
     test_invalid_arguments_and_allocation_failures();
+    test_result_accessor_invalid_arguments();
     assert(live_allocations == 0);
     puts("Generic optimizer tests passed.");
     return 0;
