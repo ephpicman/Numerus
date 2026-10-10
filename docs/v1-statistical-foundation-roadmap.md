@@ -272,3 +272,8 @@ Issue #116 adds `numerus_rng_uniform()` with a fixed 53-bit mapping to `[0,1)` a
 ## 19. Deterministic index sampling
 
 Issue #117 adds generic index sampling with and without replacement, explicit RNG state, unbiased bounded-integer rejection sampling, and randomized order for no-replacement results. Tests verify exact vectors, bounds, uniqueness, full/empty sample semantics, invalid sizes, checked allocation overflow, OOM output preservation and unchanged RNG state on pre-sampling failure. The native test is included in the normal and ASan/UBSan CI paths.
+
+
+## 20. Stable scalar and log-domain primitives
+
+Issue #118 implements the selected `numerus_numeric_*` C APIs: sigmoid, logit, softplus, log-sigmoid and log-sum-exp. They reject non-finite inputs, distinguish logit domain errors, preserve outputs on failure, and use stable sign-aware/max-shift formulas. Native tests cover extreme finite values, endpoints, invalid domains, input ordering and output preservation; CI runs them normally and under ASan/UBSan. Standard `log1p()`/`expm1()` remain internal C math functions, not duplicate public wrappers.
