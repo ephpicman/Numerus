@@ -138,10 +138,49 @@ static void test_cached_analysis_lifetime(void)
     }
 }
 
+static void test_transpose_view_matches_materialized_matrix(void)
+{
+    const size_t shapes[][2] = {
+        {1, 4},
+        {4, 1},
+        {2, 3},
+        {3, 2}
+    };
+    size_t shape_index;
+
+    for (shape_index = 0; shape_index < sizeof(shapes) / sizeof(shapes[0]); shape_index++) {
+        const size_t rows = shapes[shape_index][0];
+        const size_t columns = shapes[shape_index][1];
+        double values[12];
+        size_t index;
+        numerus_matrix *source = NULL;
+        numerus_matrix *transpose = NULL;
+        numerus_matrix *materialized = NULL;
+
+        for (index = 0; index < rows * columns; index++) {
+            values[index] = (double) index - 2.5;
+        }
+
+        assert(numerus_matrix_create_dense(rows, columns, values, &source) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(numerus_matrix_create_transpose(source, &transpose) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(numerus_matrix_materialize(transpose, &materialized) ==
+            NUMERUS_MATRIX_SUCCESS);
+
+        assert_matrix_close(transpose, materialized, 0.0);
+
+        numerus_matrix_destroy(materialized);
+        numerus_matrix_destroy(transpose);
+        numerus_matrix_destroy(source);
+    }
+}
+
 int main(void)
 {
     test_multiplication_transpose_identity();
     test_identity_and_zero_laws();
+    test_transpose_view_matches_materialized_matrix();
     test_cached_analysis_lifetime();
     puts("Matrix property tests passed.");
     return 0;
