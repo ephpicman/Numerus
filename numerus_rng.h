@@ -9,7 +9,8 @@
 typedef enum {
     NUMERUS_RNG_SUCCESS = 0,
     NUMERUS_RNG_INVALID_ARGUMENT,
-    NUMERUS_RNG_OUT_OF_MEMORY
+    NUMERUS_RNG_OUT_OF_MEMORY,
+    NUMERUS_RNG_NUMERICAL_FAILURE
 } numerus_rng_status;
 
 /** Opaque mutable PCG-XSH-RR 64/32 state. */
@@ -43,6 +44,27 @@ numerus_rng_status numerus_rng_next_u32(
 numerus_rng_status numerus_rng_clone(
     const numerus_rng *source,
     numerus_rng **clone
+);
+
+/** Destroy one state; accepts NULL. */
+/**
+ * Return a uniform double in [0, 1) using exactly two raw PCG32 outputs.
+ * On invalid arguments, the RNG state and output are unchanged.
+ */
+numerus_rng_status numerus_rng_uniform(
+    numerus_rng *rng,
+    double *value
+);
+
+/**
+ * Return one standard normal variate using Box-Muller without caching.
+ * Exactly four raw PCG32 outputs are consumed for a valid call. The output
+ * remains unchanged on failure; the state may already have advanced if a
+ * platform math failure is detected after consuming those outputs.
+ */
+numerus_rng_status numerus_rng_normal(
+    numerus_rng *rng,
+    double *value
 );
 
 /** Destroy one state; accepts NULL. */
