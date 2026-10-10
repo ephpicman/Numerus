@@ -151,11 +151,79 @@ static void test_materialize_failures(void)
     numerus_matrix_destroy(root);
 }
 
+
+static void test_materialize_rectangular_and_degenerate_view_shapes(void)
+{
+    const double values[] = {1, 2, 3, 4, 5, 6};
+    numerus_matrix *root = NULL;
+    numerus_matrix *transpose = NULL;
+    numerus_matrix *nested = NULL;
+    numerus_matrix *row_view = NULL;
+    numerus_matrix *column_view = NULL;
+    numerus_matrix *materialized = NULL;
+    size_t row;
+    size_t column;
+
+    assert(numerus_matrix_create_dense(2, 3, values, &root) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_transpose(root, &transpose) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_slice(
+        transpose, 1, 2, 0, 2, &nested
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_materialize(nested, &materialized) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(materialized) == 2);
+    assert(numerus_matrix_columns(materialized) == 2);
+
+    for (row = 0; row < 2; row++) {
+        for (column = 0; column < 2; column++) {
+            double view_value;
+            double copy_value;
+
+            assert(numerus_matrix_get(nested, row, column, &view_value) ==
+                NUMERUS_MATRIX_SUCCESS);
+            assert(numerus_matrix_get(materialized, row, column, &copy_value) ==
+                NUMERUS_MATRIX_SUCCESS);
+            assert(copy_value == view_value);
+        }
+    }
+
+    assert(numerus_matrix_create_slice(
+        root, 1, 1, 0, 3, &row_view
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_materialize(row_view, &materialized) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(materialized) == 1);
+    assert(numerus_matrix_columns(materialized) == 3);
+    numerus_matrix_destroy(materialized);
+    materialized = NULL;
+
+    assert(numerus_matrix_create_slice(
+        transpose, 0, 3, 1, 1, &column_view
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_materialize(column_view, &materialized) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(materialized) == 3);
+    assert(numerus_matrix_columns(materialized) == 1);
+    assert(matrix_value_equals(materialized, 0, 0, 4.0));
+    assert(matrix_value_equals(materialized, 1, 0, 5.0));
+    assert(matrix_value_equals(materialized, 2, 0, 6.0));
+
+    numerus_matrix_destroy(materialized);
+    numerus_matrix_destroy(column_view);
+    numerus_matrix_destroy(row_view);
+    numerus_matrix_destroy(nested);
+    numerus_matrix_destroy(transpose);
+    numerus_matrix_destroy(root);
+}
+
 int main(void)
 {
     test_materialize_nested_views_and_joins();
     test_materialize_binary_node();
     test_materialize_failures();
+    test_materialize_rectangular_and_degenerate_view_shapes();
     puts("Matrix materialization tests passed.");
     return 0;
 }
