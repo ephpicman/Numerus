@@ -700,7 +700,7 @@ jobs:
             -o tests/statistical_property_sanitized tests/statistical_property_test.c src/core/numerus_numeric.c src/statistics/numerus_optimizer.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/statistics/numerus_rng_sampling.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/statistical_property_sanitized
 
-- name: Run native Storage tests with AddressSanitizer and UBSan
+      - name: Run native Storage tests with AddressSanitizer and UBSan
         run: |
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
             -fsanitize=address,undefined -fno-omit-frame-pointer \
