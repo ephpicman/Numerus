@@ -222,7 +222,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_vector_constructor_test tests/matrix_vector_constructor_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+            -o tests/matrix_vector_constructor_test tests/matrix_vector_constructor_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_vector_constructor_test
 
       - name: Run native Matrix exponential tests
