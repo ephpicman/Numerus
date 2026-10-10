@@ -277,3 +277,8 @@ Issue #117 adds generic index sampling with and without replacement, explicit RN
 ## 20. Stable scalar and log-domain primitives
 
 Issue #118 implements the selected `numerus_numeric_*` C APIs: sigmoid, logit, softplus, log-sigmoid and log-sum-exp. They reject non-finite inputs, distinguish logit domain errors, preserve outputs on failure, and use stable sign-aware/max-shift formulas. Native tests cover extreme finite values, endpoints, invalid domains, input ordering and output preservation; CI runs them normally and under ASan/UBSan. Standard `log1p()`/`expm1()` remain internal C math functions, not duplicate public wrappers.
+
+
+## 21. Generic continuous optimizer
+
+Issue #119 implements the contract in [optimizer-contract.md](optimizer-contract.md): unconstrained BFGS with Armijo backtracking, optional analytic gradient or central finite differences, an opaque owned result, evaluation counters, and explicit convergence/termination reasons. Native tests cover quadratic and Rosenbrock references, finite differences, ill-conditioned scaling, iteration/small-step/line-search stops, callback failures, non-finite values, invalid inputs and injected allocation failures. CI runs normal and ASan/UBSan variants.
