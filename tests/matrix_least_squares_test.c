@@ -258,12 +258,71 @@ static void test_nonfinite_coefficients(void)
     numerus_matrix_destroy(matrix);
 }
 
+
+static void test_minimum_norm_composition_for_underdetermined_system(void)
+{
+    const double matrix_values[] = {1.0, 1.0};
+    const double rhs_values[] = {2.0};
+    numerus_matrix *matrix = NULL;
+    numerus_matrix *rhs = NULL;
+    numerus_matrix *pseudoinverse = NULL;
+    numerus_matrix *solution = NULL;
+    numerus_matrix *reconstructed = NULL;
+    double first;
+    double second;
+    double reconstructed_rhs;
+    double solution_norm_squared;
+    double alternative_norm_squared;
+
+    assert(numerus_matrix_create_dense(1, 2, matrix_values, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(1, 1, rhs_values, &rhs) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    /* The QR least-squares API intentionally rejects underdetermined input. */
+    assert(numerus_matrix_least_squares(matrix, rhs, &solution) ==
+        NUMERUS_MATRIX_RANK_DEFICIENT);
+    assert(solution == NULL);
+
+    /* Compose A+ b for the documented minimum-norm solution. */
+    assert(numerus_matrix_pseudoinverse(matrix, &pseudoinverse) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_multiply(pseudoinverse, rhs, &solution) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(solution) == 2);
+    assert(numerus_matrix_columns(solution) == 1);
+    assert(numerus_matrix_get(solution, 0, 0, &first) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get(solution, 1, 0, &second) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(first - 1.0) < 1e-10);
+    assert(fabs(second - 1.0) < 1e-10);
+
+    assert(numerus_matrix_multiply(matrix, solution, &reconstructed) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get(reconstructed, 0, 0, &reconstructed_rhs) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(reconstructed_rhs - 2.0) < 1e-10);
+
+    solution_norm_squared = first * first + second * second;
+    /* [2, 0] is another exact solution, but has a larger Euclidean norm. */
+    alternative_norm_squared = 2.0 * 2.0;
+    assert(solution_norm_squared < alternative_norm_squared);
+
+    numerus_matrix_destroy(reconstructed);
+    numerus_matrix_destroy(solution);
+    numerus_matrix_destroy(pseudoinverse);
+    numerus_matrix_destroy(rhs);
+    numerus_matrix_destroy(matrix);
+}
+
 int main(void)
 {
     test_exact_multiple_rhs();
     test_noisy_least_squares_solution();
     test_rank_and_dimension_errors();
     test_nonfinite_and_read_failures();
+    test_minimum_norm_composition_for_underdetermined_system();
     test_nonfinite_coefficients();
     puts("Matrix least-squares tests passed.");
     return 0;
