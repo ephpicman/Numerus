@@ -214,8 +214,62 @@ static void test_nonfinite_coefficients_and_nonsquare_input(void)
     numerus_matrix_destroy(matrix);
 }
 
+
+static void test_one_by_one_system(void)
+{
+    const double matrix_values[] = {4.0};
+    const double rhs_values[] = {10.0, -6.0};
+    numerus_matrix *matrix = NULL;
+    numerus_matrix *rhs = NULL;
+    numerus_matrix *solution = NULL;
+    double value;
+
+    assert(numerus_matrix_create_dense(1, 1, matrix_values, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(1, 2, rhs_values, &rhs) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_solve(matrix, rhs, &solution) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(solution) == 1);
+    assert(numerus_matrix_columns(solution) == 2);
+
+    assert(numerus_matrix_get(solution, 0, 0, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value - 2.5) < 1e-12);
+    assert(numerus_matrix_get(solution, 0, 1, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value + 1.5) < 1e-12);
+    assert_solution(matrix, solution, rhs);
+
+    numerus_matrix_destroy(solution);
+    numerus_matrix_destroy(rhs);
+    numerus_matrix_destroy(matrix);
+}
+
+
+static void test_solve_overflow_returns_nonfinite(void)
+{
+    const double matrix_values[] = {1e-320};
+    const double rhs_values[] = {1.0};
+    numerus_matrix *matrix = NULL;
+    numerus_matrix *rhs = NULL;
+    numerus_matrix *solution = (void *) 1;
+
+    assert(numerus_matrix_create_dense(1, 1, matrix_values, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(1, 1, rhs_values, &rhs) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_solve(matrix, rhs, &solution) ==
+        NUMERUS_MATRIX_NON_FINITE);
+    assert(solution == NULL);
+    numerus_matrix_destroy(rhs);
+    numerus_matrix_destroy(matrix);
+}
+
 int main(void)
 {
+    test_solve_overflow_returns_nonfinite();
+    test_one_by_one_system();
     test_lu_cache_reuse_and_source_lifetime();
     test_multiple_right_hand_sides();
     test_row_pivoting_and_errors();

@@ -283,8 +283,49 @@ static void test_validation_and_scale(void)
     numerus_matrix_destroy(matrix);
 }
 
+
+static void test_one_by_one_inverse(void)
+{
+    const double input[] = {4.0};
+    numerus_matrix *matrix = NULL;
+    numerus_matrix *inverse = NULL;
+    double value;
+
+    assert(numerus_matrix_create_dense(1, 1, input, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_inverse(matrix, &inverse) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(inverse) == 1);
+    assert(numerus_matrix_columns(inverse) == 1);
+    assert(numerus_matrix_get(inverse, 0, 0, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value - 0.25) < 1e-12);
+    assert_matches_cofactor_reference(matrix, inverse);
+    assert_identity_product(matrix, inverse);
+
+    numerus_matrix_destroy(inverse);
+    numerus_matrix_destroy(matrix);
+}
+
+
+static void test_inverse_overflow_returns_nonfinite(void)
+{
+    const double values[] = {1e-320};
+    numerus_matrix *matrix = NULL;
+    numerus_matrix *inverse = (void *) 1;
+
+    assert(numerus_matrix_create_dense(1, 1, values, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_inverse(matrix, &inverse) ==
+        NUMERUS_MATRIX_NON_FINITE);
+    assert(inverse == NULL);
+    numerus_matrix_destroy(matrix);
+}
+
 int main(void)
 {
+    test_inverse_overflow_returns_nonfinite();
+    test_one_by_one_inverse();
     test_known_and_pivoted_inverses();
     test_three_by_three_cofactor_reference();
     test_inverse_cache_returns_independent_results();
