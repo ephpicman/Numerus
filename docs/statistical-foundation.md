@@ -12,7 +12,7 @@ No model-specific estimator API is provided. In particular, Numerus does not imp
 
 | Area | Current C capability | Important limitation |
 |---|---|---|
-| Linear algebra | Matrix multiplication, solve, pivoted-QR least squares, weighted least squares, Cholesky, triangular solve, LU, signed log-absolute-determinant, SVD, pseudoinverse, rank and related analysis | Least-squares API requires full column rank; rank-deficient minimum-norm behavior is not implied. |
+| Linear algebra | Matrix multiplication, solve, pivoted-QR least squares, weighted least squares, Cholesky, triangular solve, LU, signed log-absolute-determinant, SVD, pseudoinverse, rank and related analysis | QR least squares requires full column rank; compose the SVD pseudoinverse with B for a minimum-norm solution when rank deficient or underdetermined. |
 | GLS composition | Cholesky factorization, triangular solves and log determinant can be composed to whiten a system and account for covariance determinant terms | There is no model-specific GLS estimator or automatic covariance handling. |
 | Scalar numerical functions | Stable sigmoid, logit, softplus, log-sigmoid and log-sum-exp | Finite-input and domain policies apply; this is not a general special-functions library. |
 | Optimization | Unconstrained BFGS with Armijo backtracking; optional caller gradient or central finite differences; opaque result, evaluation counters and explicit termination reasons | Smooth deterministic objectives only; no bounds/constraints, Hessian API, automatic differentiation, L-BFGS or PHP callback bridge. |
@@ -66,3 +66,14 @@ Run the example's build/run step manually from the repository root by copying th
 - Cryptographic random generation.
 
 These are scope decisions or follow-up work, not implied by the presence of the low-level C primitives.
+
+
+## Least-squares rank and minimum-norm contract
+
+The pivoted-QR function `numerus_matrix_least_squares(A, B, &X)` solves the least-squares problem only when `A` has full column rank. It supports square and overdetermined systems, including multiple right-hand-side columns. Rank-deficient and underdetermined inputs return `NUMERUS_MATRIX_RANK_DEFICIENT` and leave the output pointer `NULL`; it does not silently select a basic solution or claim minimum-norm behavior.
+
+For rank-deficient or underdetermined systems, use the explicit composition
+
+`X = numerus_matrix_pseudoinverse(A) * B`.
+
+The pseudoinverse uses the SVD and its documented relative singular-value threshold. This composition yields the minimum-Euclidean-norm least-squares solution under that numerical rank policy; it is not a symbolic-rank guarantee. Callers should check each status and destroy both intermediate and final matrices. A deterministic 1×2 reference case in `matrix_least_squares_test.c` checks exact residual and demonstrates that the pseudoinverse solution has lower norm than another exact solution.
