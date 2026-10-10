@@ -242,3 +242,8 @@ The selected v1 scalar set is documented in [Scalar and Log-Domain Utility Selec
 ## 13. Portability and non-finite policy
 
 The supported/tested build matrix and numerical input/error policy are recorded in [Numerical Portability and Non-Finite Policy](numerical-portability-and-nonfinite-policy.md) (issue #125). CI currently validates PHP 8.2–8.5 on Ubuntu and a debug build; Windows has a configuration file but is not validated by CI, so the README now states that limitation. New statistical APIs must follow the finite-input, domain-error, status-separation and output-preservation rules in this policy.
+
+
+## 14. Triangular solve implementation
+
+Issue #113 is implemented by adding `numerus_matrix_solve_triangular()`, including transpose and multiple-RHS support, strict triangular-structure validation, finite checks, and failure-safe output handling. Native tests are registered in CI. The API is an internal C primitive; covariance whitening/GLS composition tests remain tracked by #122. This section becomes complete only after the implementation PR's CI is green and merged.
