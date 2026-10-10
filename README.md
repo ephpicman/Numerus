@@ -11,7 +11,7 @@ application-level API.
 
 The user-facing release milestones and the 1.0 acceptance gate are defined in the [release roadmap](docs/release-roadmap.md). The broader [v1 statistical foundation roadmap](docs/v1-statistical-foundation-roadmap.md) tracks reusable capabilities and gaps; its P0 labels do not mean every listed capability is required for 1.0.
 
-The codebase contains an immutable **Storage** subsystem and an internal **Matrix** abstraction built on top of Storage. An initial PHP-facing `Numerus\\Matrix` value object is being introduced for construction, access, transpose, multiplication, inversion, and least-squares composition. See the [PHP API guide](docs/php-api.md); the surface remains intentionally small while its contracts and CI coverage are validated.
+The codebase contains an immutable **Storage** subsystem and an internal **Matrix** abstraction built on top of Storage. The initial PHP-facing `Numerus\Matrix` value object supports construction, access, transpose, multiplication, inversion, and least-squares composition. See the [PHP API guide](docs/php-api.md) and the runnable [PHP OLS example](examples/ols.php); the public surface remains intentionally small while its contracts and CI coverage are validated.
 
 ### Storage
 
@@ -45,7 +45,7 @@ Removal and swap operations are views, not mutations. Coordinates are
 zero-based. Removing the only row or only column is rejected because Matrix
 dimensions must remain positive; invalid indices return an error status.
 
-Parent references in the internal C API are **non-owning**. The initial PHP façade materializes results before returning them, so returned PHP Matrix objects own independent native storage and do not retain C view-parent references.
+Parent references in the internal C API are **non-owning**. The PHP façade materializes results before returning them, so returned PHP Matrix objects own independent native storage and do not retain C view-parent references.
 
 General transform callbacks and their context are borrowed. The context must
 remain valid and logically unchanged for the child's lifetime, and callbacks
@@ -66,7 +66,7 @@ unconstrained BFGS optimization, and multivariate Gaussian log density/sampling.
 These are composable C APIs, not model-fitting functions; the project does not
 provide `fit_ols()`, `fit_gls()`, `fit_mle()`, GP fitting, or MCMC.
 
-The initial Matrix façade exposes generic primitives, not statistical estimators. Users can compose the explicit normal-equation OLS expression `(XᵀX)⁻¹Xᵀy`, while `leastSquares()` provides the preferred pivoted-QR route. The API and its release gate are documented in the [PHP API guide](docs/php-api.md) and [release roadmap](docs/release-roadmap.md). The broader [statistical foundation overview](docs/statistical-foundation.md) and [v1 acceptance audit](docs/v1-statistical-foundation-final-audit.md) continue to track C-level capabilities and remaining release blockers.
+The initial Matrix façade exposes generic primitives, not statistical estimators. Users can compose the explicit normal-equation OLS expression `(XᵀX)⁻¹Xᵀy`, while `leastSquares()` provides the preferred pivoted-QR route. The [PHP API guide](docs/php-api.md) documents the API and its numerical limitations.
 
 ## Requirements
 
@@ -88,6 +88,19 @@ Load the built extension:
 
 ```sh
 php -d extension="$(pwd)/modules/numerus.so" -m
+```
+
+Run the end-to-end OLS example from the repository root after building:
+
+```sh
+php -d extension="$(pwd)/modules/numerus.so" examples/ols.php
+```
+
+Expected output:
+
+```text
+intercept: 1.000000
+slope: 2.000000
 ```
 
 On Windows, `config.w32` is provided, but Windows builds are not currently covered by the CI matrix; treat Windows support as unverified until a Windows build and test job passes.
@@ -135,6 +148,7 @@ and guidance on interpreting uncovered code.
 - `src/statistics/` — RNG, sampling, probability, and optimizer primitives.
 - Root-level C headers are forwarding includes retained for existing native test include paths; declarations and implementations live under `src/`.
 - `php_numerus.h`, `config.m4`, and `config.w32` remain extension-facing build entry points at the repository root.
+- `examples/ols.php` — runnable PHP OLS coefficient workflow.
 - `tests/storage_test.c` — native Storage tests.
 - `tests/matrix_test.c` — native Matrix tests.
 - `tests/` — PHPT and native C tests.
