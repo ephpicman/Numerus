@@ -46,7 +46,6 @@ numerus_rng_status numerus_rng_clone(
     numerus_rng **clone
 );
 
-/** Destroy one state; accepts NULL. */
 /**
  * Return a uniform double in [0, 1) using exactly two raw PCG32 outputs.
  * On invalid arguments, the RNG state and output are unchanged.
