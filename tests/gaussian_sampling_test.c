@@ -285,12 +285,73 @@ static void test_allocation_failure_does_not_advance_rng(void)
     assert(live_probability_allocations == 0);
 }
 
+
+static numerus_matrix_status fail_on_mean_row_one(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    (void) column;
+    (void) context;
+
+    if (row == 1) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = row;
+    *parent_column = 0;
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static void test_matrix_read_failure_preserves_rng_and_output(void)
+{
+    const double mean_values[] = {1.0, 2.0};
+    const double covariance_values[] = {
+        1.0, 0.0,
+        0.0, 1.0
+    };
+    numerus_matrix *root_mean = make_dense(2, 1, mean_values);
+    numerus_matrix *failing_mean = NULL;
+    numerus_matrix *covariance = make_dense(2, 2, covariance_values);
+    numerus_matrix *sample = (numerus_matrix *) 1;
+    numerus_rng *rng = NULL;
+    numerus_rng *clone = NULL;
+    uint32_t actual_next;
+    uint32_t expected_next;
+
+    assert(numerus_matrix_create_from_parent_with_transforms(
+        root_mean, 2, 1, fail_on_mean_row_one, NULL, NULL, &failing_mean
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_rng_create(73, 11, &rng) == NUMERUS_RNG_SUCCESS);
+    assert(numerus_rng_clone(rng, &clone) == NUMERUS_RNG_SUCCESS);
+
+    assert(numerus_multivariate_gaussian_sample(
+        failing_mean, covariance, rng, &sample
+    ) == NUMERUS_PROBABILITY_INVALID_ARGUMENT);
+    assert(sample == NULL);
+
+    assert(numerus_rng_next_u32(rng, &actual_next) == NUMERUS_RNG_SUCCESS);
+    assert(numerus_rng_next_u32(clone, &expected_next) == NUMERUS_RNG_SUCCESS);
+    assert(actual_next == expected_next);
+
+    numerus_rng_destroy(clone);
+    numerus_rng_destroy(rng);
+    numerus_matrix_destroy(covariance);
+    numerus_matrix_destroy(failing_mean);
+    numerus_matrix_destroy(root_mean);
+    assert(live_probability_allocations == 0);
+}
+
 int main(void)
 {
     test_fixed_state_reference_and_raw_consumption();
     test_repeatability_and_invalid_inputs();
     test_empirical_mean_and_covariance();
     test_allocation_failure_does_not_advance_rng();
+    test_matrix_read_failure_preserves_rng_and_output();
     puts("Gaussian sampling tests passed.");
     return 0;
 }
