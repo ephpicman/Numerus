@@ -249,7 +249,8 @@ static void test_empirical_mean_and_covariance(void)
     numerus_matrix_destroy(mean);
 }
 
-static void test_allocation_failure_does_not_advance_rng(void)
+
+static void test_allocation_failures_do_not_advance_rng(void)
 {
     const double mean_values[] = {0.0, 0.0};
     const double covariance_values[] = {
@@ -258,21 +259,27 @@ static void test_allocation_failure_does_not_advance_rng(void)
     };
     numerus_matrix *mean = make_dense(2, 1, mean_values);
     numerus_matrix *covariance = make_dense(2, 2, covariance_values);
-    numerus_matrix *sample = (void *) 1;
     numerus_rng *rng = NULL;
     numerus_rng *clone = NULL;
     uint32_t first;
     uint32_t second;
+    long fail_after;
 
     assert(numerus_rng_create(42, 54, &rng) == NUMERUS_RNG_SUCCESS);
     assert(numerus_rng_clone(rng, &clone) == NUMERUS_RNG_SUCCESS);
 
-    fail_next_allocation = true;
-    assert(numerus_multivariate_gaussian_sample(
-        mean, covariance, rng, &sample
-    ) == NUMERUS_PROBABILITY_OUT_OF_MEMORY);
-    assert(sample == NULL);
-    assert(live_probability_allocations == 0);
+    /* Both probability-owned buffers must be failure-safe independently. */
+    for (fail_after = 0; fail_after < 2; fail_after++) {
+        numerus_matrix *sample = (void *) 1;
+
+        allocations_before_failure = fail_after;
+        assert(numerus_multivariate_gaussian_sample(
+            mean, covariance, rng, &sample
+        ) == NUMERUS_PROBABILITY_OUT_OF_MEMORY);
+        assert(sample == NULL);
+        assert(allocations_before_failure == -1);
+        assert(live_probability_allocations == 0);
+    }
 
     assert(numerus_rng_next_u32(rng, &first) == NUMERUS_RNG_SUCCESS);
     assert(numerus_rng_next_u32(clone, &second) == NUMERUS_RNG_SUCCESS);
@@ -284,7 +291,6 @@ static void test_allocation_failure_does_not_advance_rng(void)
     numerus_matrix_destroy(mean);
     assert(live_probability_allocations == 0);
 }
-
 
 static numerus_matrix_status fail_on_mean_row_one(
     size_t row,
@@ -350,7 +356,7 @@ int main(void)
     test_fixed_state_reference_and_raw_consumption();
     test_repeatability_and_invalid_inputs();
     test_empirical_mean_and_covariance();
-    test_allocation_failure_does_not_advance_rng();
+    test_allocation_failures_do_not_advance_rng();
     test_matrix_read_failure_preserves_rng_and_output();
     puts("Gaussian sampling tests passed.");
     return 0;
