@@ -45,7 +45,7 @@ The accepted rank-deficient/underdetermined least-squares contract is tracked in
 
 The [v1 statistical foundation roadmap](v1-statistical-foundation-roadmap.md) tracks a broader set of C-level capabilities, including optimization, RNG, and probability primitives. Its P0/P1 labels prioritize work within that foundation inventory; they do **not** mean that every P0 capability is mandatory for product release 1.0. The 1.0 release gate is the OLS-enabling PHP workflow above. Later milestones select the next coherent user-facing workflow from the broader inventory.
 
-The [issue execution order](v1-issue-execution-order.md) records the historical foundation queue and its completion evidence. For new release work, follow the release milestone and execution order in this document, while preserving unresolved foundation requirements where they are dependencies or necessary correctness fixes.
+The [issue execution order](v1-issue-execution-order.md) records the historical foundation queue and its completion evidence. The [PHP 1.0 OLS release-gate audit](php-api-release-audit.md) tracks concrete userland evidence and remaining limitations. For new release work, follow the release milestone and execution order in this document, while preserving unresolved foundation requirements where they are dependencies or necessary correctness fixes.
 
 ## Non-goals
 
