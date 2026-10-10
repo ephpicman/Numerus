@@ -172,6 +172,10 @@ ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_matrix_binary, 0, 1, Numerus\\Mat
     ZEND_ARG_OBJ_INFO(0, other, Numerus\\Matrix, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_matrix_least_squares, 0, 1, Numerus\\Matrix, 0)
+    ZEND_ARG_OBJ_INFO(0, rightHandSide, Numerus\\Matrix, 0)
+ZEND_END_ARG_INFO()
+
 PHP_METHOD(NumerusMatrix, __construct)
 {
     ZEND_PARSE_PARAMETERS_NONE();
@@ -446,7 +450,7 @@ static const zend_function_entry numerus_matrix_methods[] = {
     PHP_ME(NumerusMatrix, transpose, arginfo_matrix_unary, ZEND_ACC_PUBLIC)
     PHP_ME(NumerusMatrix, inverse, arginfo_matrix_unary, ZEND_ACC_PUBLIC)
     PHP_ME(NumerusMatrix, multiply, arginfo_matrix_binary, ZEND_ACC_PUBLIC)
-    PHP_ME(NumerusMatrix, leastSquares, arginfo_matrix_binary, ZEND_ACC_PUBLIC)
+    PHP_ME(NumerusMatrix, leastSquares, arginfo_matrix_least_squares, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
