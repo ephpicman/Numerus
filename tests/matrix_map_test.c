@@ -69,7 +69,40 @@ static void test_failures(void) {
     assert(numerus_matrix_apply(source, scale_value, NULL, NULL) == NUMERUS_MATRIX_INVALID_ARGUMENT);
     numerus_matrix_destroy(source);
 }
+
+static void test_lazy_map_callback_failure_preserves_output(void)
+{
+    const double values[] = {1, 2, 3, 4};
+    numerus_matrix *source = NULL;
+    numerus_matrix *mapped = NULL;
+    double value = 987.0;
+
+    assert(numerus_matrix_create_dense(2, 2, values, &source) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_map(
+        source, fail_on_second_row, NULL, &mapped
+    ) == NUMERUS_MATRIX_SUCCESS);
+
+    assert(numerus_matrix_get(mapped, 0, 1, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(value == 2.0);
+
+    value = 987.0;
+    assert(numerus_matrix_get(mapped, 1, 0, &value) ==
+        NUMERUS_MATRIX_INVALID_ARGUMENT);
+    assert(value == 987.0);
+
+    /* The lazy view remains usable at coordinates whose callback succeeds. */
+    assert(numerus_matrix_get(mapped, 0, 0, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(value == 1.0);
+
+    numerus_matrix_destroy(mapped);
+    numerus_matrix_destroy(source);
+}
+
 int main(void) {
     test_lazy_map_and_eager_apply(); test_failures();
+    test_lazy_map_callback_failure_preserves_output();
     puts("Matrix map/apply tests passed."); return 0;
 }
