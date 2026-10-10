@@ -22,11 +22,11 @@ Do not create one long-lived branch for the whole roadmap. One issue, one branch
 
 ### Stage 1 — Establish evidence and decisions
 
-1. **[#107 — Audit requirements against source and tests](https://github.com/ephpicman/Numerus/issues/107)**  
-   First. Verify every baseline status against actual headers, implementations, tests, and CI. Update the roadmap with evidence and split only confirmed gaps into implementation work.
+1. **[#107 — Audit requirements against source and tests](https://github.com/ephpicman/Numerus/issues/107)** — **Completed in PR #128**  
+   Audited all LIN/OPT/RNG/PROB/ENG rows against source, tests and CI definitions. Evidence and status corrections are in [the audit report](v1-statistical-foundation-audit.md); #113/#114 are confirmed gaps subject to #111's contracts.
 
 2. **[#108 — Decide the C/PHP API boundary](https://github.com/ephpicman/Numerus/issues/108)**  
-   Decide exposure and compatibility expectations before new public APIs are designed. Coordinate with #107.
+   Record the internal C-first boundary and the separate PHP façade release gate before new public APIs are designed. See [API boundary decision](statistical-api-boundary.md).
 
 3. **[#111 — Specify GLS whitening and log-determinant contracts](https://github.com/ephpicman/Numerus/issues/111)**  
    Use audit findings to define the contracts for GLS and Gaussian calculations.
