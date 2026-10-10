@@ -2,9 +2,9 @@
 
 Status: accepted v1 contract implemented by #119 and covered by native tests. See [current statistical foundation capabilities](statistical-foundation.md) for an integrated example.
 
-## Current state
+## Current implementation
 
-The source audit found no optimizer, objective callback, gradient callback, optimizer result type, or convergence/termination API. Matrix status codes are not a substitute for optimizer termination reasons. This contract selects the smallest initial algorithm and specifies its C boundary before implementation.
+The internal C API in `src/statistics/numerus_optimizer.h` implements the optimizer, objective/gradient callbacks, owned result type, and distinct termination reasons described below. Matrix status codes are not used as a substitute for optimizer termination reasons. The PHP façade does not currently expose optimizer callbacks.
 
 ## Algorithm decision
 
@@ -23,7 +23,7 @@ This algorithm is a defensible baseline for smooth unconstrained likelihood obje
 
 ## Callback contract
 
-Proposed C API types:
+The implemented callback types are:
 
 ```c
 typedef bool (*numerus_objective_fn)(
@@ -51,7 +51,7 @@ typedef bool (*numerus_gradient_fn)(
 
 ## Options
 
-The first implementation should expose an explicit options struct rather than hide algorithmically important defaults:
+The implementation exposes an explicit options struct rather than hiding algorithmically important defaults:
 
 - maximum accepted iterations, greater than zero;
 - maximum line-search trials per iteration, greater than zero;
@@ -65,7 +65,7 @@ The Armijo constant and backtracking ratio remain fixed at (10^{-4}) and (1/2) f
 
 ## Result and ownership
 
-The proposed result owns its final parameter vector and reports:
+The result owns its final parameter vector and reports:
 
 - parameter count and final accepted parameter vector;
 - objective value plus an explicit validity flag;
@@ -75,13 +75,13 @@ The proposed result owns its final parameter vector and reports:
 
 The caller receives an opaque result handle and releases it with a matching destroy function. No pointer into the optimizer's temporary work arrays may escape.
 
-A valid optimization request should produce a result even when the algorithm stops without convergence (e.g. iteration limit or line-search failure). The result contains the last accepted parameters, never an unaccepted trial. If the initial objective cannot be evaluated, the result marks the objective value invalid and preserves the initial parameter vector as the last known candidate.
+A valid optimization request produces a result even when the algorithm stops without convergence (e.g. iteration limit or line-search failure). The result contains the last accepted parameters, never an unaccepted trial. If the initial objective cannot be evaluated, the result marks the objective value invalid and preserves the initial parameter vector as the last known candidate.
 
 ## Termination versus API failure
 
 The API status reports whether the request could be initialized and executed safely. Invalid arguments, dimension/size overflow and allocation failure are API failures; the result termination reason reports the numerical outcome.
 
-The result termination taxonomy must distinguish at least:
+The result termination taxonomy distinguishes:
 
 - `CONVERGED_GRADIENT`;
 - `ITERATION_LIMIT`;
@@ -105,7 +105,7 @@ Allocation failure must remain a distinct API status, not a termination reason e
 - If API initialization fails, the output handle remains NULL. Once a result is published, its fields are internally consistent even for non-converged termination.
 - Callback output buffers are temporary. A callback returning false or writing non-finite values must not publish a partially computed gradient to the algorithm.
 
-## Tests required for #119
+## Native test coverage for #119
 
 1. Quadratic objective with known minimizer, both analytic gradient and finite-difference gradient.
 2. Rosenbrock or another nonlinear smooth objective with a known minimum, with conservative tolerance and iteration limits.
