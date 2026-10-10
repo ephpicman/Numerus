@@ -86,7 +86,7 @@ jobs:
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -DNUMERUS_PROBABILITY_TEST_ALLOCATOR \
             -DNUMERUS_RNG_USE_LIBC_ALLOC \
-            -o tests/gaussian_log_density_test tests/gaussian_log_density_test.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
+ -o tests/gaussian_log_density_test tests/gaussian_log_density_test.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
           ./tests/gaussian_log_density_test
       - name: Run native Gaussian sampling tests
         run: |
@@ -95,7 +95,7 @@ jobs:
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -DNUMERUS_RNG_USE_LIBC_ALLOC \
             -DNUMERUS_PROBABILITY_TEST_ALLOCATOR \
-            -o tests/gaussian_sampling_test tests/gaussian_sampling_test.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
+ -o tests/gaussian_sampling_test tests/gaussian_sampling_test.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
           ./tests/gaussian_sampling_test
 
       - name: Run native storage tests
@@ -110,7 +110,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_test tests/matrix_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+ -o tests/matrix_test tests/matrix_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_test
 
       - name: Run native Matrix unary operation tests
@@ -118,7 +118,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_unary_test tests/matrix_unary_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+ -o tests/matrix_unary_test tests/matrix_unary_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_unary_test
 
       - name: Run native Matrix binary operation tests
@@ -126,7 +126,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_binary_test tests/matrix_binary_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_binary.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+ -o tests/matrix_binary_test tests/matrix_binary_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_binary.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_binary_test
 
       - name: Run native Matrix element-wise min/max/clamp tests
@@ -134,7 +134,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_elementwise_test tests/matrix_elementwise_test.c src/matrix/numerus_matrix_elementwise.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_elementwise_test tests/matrix_elementwise_test.c src/matrix/numerus_matrix_elementwise.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_elementwise_test
 
       - name: Run native Matrix map/apply tests
@@ -142,7 +142,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_map_test tests/matrix_map_test.c src/matrix/numerus_matrix_map.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_map_test tests/matrix_map_test.c src/matrix/numerus_matrix_map.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_map_test
 
       - name: Run native Matrix normalization tests
@@ -150,7 +150,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_normalize_test tests/matrix_normalize_test.c src/matrix/numerus_matrix_normalize.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_normalize_test tests/matrix_normalize_test.c src/matrix/numerus_matrix_normalize.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_normalize_test
 
       - name: Run native Matrix variance/stddev tests
@@ -158,7 +158,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_statistics_test tests/matrix_statistics_test.c src/matrix/numerus_matrix_statistics.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_statistics_test tests/matrix_statistics_test.c src/matrix/numerus_matrix_statistics.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_statistics_test
 
       - name: Run native Matrix all/any-close tests
@@ -166,7 +166,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_close_test tests/matrix_close_test.c src/matrix/numerus_matrix_compare_close.c src/matrix/numerus_matrix_compare.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_close_test tests/matrix_close_test.c src/matrix/numerus_matrix_compare_close.c src/matrix/numerus_matrix_compare.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_close_test
 
       - name: Run native Matrix Hadamard tests
@@ -174,7 +174,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_hadamard_test tests/matrix_hadamard_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_binary.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+ -o tests/matrix_hadamard_test tests/matrix_hadamard_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_binary.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_hadamard_test
 
       - name: Run native Matrix division tests
@@ -182,7 +182,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_division_test tests/matrix_division_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_binary.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+ -o tests/matrix_division_test tests/matrix_division_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_binary.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_division_test
 
       - name: Run native Matrix materialization tests
@@ -190,7 +190,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_materialize_test tests/matrix_materialize_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+ -o tests/matrix_materialize_test tests/matrix_materialize_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_materialize_test
 
       - name: Run native Matrix multiplication tests
@@ -198,7 +198,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_multiply_test tests/matrix_multiply_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_multiply.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_multiply_test tests/matrix_multiply_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_multiply.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_multiply_test
 
       - name: Run native Matrix scalar division tests
@@ -206,7 +206,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_scalar_division_test tests/matrix_scalar_division_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+ -o tests/matrix_scalar_division_test tests/matrix_scalar_division_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_scalar_division_test
 
       - name: Run native Matrix comparison tests
@@ -214,7 +214,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_compare_test tests/matrix_compare_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_compare.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+ -o tests/matrix_compare_test tests/matrix_compare_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_compare.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_compare_test
 
       - name: Run native Matrix vector constructor tests
@@ -222,7 +222,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_vector_constructor_test tests/matrix_vector_constructor_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+ -o tests/matrix_vector_constructor_test tests/matrix_vector_constructor_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_vector_constructor_test
 
       - name: Run native Matrix exponential tests
@@ -230,7 +230,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_exponential_test tests/matrix_exponential_test.c src/matrix/numerus_matrix_exponential.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_exponential_test tests/matrix_exponential_test.c src/matrix/numerus_matrix_exponential.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_exponential_test
 
       - name: Run native Matrix polynomial tests
@@ -238,7 +238,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_polynomial_test tests/matrix_polynomial_test.c src/matrix/numerus_matrix_polynomial.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_polynomial_test tests/matrix_polynomial_test.c src/matrix/numerus_matrix_polynomial.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_polynomial_test
 
       - name: Run native Matrix power tests
@@ -246,7 +246,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_power_test tests/matrix_power_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_power.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_power_test tests/matrix_power_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_power.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_power_test
 
       - name: Run native Matrix Kronecker tests
@@ -254,7 +254,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_kronecker_test tests/matrix_kronecker_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_kronecker.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+ -o tests/matrix_kronecker_test tests/matrix_kronecker_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_kronecker.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_kronecker_test
 
       - name: Run native Matrix slice tests
@@ -262,7 +262,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_slice_test tests/matrix_slice_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+ -o tests/matrix_slice_test tests/matrix_slice_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_slice_test
 
       - name: Run native Matrix selection tests
@@ -270,7 +270,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_selection_test tests/matrix_selection_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+ -o tests/matrix_selection_test tests/matrix_selection_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_selection_test
 
       - name: Run native Matrix reshape tests
@@ -278,7 +278,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_reshape_test tests/matrix_reshape_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+ -o tests/matrix_reshape_test tests/matrix_reshape_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_reshape_test
 
       - name: Run native Matrix padding tests
@@ -286,7 +286,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_padding_test tests/matrix_padding_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+ -o tests/matrix_padding_test tests/matrix_padding_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_padding_test
 
       - name: Run native Matrix repeat tests
@@ -294,7 +294,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_repeat_test tests/matrix_repeat_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+ -o tests/matrix_repeat_test tests/matrix_repeat_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_repeat_test
 
       - name: Run native Matrix block-grid tests
@@ -302,7 +302,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_block_grid_test tests/matrix_block_grid_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+ -o tests/matrix_block_grid_test tests/matrix_block_grid_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_block_grid_test
 
       - name: Run native Matrix diagonal tests
@@ -310,7 +310,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_diagonal_test tests/matrix_diagonal_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+ -o tests/matrix_diagonal_test tests/matrix_diagonal_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_diagonal_test
 
       - name: Run native Matrix permutation tests
@@ -318,7 +318,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_permutation_test tests/matrix_permutation_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+ -o tests/matrix_permutation_test tests/matrix_permutation_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_permutation_test
 
       - name: Run native Matrix weighted least-squares tests
@@ -326,7 +326,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_weighted_least_squares_test tests/matrix_weighted_least_squares_test.c src/matrix/numerus_matrix_weighted_least_squares.c src/matrix/numerus_matrix_least_squares.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_weighted_least_squares_test tests/matrix_weighted_least_squares_test.c src/matrix/numerus_matrix_weighted_least_squares.c src/matrix/numerus_matrix_least_squares.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_weighted_least_squares_test
 
       - name: Run native Matrix least-squares tests
@@ -334,7 +334,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_least_squares_test tests/matrix_least_squares_test.c src/matrix/numerus_matrix_least_squares.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_least_squares_test tests/matrix_least_squares_test.c src/matrix/numerus_matrix_least_squares.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_least_squares_test
 
       - name: Run native Matrix system classification tests
@@ -342,7 +342,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_system_test tests/matrix_system_test.c src/matrix/numerus_matrix_system.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_system_test tests/matrix_system_test.c src/matrix/numerus_matrix_system.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_system_test
 
       - name: Run native Matrix space basis tests
@@ -350,7 +350,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_spaces_test tests/matrix_spaces_test.c src/matrix/numerus_matrix_spaces.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_spaces_test tests/matrix_spaces_test.c src/matrix/numerus_matrix_spaces.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_spaces_test
 
       - name: Run native Matrix null-space tests
@@ -358,7 +358,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_null_space_test tests/matrix_null_space_test.c src/matrix/numerus_matrix_null_space.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_null_space_test tests/matrix_null_space_test.c src/matrix/numerus_matrix_null_space.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_null_space_test
 
       - name: Run native Matrix spectral tests
@@ -366,7 +366,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_spectral_test tests/matrix_spectral_test.c src/matrix/numerus_matrix_spectral.c src/matrix/numerus_matrix_svd.c src/matrix/numerus_matrix_symmetric_eigen.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_spectral_test tests/matrix_spectral_test.c src/matrix/numerus_matrix_spectral.c src/matrix/numerus_matrix_svd.c src/matrix/numerus_matrix_symmetric_eigen.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_spectral_test
 
       - name: Run native Matrix symmetric function tests
@@ -374,7 +374,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_symmetric_functions_test tests/matrix_symmetric_functions_test.c src/matrix/numerus_matrix_symmetric_functions.c src/matrix/numerus_matrix_symmetric_eigen.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_symmetric_functions_test tests/matrix_symmetric_functions_test.c src/matrix/numerus_matrix_symmetric_functions.c src/matrix/numerus_matrix_symmetric_eigen.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_symmetric_functions_test
 
       - name: Run native Matrix symmetric eigen tests
@@ -382,7 +382,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_symmetric_eigen_test tests/matrix_symmetric_eigen_test.c src/matrix/numerus_matrix_symmetric_eigen.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_symmetric_eigen_test tests/matrix_symmetric_eigen_test.c src/matrix/numerus_matrix_symmetric_eigen.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_symmetric_eigen_test
 
       - name: Run native Matrix SVD tests
@@ -390,7 +390,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_svd_test tests/matrix_svd_test.c src/matrix/numerus_matrix_svd.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_svd_test tests/matrix_svd_test.c src/matrix/numerus_matrix_svd.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_svd_test
 
       - name: Run native Matrix pseudoinverse tests
@@ -398,7 +398,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_pseudoinverse_test tests/matrix_pseudoinverse_test.c src/matrix/numerus_matrix_pseudoinverse.c src/matrix/numerus_matrix_svd.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_views.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_pseudoinverse_test tests/matrix_pseudoinverse_test.c src/matrix/numerus_matrix_pseudoinverse.c src/matrix/numerus_matrix_svd.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_views.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_pseudoinverse_test
 
       - name: Run native Matrix LDLT tests
@@ -406,7 +406,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_ldlt_test tests/matrix_ldlt_test.c src/matrix/numerus_matrix_ldlt.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_ldlt_test tests/matrix_ldlt_test.c src/matrix/numerus_matrix_ldlt.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_ldlt_test
 
       - name: Run native Matrix definiteness classification tests
@@ -414,7 +414,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_definiteness_test tests/matrix_definiteness_test.c src/matrix/numerus_matrix_symmetric_eigen.c src/matrix/numerus_matrix_definiteness.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_definiteness_test tests/matrix_definiteness_test.c src/matrix/numerus_matrix_symmetric_eigen.c src/matrix/numerus_matrix_definiteness.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_definiteness_test
 
       - name: Run native Matrix Cholesky tests
@@ -422,7 +422,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_cholesky_test tests/matrix_cholesky_test.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_cholesky_test tests/matrix_cholesky_test.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_cholesky_test
 
       - name: Run native Matrix QR tests
@@ -430,7 +430,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_qr_test tests/matrix_qr_test.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_qr_test tests/matrix_qr_test.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_qr_test
 
       - name: Run native Matrix condition estimate tests
@@ -438,7 +438,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_condition_test tests/matrix_condition_test.c src/matrix/numerus_matrix_condition.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
+ -o tests/matrix_condition_test tests/matrix_condition_test.c src/matrix/numerus_matrix_condition.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
           ./tests/matrix_condition_test
 
       - name: Run native Matrix linear solve tests
@@ -446,7 +446,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_solve_test tests/matrix_solve_test.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
+ -o tests/matrix_solve_test tests/matrix_solve_test.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
           ./tests/matrix_solve_test
 
       - name: Run native Matrix triangular solve tests
@@ -454,7 +454,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_triangular_solve_test tests/matrix_triangular_solve_test.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_least_squares.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
+ -o tests/matrix_triangular_solve_test tests/matrix_triangular_solve_test.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_least_squares.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
           ./tests/matrix_triangular_solve_test
 
       - name: Run native Matrix Gauss-Jordan inverse tests
@@ -462,7 +462,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_inverse_gauss_jordan_test tests/matrix_inverse_gauss_jordan_test.c src/matrix/numerus_matrix_inverse_gauss_jordan.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_inverse_gauss_jordan_test tests/matrix_inverse_gauss_jordan_test.c src/matrix/numerus_matrix_inverse_gauss_jordan.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_inverse_gauss_jordan_test
 
       - name: Run native Matrix inverse tests
@@ -470,7 +470,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_inverse_test tests/matrix_inverse_test.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
+ -o tests/matrix_inverse_test tests/matrix_inverse_test.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
           ./tests/matrix_inverse_test
 
       - name: Run native Matrix echelon form tests
@@ -478,7 +478,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_elimination_test tests/matrix_elimination_test.c src/matrix/numerus_matrix_elimination.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
+ -o tests/matrix_elimination_test tests/matrix_elimination_test.c src/matrix/numerus_matrix_elimination.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
           ./tests/matrix_elimination_test
 
       - name: Run native Matrix numerical rank tests
@@ -486,7 +486,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_rank_test tests/matrix_rank_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/storage/numerus_storage.c -lm
+ -o tests/matrix_rank_test tests/matrix_rank_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/storage/numerus_storage.c -lm
           ./tests/matrix_rank_test
 
       - name: Run native Matrix LU factorization tests
@@ -494,7 +494,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_lu_test tests/matrix_lu_test.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c
+ -o tests/matrix_lu_test tests/matrix_lu_test.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c
           ./tests/matrix_lu_test
 
       - name: Run native Matrix determinant edge-case tests
@@ -502,7 +502,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_determinant_test tests/matrix_determinant_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+ -o tests/matrix_determinant_test tests/matrix_determinant_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_determinant_test
 
       - name: Run native Matrix log-determinant tests
@@ -510,7 +510,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_log_determinant_test tests/matrix_log_determinant_test.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_log_determinant_test tests/matrix_log_determinant_test.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_log_determinant_test
 
       - name: Run native statistical linear-model workflow tests
@@ -518,7 +518,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_statistical_workflow_test tests/matrix_statistical_workflow_test.c src/matrix/numerus_matrix_weighted_least_squares.c src/matrix/numerus_matrix_least_squares.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
+ -o tests/matrix_statistical_workflow_test tests/matrix_statistical_workflow_test.c src/matrix/numerus_matrix_weighted_least_squares.c src/matrix/numerus_matrix_least_squares.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
           ./tests/matrix_statistical_workflow_test
 
       - name: Run native Matrix trace tests
@@ -526,7 +526,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_trace_test tests/matrix_trace_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_trace_test tests/matrix_trace_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_trace_test
 
       - name: Run native Matrix aggregate tests
@@ -534,7 +534,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_aggregate_test tests/matrix_aggregate_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_aggregate_test tests/matrix_aggregate_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_aggregate_test
 
       - name: Run native Matrix norm tests
@@ -542,7 +542,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_norm_test tests/matrix_norm_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_norm_test tests/matrix_norm_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_norm_test
 
       - name: Run native Matrix finite-value tests
@@ -550,7 +550,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_finite_test tests/matrix_finite_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_finite_test tests/matrix_finite_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_finite_test
 
       - name: Run native Matrix structural predicate tests
@@ -558,7 +558,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_structural_predicate_test tests/matrix_structural_predicate_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_structural_predicate_test tests/matrix_structural_predicate_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_structural_predicate_test
 
       - name: Run non-gating Matrix benchmarks
@@ -568,7 +568,7 @@ jobs:
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free \
-            -o benchmarks/matrix_benchmark benchmarks/matrix_benchmark.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_condition.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o benchmarks/matrix_benchmark benchmarks/matrix_benchmark.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_condition.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./benchmarks/matrix_benchmark
 
       - name: Run Matrix allocation-failure tests
@@ -577,7 +577,7 @@ jobs:
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free \
-            -o tests/matrix_allocation_failure_test tests/matrix_allocation_failure_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
+ -o tests/matrix_allocation_failure_test tests/matrix_allocation_failure_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_allocation_failure_test
 
       - name: Run adversarial Matrix numerical tests
@@ -585,7 +585,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_adversarial_test tests/matrix_adversarial_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_statistics.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_adversarial_test tests/matrix_adversarial_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_statistics.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_adversarial_test
 
       - name: Run Matrix algebra property tests
@@ -593,7 +593,7 @@ jobs:
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_property_test tests/matrix_property_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_property_test tests/matrix_property_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_property_test
 
       - name: Run Matrix algebra properties with AddressSanitizer and UBSan
@@ -602,7 +602,7 @@ jobs:
             -fsanitize=address,undefined -fno-omit-frame-pointer \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_property_sanitized tests/matrix_property_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+ -o tests/matrix_property_sanitized tests/matrix_property_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/matrix_property_sanitized
 
       - name: Run RNG state tests with AddressSanitizer and UBSan
@@ -651,7 +651,7 @@ jobs:
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -DNUMERUS_PROBABILITY_TEST_ALLOCATOR \
             -DNUMERUS_RNG_USE_LIBC_ALLOC \
-            -o tests/gaussian_log_density_sanitized tests/gaussian_log_density_test.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
+ -o tests/gaussian_log_density_sanitized tests/gaussian_log_density_test.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/gaussian_log_density_sanitized
       - name: Run Gaussian sampling tests with AddressSanitizer and UBSan
         run: |
@@ -661,7 +661,7 @@ jobs:
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -DNUMERUS_RNG_USE_LIBC_ALLOC \
             -DNUMERUS_PROBABILITY_TEST_ALLOCATOR \
-            -o tests/gaussian_sampling_sanitized tests/gaussian_sampling_test.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
+ -o tests/gaussian_sampling_sanitized tests/gaussian_sampling_test.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/gaussian_sampling_sanitized
       - name: Build and run composable statistical C example
         run: |
@@ -671,7 +671,7 @@ jobs:
             -DNUMERUS_PROBABILITY_USE_LIBC_ALLOC \
             -DNUMERUS_RNG_USE_LIBC_ALLOC \
             -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
-            -o examples/statistical_foundation examples/statistical_foundation.c src/core/numerus_numeric.c src/statistics/numerus_optimizer.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/statistics/numerus_rng_sampling.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
+ -o examples/statistical_foundation examples/statistical_foundation.c src/core/numerus_numeric.c src/statistics/numerus_optimizer.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/statistics/numerus_rng_sampling.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/storage/numerus_storage.c -lm
           ./examples/statistical_foundation
 
       - name: Run statistical property tests
@@ -682,7 +682,7 @@ jobs:
             -DNUMERUS_PROBABILITY_USE_LIBC_ALLOC \
             -DNUMERUS_RNG_USE_LIBC_ALLOC \
             -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
-            -o tests/statistical_property_test tests/statistical_property_test.c src/core/numerus_numeric.c src/statistics/numerus_optimizer.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/statistics/numerus_rng_sampling.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
+ -o tests/statistical_property_test tests/statistical_property_test.c src/core/numerus_numeric.c src/statistics/numerus_optimizer.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/statistics/numerus_rng_sampling.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
           ./tests/statistical_property_test
 
       - name: Run statistical property tests with AddressSanitizer and UBSan
@@ -694,7 +694,7 @@ jobs:
             -DNUMERUS_PROBABILITY_USE_LIBC_ALLOC \
             -DNUMERUS_RNG_USE_LIBC_ALLOC \
             -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
-            -o tests/statistical_property_sanitized tests/statistical_property_test.c src/core/numerus_numeric.c src/statistics/numerus_optimizer.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/statistics/numerus_rng_sampling.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
+ -o tests/statistical_property_sanitized tests/statistical_property_test.c src/core/numerus_numeric.c src/statistics/numerus_optimizer.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/statistics/numerus_rng_sampling.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/statistical_property_sanitized
 
       - name: Run extension tests

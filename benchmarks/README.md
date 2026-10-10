@@ -14,7 +14,7 @@ cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -O2 -Wall -We
   -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free \
   -o benchmarks/matrix_benchmark \
   benchmarks/matrix_benchmark.c \
-  src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_binary.c \
+ src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_binary.c \
   src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_analysis.c \\
   src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_condition.c src/storage/numerus_storage.c
 ./benchmarks/matrix_benchmark
