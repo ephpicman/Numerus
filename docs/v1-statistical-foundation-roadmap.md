@@ -197,3 +197,18 @@ A row can be marked **Existing/complete** only when:
 7. Performance-sensitive decisions have evidence when appropriate.
 
 A passing ordinary example is not proof of numerical stability. A seed alone is not a reproducibility contract. A matrix inverse is not an acceptable substitute for a stable solve in production algorithms.
+
+
+## 7. Source audit (2026-10-10)
+
+The original “Current baseline” column records the planning inventory and must not be read as independent verification. The first source-and-test audit is recorded in [v1 Statistical Foundation Audit](v1-statistical-foundation-audit.md). That audit maps every LIN, OPT, RNG, PROB and ENG requirement to inspected source/tests and distinguishes implemented matrix primitives from missing statistical compositions.
+
+Key status corrections from the source audit:
+
+- **LIN-02 — Partial:** pivoted-QR least squares exists for full-column-rank systems; the least-squares API rejects rank-deficient input. Pseudoinverse is a separate primitive, not an automatic minimum-norm least-squares path.
+- **LIN-05 — Missing composition:** Cholesky and general solve exist, but no triangular-solve API or covariance-whitening/GLS composition was found. #113 is a confirmed gap, contingent on #111's accepted contract.
+- **LIN-07 — Missing stable log determinant:** determinant exists, but no log-determinant or reusable covariance quadratic-form API was found. #114 is a confirmed gap, contingent on #111's accepted contract.
+- **ENG-06 — Partial:** the workflow defines native tests, PHPT/build checks and a debug-oriented build; no dedicated sanitizer job was identified in the inspected workflow. A workflow definition is not proof of a green run.
+- **ENG-09 — Decision needed:** Matrix remains a C-internal API; the extension does not currently expose Matrix or statistical functions to PHP. Resolve the boundary in #108 before designing new APIs.
+
+Other planned optimizer, RNG, scalar log-domain and Gaussian probability primitives were not found in the audited source tree and remain implementation/contract work as mapped in the audit. These findings do not imply that the current Matrix subsystem is incomplete outside the specific statistical-foundation requirements.
