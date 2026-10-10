@@ -1,3 +1,12 @@
+/**
+ * @file numerus_matrix_view_nodes.c
+ * @brief Lazy view node representations and coordinate translation.
+ *
+ * @details This translation unit implements an internal Matrix algorithm.
+ * Its callers rely on consistent dimension checks, explicit status returns,
+ * and cleanup of temporary allocations on every exit path.
+ */
+
 #include "numerus_matrix_internal.h"
 #include "numerus_size.h"
 #include "numerus_numeric.h"
@@ -10,6 +19,12 @@
 
 
 
+/*
+ * Coordinate callbacks map a logical view index back to its parent without
+ * materializing data. Constructors validate the view dimensions and ranges;
+ * the callbacks therefore perform only the relevant coordinate remapping and
+ * still validate their context/output pointers at the internal API boundary.
+ */
 static numerus_matrix_status slice_coordinate_transform(
     size_t row,
     size_t column,
@@ -50,6 +65,10 @@ static numerus_matrix_status diagonal_extract_coordinate_transform(
     return NUMERUS_MATRIX_SUCCESS;
 }
 
+/* Selection views store a private copy of their index list. This callback
+ * translates only the selected axis; the other coordinate passes through.
+ * Repeated indices intentionally remain valid for selection views.
+ */
 static numerus_matrix_status selection_coordinate_transform(
     size_t row,
     size_t column,
@@ -80,6 +99,10 @@ static numerus_matrix_status selection_coordinate_transform(
     return NUMERUS_MATRIX_INVALID_ARGUMENT;
 }
 
+/* Reshape preserves row-major linear order rather than the parent's 2-D
+ * coordinates. The inverse mapping uses division/remainder by the validated
+ * parent column count; construction rejects zero-width parents for this path.
+ */
 static numerus_matrix_status reshape_coordinate_transform(
     size_t row,
     size_t column,
@@ -108,6 +131,10 @@ static numerus_matrix_status reshape_coordinate_transform(
     return NUMERUS_MATRIX_SUCCESS;
 }
 
+/* The following callbacks implement pure index maps for common views. They
+ * must not read or write element storage: numerus_matrix_get() composes the
+ * mapping with the parent accessor, preserving laziness across nested views.
+ */
 static numerus_matrix_status transpose_coordinate_transform(
     size_t row,
     size_t column,
@@ -324,6 +351,12 @@ static numerus_matrix_status rotate_90_counterclockwise_coordinate_transform(
     return NUMERUS_MATRIX_SUCCESS;
 }
 
+/*
+ * Shared constructor for row/column selection views. It validates indices,
+ * copies them into view-owned memory (so the caller's array may be released),
+ * and stores the parent as a borrowed pointer. Destruction frees the copied
+ * indices but never destroys the parent.
+ */
 int numerus_matrix_create_selection_view(
     numerus_matrix *parent,
     const size_t *indices,

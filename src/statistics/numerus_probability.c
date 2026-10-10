@@ -1,3 +1,13 @@
+/**
+ * @file numerus_probability.c
+ * @brief Probability distributions and random variate generation.
+ *
+ * @details This file belongs to Numerus's internal C implementation. Its
+ * declarations and behavior are coordinated with the focused headers in the
+ * same subsystem; changes should preserve their documented ownership,
+ * validation, and error-reporting contracts.
+ */
+
 #include "numerus_probability.h"
 #include "numerus_size.h"
 

@@ -1,3 +1,13 @@
+/**
+ * @file numerus_matrix_ldlt.c
+ * @brief Symmetric LDLᵀ factorization and related solve helpers.
+ *
+ * @details This translation unit implements one focused part of the internal
+ * Matrix API. Public-to-the-subsystem declarations live in the corresponding
+ * Matrix headers; shared representation invariants and status semantics are
+ * defined by the Matrix core and internal headers.
+ */
+
 #include "numerus_matrix.h"
 #include "numerus_numeric.h"
 #include "numerus_size.h"
@@ -74,6 +84,10 @@ numerus_matrix_status numerus_matrix_ldlt_decompose(
         }
     }
 
+    /* LDLᵀ is only valid for symmetric input. Check symmetry relative to the
+     * input scale before factorization; unlike Cholesky, the diagonal D may
+     * contain negative pivots, but near-zero pivots still make division unsafe.
+     */
     relative_threshold = NUMERUS_EPSILON * (double) size;
     pivot_threshold = scale * relative_threshold;
 
@@ -91,6 +105,10 @@ numerus_matrix_status numerus_matrix_ldlt_decompose(
         }
     }
 
+    /* Unpivoted LDLᵀ recurrence. For each column, subtract contributions
+     * from previously computed L and D to obtain D[j,j], then compute the
+     * entries below it in L. The unit diagonal of L was initialized above.
+     */
     for (column = 0; column < size; column++) {
         size_t k;
         double pivot = work[column * size + column];
@@ -131,6 +149,10 @@ numerus_matrix_status numerus_matrix_ldlt_decompose(
         }
     }
 
+    /* Publish both factors only after the numeric recurrence succeeds. If
+     * creation of D fails after L was created, destroy L and reset its output
+     * so callers never receive a half-formed factorization.
+     */
     status = (numerus_matrix_status) numerus_matrix_create_dense(
         size, size, lower_values, lower
     );

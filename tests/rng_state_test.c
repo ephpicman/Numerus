@@ -1,3 +1,10 @@
+/**
+ * @file rng_state_test.c
+ * @brief Native tests for deterministic RNG state transitions and reproducibility.
+ *
+ * @details This test executable checks RNG state transitions and reproducibility contracts. Assertions encode expected behavior; update them only when the documented RNG contract intentionally changes.
+ */
+
 #include "../numerus_rng.h"
 
 #include <assert.h>

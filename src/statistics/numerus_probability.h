@@ -1,3 +1,13 @@
+/**
+ * @file numerus_probability.h
+ * @brief Probability primitive declarations and argument/result contracts.
+ *
+ * @details This file belongs to Numerus's internal C implementation. Its
+ * declarations and behavior are coordinated with the focused headers in the
+ * same subsystem; changes should preserve their documented ownership,
+ * validation, and error-reporting contracts.
+ */
+
 #ifndef NUMERUS_PROBABILITY_H
 #define NUMERUS_PROBABILITY_H
 

@@ -1,3 +1,10 @@
+/**
+ * @file numerus_rng_sampling.c
+ * @brief Sampling algorithms built on the shared deterministic RNG.
+ *
+ * @details This translation unit implements sampling transforms on top of the shared RNG primitives. It reuses the RNG state API so seeded sampling remains reproducible and does not maintain an independent generator state.
+ */
+
 #include "numerus_rng.h"
 #include "numerus_size.h"
 

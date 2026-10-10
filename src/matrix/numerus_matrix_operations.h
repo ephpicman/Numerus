@@ -97,9 +97,11 @@ int numerus_matrix_create_divide(
 );
 
 /**
- * Create an independent dense Matrix containing element-wise minimum/maximum.
- * Inputs must have equal dimensions. NaN propagates from either operand.
- * The output pointer remains NULL on failure.
+ * @brief Create an independent dense Matrix containing element-wise minima.
+ *
+ * Each output element is min(left[i,j], right[i,j]). Inputs must have equal
+ * dimensions; NaN propagates from either operand. The output pointer remains
+ * NULL on failure.
  */
 int numerus_matrix_create_elementwise_min(
     const numerus_matrix *left, const numerus_matrix *right,

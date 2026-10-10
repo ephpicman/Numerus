@@ -1,3 +1,13 @@
+/**
+ * @file numerus_matrix_condition.c
+ * @brief Matrix condition-number estimation and numerical stability helpers.
+ *
+ * @details This translation unit provides internal numerical primitives for
+ * Matrix operations. Input validation, checked dimension arithmetic, and
+ * status propagation are part of the contract and must remain consistent with
+ * the declarations in the focused Matrix headers.
+ */
+
 #include "numerus_matrix.h"
 
 #include <math.h>

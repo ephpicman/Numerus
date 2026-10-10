@@ -1,3 +1,11 @@
+/**
+ * @file numerus_numeric.c
+ * @brief Scale-aware floating-point comparison and tolerance helpers.
+ *
+ * @details This implementation follows the focused subsystem headers and
+ * preserves their ownership, validation, and status-reporting contracts.
+ */
+
 #include "numerus_numeric.h"
 
 #include <math.h>

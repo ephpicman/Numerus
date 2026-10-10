@@ -1,3 +1,12 @@
+/**
+ * @file numerus_matrix_cholesky.c
+ * @brief Cholesky factorization for symmetric positive-definite matrices.
+ *
+ * @details This translation unit implements focused Matrix functionality.
+ * It relies on the common Matrix access/status contracts and checked-size
+ * helpers rather than exposing storage representation details to callers.
+ */
+
 #include "numerus_matrix.h"
 #include "numerus_numeric.h"
 #include "numerus_size.h"

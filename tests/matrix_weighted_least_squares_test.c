@@ -1,3 +1,13 @@
+/**
+ * @file matrix_weighted_least_squares_test.c
+ * @brief Native tests for weighted least-squares solutions and weight validation.
+ *
+ * @details These native tests define regression coverage for the named API
+ * contract. Assertions are executable specifications: intentional behavior
+ * changes should update these checks together with the corresponding API
+ * documentation. This file is test support, not runtime code.
+ */
+
 #include "../numerus_matrix.h"
 
 #include <assert.h>

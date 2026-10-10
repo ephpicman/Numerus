@@ -1,3 +1,13 @@
+/**
+ * @file numerus_optimizer.h
+ * @brief Optimization request, callback, status, and result contracts.
+ *
+ * @details This file belongs to Numerus's internal C implementation. Its
+ * declarations and behavior are coordinated with the focused headers in the
+ * same subsystem; changes should preserve their documented ownership,
+ * validation, and error-reporting contracts.
+ */
+
 #ifndef NUMERUS_OPTIMIZER_H
 #define NUMERUS_OPTIMIZER_H
 
@@ -84,38 +94,49 @@ numerus_optimizer_status numerus_optimizer_minimize(
 /** Release a result; accepts NULL. */
 void numerus_optimizer_result_destroy(numerus_optimizer_result *result);
 
+/** Return the number of parameters owned by the result, or zero for NULL. */
 size_t numerus_optimizer_result_parameter_count(
     const numerus_optimizer_result *result
 );
 
+/**
+ * Copy one accepted parameter into value. The index is zero-based; invalid
+ * indices or NULL outputs return an API status and leave value unchanged.
+ */
 numerus_optimizer_status numerus_optimizer_result_get_parameter(
     const numerus_optimizer_result *result,
     size_t index,
     double *value
 );
 
+/** True when the result contains a finite objective value for an accepted point. */
 bool numerus_optimizer_result_objective_value_valid(
     const numerus_optimizer_result *result
 );
 
+/** Read the last accepted objective value; fail if no value was evaluated. */
 numerus_optimizer_status numerus_optimizer_result_get_objective(
     const numerus_optimizer_result *result,
     double *value
 );
 
+/** Read the numerical termination reason, distinct from API-level status. */
 numerus_optimizer_status numerus_optimizer_result_get_termination(
     const numerus_optimizer_result *result,
     numerus_optimizer_termination *termination
 );
 
+/** Return accepted optimization iterations, or zero for NULL. */
 size_t numerus_optimizer_result_iterations(
     const numerus_optimizer_result *result
 );
 
+/** Return objective callback evaluations, or zero for NULL. */
 size_t numerus_optimizer_result_objective_evaluations(
     const numerus_optimizer_result *result
 );
 
+/** Return gradient evaluations (including finite-difference passes), or zero for NULL. */
 size_t numerus_optimizer_result_gradient_evaluations(
     const numerus_optimizer_result *result
 );

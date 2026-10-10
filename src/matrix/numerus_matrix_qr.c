@@ -1,3 +1,12 @@
+/**
+ * @file numerus_matrix_qr.c
+ * @brief QR factorization and orthogonalization helpers.
+ *
+ * @details This translation unit implements an internal Matrix algorithm.
+ * Its callers rely on consistent dimension checks, explicit status returns,
+ * and cleanup of temporary allocations on every exit path.
+ */
+
 #include "numerus_matrix.h"
 #include "numerus_matrix_qr.h"
 #include "numerus_size.h"
@@ -107,6 +116,9 @@ static numerus_matrix_status matrix_qr_decompose_internal(
             }
         }
     }
+    /* Track the current-to-original column mapping separately from the
+     * numerical work buffer; this is the P in A P = Q R.
+     */
     if (pivot_columns) {
         for (column = 0; column < columns; column++) {
             permutation_values[column] = column;
@@ -124,6 +136,10 @@ static numerus_matrix_status matrix_qr_decompose_internal(
         double beta;
         double denominator_ratio;
 
+        /* Column pivoting chooses the largest remaining trailing-column norm.
+         * This improves rank revelation and numerical stability; the same
+         * swap must be applied to the permutation map as to the data columns.
+         */
         if (pivot_columns) {
             size_t pivot_column = step;
             double best_norm = -1.0;
@@ -179,6 +195,10 @@ static numerus_matrix_status matrix_qr_decompose_internal(
             continue;
         }
 
+        /* Choose beta with sign opposite alpha to avoid cancellation in the
+         * reflector construction. tau and the stored subdiagonal entries
+         * encode H = I - tau*v*vᵀ without allocating each reflector.
+         */
         beta = -copysign(norm, alpha);
         tau[step] = 1.0 - alpha / beta;
         denominator_ratio = alpha / norm - beta / norm;
@@ -271,6 +291,10 @@ static numerus_matrix_status matrix_qr_decompose_internal(
         }
     }
 
+    /* Rank is estimated from the R diagonal relative to the largest input
+     * magnitude and matrix dimensions. It is a numerical threshold, not an
+     * exact symbolic rank test; unpivoted QR deliberately skips this estimate.
+     */
     if (pivot_columns && scale > 0.0) {
         relative_threshold = NUMERUS_EPSILON *
             (double) (rows > columns ? rows : columns);
@@ -313,6 +337,9 @@ static numerus_matrix_status matrix_qr_decompose_internal(
     }
 
 cleanup:
+    /* Q and R are published as a pair: if construction of R fails, Q is
+     * destroyed above. Temporary buffers are always released on this path.
+     */
     if (r_values != NULL) matrix_qr_free(r_values);
     if (q_values != NULL) matrix_qr_free(q_values);
     if (tau != NULL) matrix_qr_free(tau);

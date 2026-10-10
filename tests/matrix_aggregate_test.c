@@ -1,3 +1,13 @@
+/**
+ * @file matrix_aggregate_test.c
+ * @brief Native regression tests for Matrix aggregate reductions such as sums, means, and related summaries.
+ *
+ * @details These native tests define regression coverage for the named Matrix
+ * or statistical contract. Assertions are executable specifications: when
+ * behavior changes intentionally, update the assertions and the corresponding
+ * API documentation together. This file is test support, not runtime code.
+ */
+
 #include "../numerus_matrix.h"
 
 #include <assert.h>

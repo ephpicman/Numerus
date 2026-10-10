@@ -1,3 +1,12 @@
+/**
+ * @file numerus_matrix_inverse.c
+ * @brief Matrix inversion using the selected factorization strategy.
+ *
+ * @details This translation unit implements focused Matrix functionality.
+ * It relies on the common Matrix access/status contracts and checked-size
+ * helpers rather than exposing storage representation details to callers.
+ */
+
 #include "numerus_matrix.h"
 #include "numerus_matrix_internal.h"
 #include "numerus_matrix_lu.h"

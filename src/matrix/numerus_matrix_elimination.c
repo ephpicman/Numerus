@@ -1,3 +1,13 @@
+/**
+ * @file numerus_matrix_elimination.c
+ * @brief Gaussian elimination and row-operation based Matrix routines.
+ *
+ * @details This translation unit provides internal numerical primitives for
+ * Matrix operations. Input validation, checked dimension arithmetic, and
+ * status propagation are part of the contract and must remain consistent with
+ * the declarations in the focused Matrix headers.
+ */
+
 #include "numerus_matrix.h"
 #include "numerus_size.h"
 #include "numerus_numeric.h"

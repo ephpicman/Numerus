@@ -1,3 +1,13 @@
+/**
+ * @file numerus_matrix_least_squares.c
+ * @brief Least-squares solvers and residual-oriented result construction.
+ *
+ * @details This implementation is part of the internal Matrix numerical
+ * layer. It uses the shared Matrix status model and checked-size utilities;
+ * algorithm-specific failure and tolerance behavior is documented alongside
+ * the relevant routines below.
+ */
+
 #include "numerus_matrix.h"
 #include "numerus_matrix_qr.h"
 #include "numerus_size.h"
@@ -73,6 +83,10 @@ numerus_matrix_status numerus_matrix_least_squares(
         goto cleanup;
     }
 
+    /* Pivoted QR provides both Q/R and the column permutation. This solver
+     * deliberately requires full column rank; rank-deficient and underdetermined
+     * minimum-norm semantics belong to a different solver contract.
+     */
     status = numerus_matrix_qr_decompose_pivoted(
         matrix, &q, &r, permutation, columns, &rank
     );
@@ -84,6 +98,10 @@ numerus_matrix_status numerus_matrix_least_squares(
         goto cleanup;
     }
 
+    /* Solve each right-hand side independently: first project b onto Q using
+     * Qᵀb, then solve the upper-triangular system Rz = Qᵀb by back substitution.
+     * The final vector is scattered through permutation because QR factored A P.
+     */
     for (column = 0; column < rhs_columns; column++) {
         for (row = 0; row < columns; row++) {
             size_t source_row;

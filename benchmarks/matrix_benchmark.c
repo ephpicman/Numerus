@@ -1,3 +1,10 @@
+/**
+ * @file matrix_benchmark.c
+ * @brief Diagnostic benchmark for Matrix construction and numerical operations.
+ *
+ * @details This standalone program measures selected Matrix operations for diagnostic comparison. Benchmark results are informational and are not correctness assertions or stable performance guarantees.
+ */
+
 #include "../numerus_matrix.h"
 
 #include <math.h>

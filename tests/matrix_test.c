@@ -1,3 +1,13 @@
+/**
+ * @file matrix_test.c
+ * @brief Core Matrix lifecycle, construction, metadata, and element-access regression tests.
+ *
+ * @details These native tests define regression coverage for the named API
+ * contract. Assertions are executable specifications: intentional behavior
+ * changes should update these checks together with the corresponding API
+ * documentation. This file is test support, not runtime code.
+ */
+
 #include "../numerus_matrix.h"
 #include "../numerus_numeric.h"
 

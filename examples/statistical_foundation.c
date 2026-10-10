@@ -1,3 +1,10 @@
+/**
+ * @file statistical_foundation.c
+ * @brief Runnable example exercising the statistical foundation API.
+ *
+ * @details This standalone program demonstrates how to call the statistical foundation's native C APIs. It is illustrative executable code, not part of the extension runtime or a compatibility forwarding header.
+ */
+
 #include "../src/matrix/numerus_matrix.h"
 #include "../src/core/numerus_numeric.h"
 #include "../src/statistics/numerus_optimizer.h"

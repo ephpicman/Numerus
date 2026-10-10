@@ -1,3 +1,13 @@
+/**
+ * @file numerus_matrix_statistics.c
+ * @brief Descriptive statistical reductions over Matrix values.
+ *
+ * @details This translation unit provides internal numerical primitives for
+ * Matrix operations. Input validation, checked dimension arithmetic, and
+ * status propagation are part of the contract and must remain consistent with
+ * the declarations in the focused Matrix headers.
+ */
+
 #include "numerus_matrix.h"
 #include <math.h>
 static numerus_matrix_status compute_variance(const numerus_matrix *matrix,

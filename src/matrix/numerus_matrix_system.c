@@ -1,3 +1,13 @@
+/**
+ * @file numerus_matrix_system.c
+ * @brief Matrix system-level numerical routines and shared solve orchestration.
+ *
+ * @details This translation unit implements one focused part of the internal
+ * Matrix API. Public-to-the-subsystem declarations live in the corresponding
+ * Matrix headers; shared representation invariants and status semantics are
+ * defined by the Matrix core and internal headers.
+ */
+
 #include "numerus_matrix.h"
 #include "numerus_matrix_qr.h"
 #include "numerus_numeric.h"

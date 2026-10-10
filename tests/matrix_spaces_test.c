@@ -1,3 +1,13 @@
+/**
+ * @file matrix_spaces_test.c
+ * @brief Native tests for row-space and column-space bases and their span properties.
+ *
+ * @details These native tests define regression coverage for the named Matrix
+ * contract. Assertions are executable specifications: intentional behavior
+ * changes should update these checks together with the corresponding API
+ * documentation. This file is test support, not runtime code.
+ */
+
 #include "../numerus_matrix.h"
 
 #include <assert.h>

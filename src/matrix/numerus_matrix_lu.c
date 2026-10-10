@@ -1,3 +1,12 @@
+/**
+ * @file numerus_matrix_lu.c
+ * @brief LU factorization, pivoting, and reusable factorization handles.
+ *
+ * @details This translation unit implements an internal Matrix algorithm.
+ * Its callers rely on consistent dimension checks, explicit status returns,
+ * and cleanup of temporary allocations on every exit path.
+ */
+
 #include "numerus_matrix_lu.h"
 #include "numerus_size.h"
 

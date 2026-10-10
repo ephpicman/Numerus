@@ -1,3 +1,13 @@
+/**
+ * @file numerus_matrix_map.c
+ * @brief Matrix mapping and callback-driven transformation operations.
+ *
+ * @details This translation unit implements one focused part of the internal
+ * Matrix API. Public-to-the-subsystem declarations live in the corresponding
+ * Matrix headers; shared representation invariants and status semantics are
+ * defined by the Matrix core and internal headers.
+ */
+
 #include "numerus_matrix.h"
 #include "numerus_size.h"
 #include <stdlib.h>

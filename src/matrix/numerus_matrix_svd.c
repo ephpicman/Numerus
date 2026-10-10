@@ -1,3 +1,13 @@
+/**
+ * @file numerus_matrix_svd.c
+ * @brief Singular value decomposition using one-sided Jacobi orthogonalization.
+ *
+ * @details This translation unit implements one focused part of the internal
+ * Matrix API. Public-to-the-subsystem declarations live in the corresponding
+ * Matrix headers; shared representation invariants and status semantics are
+ * defined by the Matrix core and internal headers.
+ */
+
 #include "numerus_matrix.h"
 #include "numerus_numeric.h"
 #include "numerus_size.h"
@@ -15,6 +25,11 @@
 # define matrix_svd_free(pointer) free(pointer)
 #endif
 
+/*
+ * Return the largest absolute entry in one working column. Scaling each
+ * column before dot products keeps the Jacobi correlation calculation from
+ * overflowing solely because the column has a large magnitude.
+ */
 static double matrix_svd_column_scale(
     const double *values,
     size_t rows,
@@ -90,6 +105,9 @@ static numerus_matrix_status matrix_svd_tall(
         goto cleanup;
     }
 
+    /* Copy through the Matrix accessor so roots and lazy views share one path.
+     * Reject non-finite input before it can contaminate the rotations.
+     */
     for (row = 0; row < rows; row++) {
         for (column = 0; column < columns; column++) {
             double value;
@@ -109,6 +127,12 @@ static numerus_matrix_status matrix_svd_tall(
         }
     }
 
+    /*
+     * Each Jacobi sweep visits every column pair. A rotation reduces their
+     * normalized correlation while applying the same orthogonal transform to
+     * V; when an entire sweep performs no rotations, the columns are treated
+     * as orthogonal to the configured numeric tolerance.
+     */
     for (sweep = 0; sweep < max_sweeps; sweep++) {
         bool rotated = false;
         size_t p;
@@ -221,7 +245,11 @@ static numerus_matrix_status matrix_svd_tall(
         singular[column] = norm;
     }
 
-    /* Sort singular values descending, swapping the matching work/V columns. */
+    /*
+     * Keep each singular value paired with its transformed A column and V
+     * column. Sorting all three consistently is required because U, S, and Vᵀ
+     * must describe the same decomposition after this point.
+     */
     for (column = 0; column < columns; column++) {
         size_t best = column;
         size_t candidate;
@@ -247,6 +275,12 @@ static numerus_matrix_status matrix_svd_tall(
         }
     }
 
+    /*
+     * Normalize nonzero work columns to form U. For an exact zero singular
+     * value, the corresponding U column is undefined by A; construct a
+     * deterministic orthogonal completion by projecting coordinate vectors
+     * against the U columns already accepted.
+     */
     for (column = 0; column < columns; column++) {
         if (singular[column] > 0.0) {
             for (row = 0; row < rows; row++) {

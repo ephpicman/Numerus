@@ -1,3 +1,12 @@
+/**
+ * @file numerus_matrix_inverse_gauss_jordan.c
+ * @brief Gauss–Jordan matrix inversion and pivot management.
+ *
+ * @details This translation unit implements an internal Matrix algorithm.
+ * Its callers rely on consistent dimension checks, explicit status returns,
+ * and cleanup of temporary allocations on every exit path.
+ */
+
 #include "numerus_matrix.h"
 #include "numerus_numeric.h"
 #include "numerus_size.h"

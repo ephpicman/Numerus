@@ -1,3 +1,13 @@
+/**
+ * @file numerus_matrix_exponential.c
+ * @brief Matrix exponential algorithms and convergence checks.
+ *
+ * @details This implementation is part of the internal Matrix numerical
+ * layer. It uses the shared Matrix status model and checked-size utilities;
+ * algorithm-specific failure and tolerance behavior is documented alongside
+ * the relevant routines below.
+ */
+
 #include "numerus_matrix.h"
 #include "numerus_size.h"
 
@@ -14,6 +24,10 @@
 # define numerus_exponential_free(ptr) free(ptr)
 #endif
 
+/* The order-13 Padé approximant is used after scaling the matrix so its
+ * one-norm is at most theta_13; the selected exponent is undone by repeated
+ * squaring after evaluating the rational approximation.
+ */
 #define NUMERUS_PADE_THETA_13 5.371920351148152
 #define NUMERUS_PADE_COEFFICIENT_0 64764752532480000.0
 #define NUMERUS_PADE_COEFFICIENT_1 32382376266240000.0
@@ -307,6 +321,10 @@ int numerus_matrix_exponential(
         return NUMERUS_MATRIX_NOT_SQUARE;
     }
 
+    /* Scaling-and-squaring controls the approximation error: reduce A to
+     * A / 2^s before forming powers, then square exp(A / 2^s) exactly s times.
+     * The one-norm and all intermediates are checked for non-finite values.
+     */
     status = matrix_one_norm(matrix, &norm);
     if (status != NUMERUS_MATRIX_SUCCESS) {
         goto cleanup;
@@ -334,6 +352,10 @@ int numerus_matrix_exponential(
         goto cleanup;
     }
 
+    /* Build A², A⁴, and A⁶ once. The [13/13] Padé numerator and denominator
+     * are polynomials in these even powers; sharing them avoids recomputing
+     * expensive matrix products in the two polynomial branches.
+     */
     status = matrix_multiply_finite(scaled, scaled, &a2);
     if (status != NUMERUS_MATRIX_SUCCESS) {
         goto cleanup;
@@ -411,6 +433,10 @@ int numerus_matrix_exponential(
         goto cleanup;
     }
 
+    /* For the diagonal Padé approximant, exp(A) ≈ (V + U) / (V - U).
+     * Solve (V - U) X = V + U rather than explicitly forming an inverse;
+     * this reuses the Matrix linear solver and avoids an extra inverse product.
+     */
     terms[0] = v;
     terms[1] = u;
     values[0] = 1.0;
@@ -436,6 +462,10 @@ int numerus_matrix_exponential(
         goto cleanup;
     }
 
+    /* Undo the initial scaling: exp(A) = exp(A / 2^s)^(2^s). Each square
+     * replaces the previous result only after multiplication succeeds, so a
+     * failed step leaves the current owned result available for cleanup.
+     */
     for (step = 0; step < scaling; step++) {
         status = matrix_multiply_finite(result, result, &squared);
         if (status != NUMERUS_MATRIX_SUCCESS) {
