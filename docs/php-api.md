@@ -45,7 +45,7 @@ $betaFromNormalEquations = $xt
     ->multiply($xt->multiply($response));
 ```
 
-The explicit formula is useful for teaching and for users who deliberately need that composition. It is not the numerical default: forming normal equations squares the condition number, and explicitly forming an inverse can amplify rounding error. The QR-based least-squares operation requires full column rank and reports rank deficiency.
+The explicit formula is useful for teaching and for users who deliberately need that composition. It is not the numerical default: forming normal equations squares the condition number, and explicitly forming an inverse can amplify rounding error. The QR-based least-squares operation accepts one or more right-hand-side columns and requires the design matrix to have full column rank. It rejects rank-deficient and underdetermined designs with a generic `Exception`; a right-hand-side row-count mismatch raises `ValueError`. Non-finite values encountered by the QR/least-squares computation raise a generic `Exception`. For minimum-norm solutions to rank-deficient or underdetermined systems, the C API provides a pseudoinverse primitive, but this initial PHP façade does not expose it.
 
 ## Public methods
 
