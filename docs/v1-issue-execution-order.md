@@ -1,8 +1,10 @@
 # v1 Statistical Foundation — Issue Execution Order
 
+> **Historical execution record:** the original audit and issue descriptions below capture the repository state at the time those decisions were made. The PHP-facing Matrix API and OLS workflow have since been delivered in PRs #194–#197. The current release gate is defined by [the release roadmap](release-roadmap.md) and [PHP OLS release-gate audit](php-api-release-audit.md); do not treat historical blocker statements below as current status.
+
 This file records the dependency-aware execution queue and completion evidence for the broader [v1 statistical-foundation roadmap](v1-statistical-foundation-roadmap.md). The user-facing release gates are defined separately in the [release roadmap](release-roadmap.md); the historical foundation queue does not imply that every P0 item must ship in product 1.0.
 
-For the next product release, the sequence is: resolve [#147 — Minimal PHP-facing numerical API](https://github.com/ephpicman/Numerus/issues/147), validate an end-to-end PHP OLS workflow against existing C primitives, close only the demonstrated API/behavior gaps with native and PHPT coverage, add a runnable PHP example, then audit release documentation and CI. Preserve the resolved least-squares semantics in [#148](https://github.com/ephpicman/Numerus/issues/148). Do not add model-specific estimator functions.
+The original implementation sequence has now been completed: #147 was delivered through PRs #194–#197, the least-squares behavior from #148 is explicit and tested, and the PHP OLS example is exercised end to end. For current work, follow the release-gate sequence in [release-roadmap.md](release-roadmap.md): verify post-merge CI, maintain the API/release audit, and keep Windows portability marked unverified until tested. Do not add model-specific estimator functions.
 
 The order is dependency-aware, not just numerical. Work on tests and documentation incrementally with implementation; do not defer quality work until the end.
 
@@ -114,11 +116,12 @@ Do not create one long-lived branch for the whole roadmap. One issue, one branch
 Update this file when an issue is merged, closed as unnecessary, or reordered because audit evidence changes the dependency graph. A closed issue is not automatically a completed capability: record the evidence or explicit scope decision in the issue/roadmap.
 
 
-## Post-audit follow-ups
+## Current status after the PHP OLS façade
 
-The original 20-issue statistical-foundation queue is audited and closed. The final audit uncovered two genuine remaining gaps; they are tracked separately rather than hidden by closing #126.
+The historical follow-ups #147 and #148 are resolved for the agreed OLS-enabling scope:
 
-1. **[#148 — Rank-deficient and underdetermined least-squares semantics](https://github.com/ephpicman/Numerus/issues/148)** — resolve first, because the minimum-norm/shape contract should be settled before a PHP wrapper promises its behavior. Reuse the existing SVD/pseudoinverse where sufficient; add reference/property tests.
-2. **[#147 — Minimal PHP-facing numerical API](https://github.com/ephpicman/Numerus/issues/147)** — principal release blocker. Design the minimum userland surface against the finalized C contracts, then implement ownership-safe wrappers and PHPT coverage. Keep model-specific estimator APIs out of scope.
+- **#147 — Minimal PHP-facing numerical API:** delivered through PRs #194–#197. Numerus\\Matrix supports construction, dimensions/access, transpose, multiplication, inverse, and least squares with owned result storage and PHP error mapping.
+- **#148 — Least-squares rank/shape semantics:** full-column-rank QR least squares is the supported contract. Rank-deficient and underdetermined inputs are rejected explicitly; the PHP façade does not silently promise a minimum-norm solution.
+- **PHP workflow evidence:** examples/ols.php is exercised by PHPT; tests also cover multiple right-hand sides, noisy overdetermined residual orthogonality, failure boundaries, object lifetime, clone rejection, and named-argument metadata.
 
-The statistical C foundation CI is green, but the overall PHP userland v1 release gate remains **BLOCKED** until #147 and the accepted LIN-02 behavior are resolved. Windows remains unverified.
+The remaining release gate is no longer the absence of a PHP façade. Verify the post-merge main test matrix (PHP 8.2–8.5, debug build, all PHPTs) and native coverage on the intended release-candidate commit, keep the release audit synchronized, and do not claim Windows validation until a Windows build/test job passes. See [the release roadmap](release-roadmap.md) and [the PHP OLS release-gate audit](php-api-release-audit.md).
