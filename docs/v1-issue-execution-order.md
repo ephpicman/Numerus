@@ -34,7 +34,7 @@ Do not create one long-lived branch for the whole roadmap. One issue, one branch
 4. **[#109 — Specify RNG algorithm and state contract](https://github.com/ephpicman/Numerus/issues/109)** — **Completed in PR #131**  
    PCG-XSH-RR 64/32, explicit seed/stream, clone lifecycle, raw vectors and portability/reproducibility limits are specified in [the RNG contract](reproducible-rng-contract.md). Raw state is implemented in #115; uniform/normal variates remain #116.
 
-5. **[#110 — Define optimizer callback/result/termination contracts](https://github.com/ephpicman/Numerus/issues/110)** — **Contract documented in this PR**  
+5. **[#110 — Define optimizer callback/result/termination contracts](https://github.com/ephpicman/Numerus/issues/110)** — **Completed in PR #132**  
    BFGS/Armijo, optional gradient with central finite differences, result ownership and termination semantics are specified in [optimizer contract](optimizer-contract.md). #119 remains implementation work.
 
 6. **[#112 — Select scalar and log-domain utilities](https://github.com/ephpicman/Numerus/issues/112)** — **Completed in PR #133**  
@@ -58,38 +58,38 @@ Do not create one long-lived branch for the whole roadmap. One issue, one branch
 
 ### Stage 3 — Reproducible RNG and resampling
 
-11. **[#115 — Opaque reproducible RNG state](https://github.com/ephpicman/Numerus/issues/115)**  
+11. **[#115 — Opaque reproducible RNG state](https://github.com/ephpicman/Numerus/issues/115)** — **Completed in PR #138**  
     Requires the decisions in #109 and API-boundary decision in #108.
 
-12. **[#116 — Uniform and normal variates](https://github.com/ephpicman/Numerus/issues/116)**  
+12. **[#116 — Uniform and normal variates](https://github.com/ephpicman/Numerus/issues/116)** — **Completed in PR #139**  
     Requires #115 and the distribution reproducibility policy.
 
-13. **[#117 — Sampling indices with/without replacement](https://github.com/ephpicman/Numerus/issues/117)**  
+13. **[#117 — Sampling indices with/without replacement](https://github.com/ephpicman/Numerus/issues/117)** — **Completed in PR #140**  
     Requires #115 and #116.
 
 ### Stage 4 — Scalar primitives and optimization
 
-14. **[#118 — Implement selected scalar/log-domain primitives](https://github.com/ephpicman/Numerus/issues/118)**  
+14. **[#118 — Implement selected scalar/log-domain primitives](https://github.com/ephpicman/Numerus/issues/118)** — **Completed in PR #141**  
     Requires the selection in #112 and relevant policies from #125.
 
-15. **[#119 — Generic continuous optimizer](https://github.com/ephpicman/Numerus/issues/119)**  
+15. **[#119 — Generic continuous optimizer](https://github.com/ephpicman/Numerus/issues/119)** — **Completed in PR #142**  
     Requires #110, #118 where needed, and the C/PHP exposure decision in #108.
 
 ### Stage 5 — Gaussian probability
 
-16. **[#120 — Multivariate Gaussian log density](https://github.com/ephpicman/Numerus/issues/120)**  
+16. **[#120 — Multivariate Gaussian log density](https://github.com/ephpicman/Numerus/issues/120)** — **Completed in PR #143**  
     Requires #111, #114 if a log-determinant gap is confirmed, and #118 where selected utilities are needed.
 
-17. **[#121 — Multivariate Gaussian sampling](https://github.com/ephpicman/Numerus/issues/121)**  
+17. **[#121 — Multivariate Gaussian sampling](https://github.com/ephpicman/Numerus/issues/121)** — **Completed in PR #144**  
     Requires #115, #116, and a documented covariance/factorization contract.
 
 ### Stage 6 — Cross-cutting quality and documentation
 
-18. **[#123 — Property tests and sanitizer coverage](https://github.com/ephpicman/Numerus/issues/123)**  
+18. **[#123 — Property tests and sanitizer coverage](https://github.com/ephpicman/Numerus/issues/123)** — **Completed in PR #145**  
     Add coverage incrementally as APIs land; final completion follows the implementation stages.
 
-19. **[#124 — C contracts and composable examples](https://github.com/ephpicman/Numerus/issues/124)**  
-    Update incrementally alongside merged APIs. Examples must only use APIs that actually exist and must distinguish current capability from planned work.
+19. **[#124 — C contracts and composable examples](https://github.com/ephpicman/Numerus/issues/124)** — **Implementation in this PR**  
+    Adds the current API inventory, ownership/error/reproducibility contract overview, explicit non-goals, and a strict-C11 example exercised in CI.
 
 ### Stage 7 — Final v1 gate
 
