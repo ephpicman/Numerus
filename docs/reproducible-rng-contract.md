@@ -29,7 +29,7 @@ The uppermost bit of `stream` cannot affect the odd increment after the left shi
 
 ## C state lifecycle
 
-The state is opaque to callers. Proposed API surface for #115:
+The state is opaque to callers. The implemented internal C API is declared in `src/statistics/numerus_rng.h`: 
 
 ```c
 typedef struct numerus_rng numerus_rng;
@@ -53,7 +53,7 @@ numerus_rng_status numerus_rng_clone(
 void numerus_rng_destroy(numerus_rng *rng);
 ```
 
-Names may be adjusted to fit repository conventions without changing semantics.
+The names shown above match the current implementation; treat changes to these declarations as internal C API changes and update this contract and its tests together.
 
 - Create/clone output pointers are required and set to NULL before work; outputs are published only on success.
 - A clone copies the exact generator state and increment. The next raw value from the clone must equal the next raw value from the source; advancing one must not mutate the other.
@@ -72,8 +72,8 @@ Names may be adjusted to fit repository conventions without changing semantics.
 - The vector is the reference PCG32 sequence after the seeding procedure above. Native tests must compare exact 32-bit values, not statistical approximations.
 - The raw `uint32_t` sequence is bit-for-bit stable for a fixed algorithm version, seed, stream and call sequence across supported platforms.
 - Any future algorithm change that alters this sequence requires an explicit algorithm/version change and a compatibility note. Do not silently change the generator behind the same name.
-- Uniform conversion and distribution transforms must be specified separately in #116. Uniform mapping should be defined using fixed bit extraction and arithmetic, not implementation-dependent random APIs.
-- Normal variates may use `libm` functions. Unless Numerus ships and tests deterministic math implementations, it must **not** promise bit-for-bit identical floating-point normal outputs across different libm/compiler/platform combinations. The contract for #116 must distinguish same-platform repeatability from cross-platform raw-stream reproducibility.
+- Uniform conversion and distribution transforms are specified in the implementation contract below and covered by the native variate tests. Uniform mapping uses fixed bit extraction and arithmetic, not implementation-dependent random APIs.
+- Normal variates may use `libm` functions. Unless Numerus ships and tests deterministic math implementations, it must **not** promise bit-for-bit identical floating-point normal outputs across different libm/compiler/platform combinations. The contract distinguishes same-platform repeatability from cross-platform raw-stream reproducibility.
 - Reproducibility assumes supported platforms provide 32-bit and 64-bit unsigned integer types and the extension's supported floating-point representation; tests should make these assumptions explicit where relevant.
 
 ## Error and failure semantics
@@ -84,7 +84,7 @@ Names may be adjusted to fit repository conventions without changing semantics.
 - Do not use NaN or a sentinel random number to signal errors.
 - RNG status types should be narrowly scoped and must not reuse Matrix status values accidentally.
 
-## Required tests for #115
+## Native test coverage for #115
 
 1. Exact reference vector above.
 2. Same seed and stream produce the same sequence across independently created states.
