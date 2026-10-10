@@ -32,7 +32,6 @@ jobs:
           test_dir="$build_root/tests"
           mkdir -p "$object_dir" "$test_dir"
           source_objects=()
-          test_objects=()
 
           while IFS= read -r -d '' source; do
             object_name="${source//\//_}"
@@ -49,12 +48,13 @@ jobs:
             source_objects+=("$object")
           done < <(find src -name '*.c' ! -path 'src/numerus.c' -print0 | sort -z)
 
-          compile_suite() {
-            local source="$1"
-            local filename
-            local name
+          suite_count=0
+          while IFS= read -r -d '' source; do
             filename="$(basename "$source")"
             name="${filename%_test.c}"
+            test_object="$test_dir/$name.o"
+            test_binary="$test_dir/$name"
+
             gcc -Isrc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics \
               -std=c11 -O0 -g --coverage -fprofile-abs-path \
               -Wall -Wextra -Wpedantic -Werror \
@@ -63,25 +63,26 @@ jobs:
               -DNUMERUS_PROBABILITY_USE_LIBC_ALLOC \
               -DNUMERUS_RNG_USE_LIBC_ALLOC \
               -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
-              -Dmain="numerus_coverage_${name}_main" \
-              -c "$source" -o "$test_dir/$name.o"
-            test_objects+=("$test_dir/$name.o")
-          }
+              -c "$source" -o "$test_object"
 
-          while IFS= read -r -d '' source; do
-            compile_suite "$source"
+            if [[ "$name" == "matrix_allocation_failure" ]]; then
+              gcc --coverage -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free \
+                "${source_objects[@]}" "$test_object" -lm -o "$test_binary"
+            else
+              gcc --coverage "${source_objects[@]}" "$test_object" -lm -o "$test_binary"
+            fi
+
+            echo "::group::Native test suite: $name"
+            "$test_binary"
+            echo "::endgroup::"
+            suite_count=$((suite_count + 1))
           done < <(find tests -maxdepth 1 -type f -name '*_test.c' -print0 | sort -z)
 
-          gcc -Isrc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics \
-            -std=c11 -O0 -g --coverage -fprofile-abs-path \
-            -Wall -Wextra -Wpedantic -Werror \
-            -c tests/coverage_driver.c -o "$test_dir/coverage_driver.o"
-
-          # The allocation-failure suite uses GNU ld wrappers to inject failures.
-          gcc --coverage -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free \
-            "${source_objects[@]}" "${test_objects[@]}" \
-            "$test_dir/coverage_driver.o" -lm -o "$build_root/native-coverage"
-          "$build_root/native-coverage"
+          if [[ "$suite_count" -eq 0 ]]; then
+            echo "No native test suites were discovered." >&2
+            exit 1
+          fi
+          echo "All $suite_count native test suites passed under coverage."
 
       - name: Generate line and branch coverage reports
         run: |
