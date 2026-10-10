@@ -252,3 +252,8 @@ Issue #113 is implemented by adding `numerus_matrix_solve_triangular()`, includi
 ## 15. Stable signed log determinant
 
 Issue #114 adds `numerus_matrix_log_determinant()`, calculating the determinant sign and log absolute magnitude from LU factors without multiplying pivots. It validates finite inputs and factorization intermediates, distinguishes singularity, and preserves scalar outputs on failure. Native tests cover identity, positive/negative determinant, SPD, row permutation, ill-conditioning, extreme scales, singularity and non-finite input. GLS/Gaussian composition tests remain separate from this primitive.
+
+
+## 16. OLS/WLS/GLS reference workflows
+
+Issue #122 adds a native composition test covering overdetermined OLS, ill-scaled and rank-deficient least squares, zero and unequal diagonal WLS weights, and GLS covariance whitening through Cholesky plus triangular solves. The GLS fixture checks the signed log determinant of the covariance and verifies non-SPD covariance rejection. These are tests of reusable primitives, not new estimator APIs.
