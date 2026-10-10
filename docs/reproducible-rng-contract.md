@@ -99,3 +99,11 @@ Names may be adjusted to fit repository conventions without changing semantics.
 - Accepted: PCG-XSH-RR 64/32, explicit seed/stream, opaque state, clone, raw output vector, raw-stream reproducibility.
 - Deferred: serialized-state format, jump-ahead/stream splitting, cryptographic RNG, broad distribution catalog.
 - #116 owns uniform endpoint/mapping and normal transform details. Distribution output guarantees must not be implied by the raw PRNG guarantee.
+
+
+## Uniform and normal variate contract (#116)
+
+- `numerus_rng_uniform()` consumes exactly two raw outputs, forms 53 bits as `(high << 21) | (low >> 11)`, and divides by (2^{53}). The result is in ([0,1)); zero is allowed and one is excluded.
+- `numerus_rng_normal()` uses Box–Muller without caching. The first 53-bit value is mapped to ((0,1]) by adding one before division by (2^{53}), so `log(0)` is impossible. The next 53-bit value is mapped to ([0,1)) for the angle. Each valid normal call consumes exactly four raw outputs.
+- Raw uniform conversion is bit-defined for binary64; normal values are expected to replay on the same supported runtime but are not promised bit-for-bit identical across different `libm` implementations.
+- No hidden cached normal value or global state exists. Invalid pointers do not advance the RNG or modify outputs. A valid transform publishes the output only after the computed value is finite.

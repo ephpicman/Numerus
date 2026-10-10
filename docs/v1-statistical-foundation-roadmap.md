@@ -262,3 +262,8 @@ Issue #122 adds a native composition test covering overdetermined OLS, ill-scale
 ## 17. PCG32 RNG state implementation
 
 Issue #115 implements the opaque PCG-XSH-RR 64/32 state API with explicit seed/stream inputs, deterministic raw output, cloning and safe destruction. The exact eight-output reference vector in [the RNG contract](reproducible-rng-contract.md) was checked against the reference algorithm and corrected to `a15c02b7, 7b47f409, ba1d3330, 83d2f293, bfa4784b, cbed606e, bfc6a3ad, 812fff6d`. The native test is registered in CI. Uniform and normal variates remain issue #116.
+
+
+## 18. Uniform and normal variates
+
+Issue #116 adds `numerus_rng_uniform()` with a fixed 53-bit mapping to `[0,1)` and `numerus_rng_normal()` using Box–Muller without cached state. Uniform consumes two raw PCG32 outputs; normal consumes four. Native tests check exact uniform mapping, a tolerance-based normal reference, state advancement, invalid arguments, finite/range guarantees and deterministic mean/variance sanity bounds. The CI workflow runs both ordinary and ASan/UBSan test binaries. Cross-platform bitwise normal output is not promised.
