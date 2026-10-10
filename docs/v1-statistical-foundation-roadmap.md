@@ -212,3 +212,8 @@ Key status corrections from the source audit:
 - **ENG-09 — Decision needed:** Matrix remains a C-internal API; the extension does not currently expose Matrix or statistical functions to PHP. Resolve the boundary in #108 before designing new APIs.
 
 Other planned optimizer, RNG, scalar log-domain and Gaussian probability primitives were not found in the audited source tree and remain implementation/contract work as mapped in the audit. These findings do not imply that the current Matrix subsystem is incomplete outside the specific statistical-foundation requirements.
+
+
+## 8. API boundary decision
+
+The C-first implementation and PHP façade release gate are defined in [Statistical Foundation API Boundary](statistical-api-boundary.md) (issue #108). New statistical algorithms are to be specified and tested as internal C APIs first. This does not make the C-only foundation userland-ready: overall v1 readiness requires a separately designed and tested minimal PHP façade, with ownership-safe Matrix views, explicit RNG state, and documented mapping of C failures. No model-specific estimator APIs are authorized by this decision.
