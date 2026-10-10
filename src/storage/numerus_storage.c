@@ -92,6 +92,7 @@ static int allocate_storage(
     if (storage == NULL) {
         return NUMERUS_STORAGE_INVALID_ARGUMENT;
     }
+    *storage = NULL;
 
     result = numerus_calloc(1, sizeof(*result));
     if (result == NULL) {
