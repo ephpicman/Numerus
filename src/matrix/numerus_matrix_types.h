@@ -7,8 +7,8 @@
  * reads to it. Parent relationships are non-owning and are intended to be
  * managed by the eventual PHP object layer.
  */
-#ifndef NUMERUS_MATRIX_H
-#define NUMERUS_MATRIX_H
+#ifndef NUMERUS_MATRIX_TYPES_H
+#define NUMERUS_MATRIX_TYPES_H
 
 #include <stdbool.h>
 #include <stddef.h>
