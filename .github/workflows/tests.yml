@@ -663,6 +663,17 @@ jobs:
             -DNUMERUS_PROBABILITY_TEST_ALLOCATOR \
             -o tests/gaussian_sampling_sanitized tests/gaussian_sampling_test.c numerus_probability.c numerus_rng.c numerus_matrix_cholesky.c numerus_matrix_solve_triangular.c numerus_matrix_log_determinant.c numerus_matrix_solve.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/gaussian_sampling_sanitized
+      - name: Build and run composable statistical C example
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -DNUMERUS_PROBABILITY_USE_LIBC_ALLOC \
+            -DNUMERUS_RNG_USE_LIBC_ALLOC \
+            -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
+            -o examples/statistical_foundation examples/statistical_foundation.c numerus_numeric.c numerus_optimizer.c numerus_probability.c numerus_rng.c numerus_rng_sampling.c numerus_matrix_constructors.c numerus_matrix_cholesky.c numerus_matrix_solve_triangular.c numerus_matrix_log_determinant.c numerus_matrix_solve.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+          ./examples/statistical_foundation
+
       - name: Run statistical property tests
         run: |
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
