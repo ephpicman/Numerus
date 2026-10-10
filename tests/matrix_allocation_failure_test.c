@@ -290,6 +290,82 @@ static void test_selection_view_allocation_failures(void)
     numerus_matrix_destroy(source);
 }
 
+
+static void test_block_grid_allocation_failures(void)
+{
+    const double a_values[] = {1.0, 2.0};
+    const double b_values[] = {3.0};
+    const double c_values[] = {4.0, 5.0, 6.0, 7.0};
+    const double d_values[] = {8.0, 9.0};
+    numerus_matrix *a = NULL;
+    numerus_matrix *b = NULL;
+    numerus_matrix *c = NULL;
+    numerus_matrix *d = NULL;
+    numerus_matrix *blocks[4];
+    long fail_after;
+    int allocation_failure_observed = 0;
+    int successful_view_observed = 0;
+
+    allocations_before_failure = -1;
+    assert(numerus_matrix_create_dense(1, 2, a_values, &a) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(1, 1, b_values, &b) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(2, 2, c_values, &c) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(2, 1, d_values, &d) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    blocks[0] = a;
+    blocks[1] = b;
+    blocks[2] = c;
+    blocks[3] = d;
+
+    for (fail_after = 0; fail_after < 24; fail_after++) {
+        numerus_matrix *grid = (numerus_matrix *) 1;
+        numerus_matrix_status status;
+
+        allocations_before_failure = fail_after;
+        status = numerus_matrix_create_block_grid(blocks, 2, 2, &grid);
+
+        if (status == NUMERUS_MATRIX_SUCCESS) {
+            double value;
+
+            assert(grid != NULL);
+            assert(numerus_matrix_rows(grid) == 3);
+            assert(numerus_matrix_columns(grid) == 3);
+            assert(numerus_matrix_get(grid, 2, 2, &value) ==
+                NUMERUS_MATRIX_SUCCESS);
+            assert(value == 9.0);
+            numerus_matrix_destroy(grid);
+            successful_view_observed = 1;
+            break;
+        }
+
+        assert(status == NUMERUS_MATRIX_OUT_OF_MEMORY);
+        assert(grid == NULL);
+        allocation_failure_observed = 1;
+    }
+
+    allocations_before_failure = -1;
+    assert(allocation_failure_observed);
+    assert(successful_view_observed);
+
+    /* The view borrows its blocks; failed construction must preserve them. */
+    {
+        double value;
+
+        assert(numerus_matrix_get(d, 1, 0, &value) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(value == 9.0);
+    }
+
+    numerus_matrix_destroy(d);
+    numerus_matrix_destroy(c);
+    numerus_matrix_destroy(b);
+    numerus_matrix_destroy(a);
+}
+
 int main(void)
 {
     const double values[] = {1.0, 2.0, 3.0, 4.0};
@@ -329,6 +405,7 @@ int main(void)
     test_inverse_allocation_failures();
     test_solve_allocation_failures();
     test_selection_view_allocation_failures();
+    test_block_grid_allocation_failures();
     allocations_before_failure = -1;
 
     /* A failure must not poison later operations. */
