@@ -142,12 +142,20 @@ jobs:
           gcovr \
             --root "$GITHUB_WORKSPACE" \
             --filter '.*/src/.*' \
-            --object-directory "$RUNNER_TEMP/numerus-coverage" \
-            --branches \
+            --object-directory "$RUNNER_TEMP/numerus-coverage/objects" \
+            --txt-metric line --txt-metric branch \
             --txt coverage/summary.txt \
             --xml-pretty --xml coverage/coverage.xml \
             --html-details coverage/index.html
           cat coverage/summary.txt
+          if ! grep -Eq '<coverage[^>]*lines-valid="[1-9][0-9]*"' coverage/coverage.xml; then
+            echo "Coverage report contains no instrumented source lines." >&2
+            exit 1
+          fi
+          if ! grep -Eq '<coverage[^>]*branches-valid="[1-9][0-9]*"' coverage/coverage.xml; then
+            echo "Coverage report contains no branch data." >&2
+            exit 1
+          fi
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
