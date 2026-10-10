@@ -1,6 +1,8 @@
 #ifndef NUMERUS_RNG_H
 #define NUMERUS_RNG_H
 
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 /**
@@ -10,7 +12,8 @@ typedef enum {
     NUMERUS_RNG_SUCCESS = 0,
     NUMERUS_RNG_INVALID_ARGUMENT,
     NUMERUS_RNG_OUT_OF_MEMORY,
-    NUMERUS_RNG_NUMERICAL_FAILURE
+    NUMERUS_RNG_NUMERICAL_FAILURE,
+    NUMERUS_RNG_SIZE_OVERFLOW
 } numerus_rng_status;
 
 /** Opaque mutable PCG-XSH-RR 64/32 state. */
@@ -65,6 +68,28 @@ numerus_rng_status numerus_rng_normal(
     numerus_rng *rng,
     double *value
 );
+
+/**
+ * Sample indices from [0, population_size).
+ *
+ * With replacement, each index is drawn independently. Without replacement,
+ * sample_size must not exceed population_size and returned indices are
+ * randomly ordered without duplicates. population_size must be positive;
+ * sample_size may be zero, in which case *indices is NULL and the RNG is not
+ * advanced. The returned array is owned by the caller and must be released
+ * with numerus_rng_free_indices(). On failure, *indices remains NULL and the
+ * RNG state is unchanged.
+ */
+numerus_rng_status numerus_rng_sample_indices(
+    numerus_rng *rng,
+    size_t population_size,
+    size_t sample_size,
+    bool with_replacement,
+    size_t **indices
+);
+
+/** Release an index array returned by numerus_rng_sample_indices(); accepts NULL. */
+void numerus_rng_free_indices(size_t *indices);
 
 /** Destroy one state; accepts NULL. */
 void numerus_rng_destroy(numerus_rng *rng);
