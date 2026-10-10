@@ -952,6 +952,21 @@ numerus_matrix_status numerus_matrix_determinant(
 );
 
 /**
+ * Compute the signed log-absolute-determinant of a finite square Matrix.
+ *
+ * For nonsingular input, sign is +1 or -1 and log_abs_determinant is
+ * log(abs(det(A))). Singular input returns SINGULAR; non-finite input or
+ * elimination intermediates return NON_FINITE. Both scalar outputs remain
+ * unchanged on failure. The implementation uses LU factorization rather
+ * than forming the determinant product.
+ */
+numerus_matrix_status numerus_matrix_log_determinant(
+    const numerus_matrix *matrix,
+    int *sign,
+    double *log_abs_determinant
+);
+
+/**
  * Estimate numerical rank using scale-aware, complete-pivoting elimination.
  *
  * The threshold is NUMERUS_EPSILON * max(rows, columns) relative to the
