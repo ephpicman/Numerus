@@ -282,3 +282,8 @@ Issue #118 implements the selected `numerus_numeric_*` C APIs: sigmoid, logit, s
 ## 21. Generic continuous optimizer
 
 Issue #119 implements the contract in [optimizer-contract.md](optimizer-contract.md): unconstrained BFGS with Armijo backtracking, optional analytic gradient or central finite differences, an opaque owned result, evaluation counters, and explicit convergence/termination reasons. Native tests cover quadratic and Rosenbrock references, finite differences, ill-conditioned scaling, iteration/small-step/line-search stops, callback failures, non-finite values, invalid inputs and injected allocation failures. CI runs normal and ASan/UBSan variants.
+
+
+## 22. Multivariate Gaussian log density
+
+Issue #120 implements `numerus_multivariate_gaussian_log_density()` for column-vector observation/mean and SPD covariance. It uses Cholesky, a triangular solve and signed log determinant; it never forms the covariance inverse. Inputs are borrowed, scalar output is preserved on failure, and matrix errors are mapped to a focused probability status. Native tests cover standard-normal and correlated-covariance reference values, non-SPD/non-finite inputs, dimension errors, arithmetic overflow and allocation failure; CI runs normal and ASan/UBSan variants.
