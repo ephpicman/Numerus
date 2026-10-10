@@ -88,13 +88,13 @@ Do not create one long-lived branch for the whole roadmap. One issue, one branch
 18. **[#123 — Property tests and sanitizer coverage](https://github.com/ephpicman/Numerus/issues/123)** — **Completed in PR #145**  
     Add coverage incrementally as APIs land; final completion follows the implementation stages.
 
-19. **[#124 — C contracts and composable examples](https://github.com/ephpicman/Numerus/issues/124)** — **Implementation in this PR**  
-    Adds the current API inventory, ownership/error/reproducibility contract overview, explicit non-goals, and a strict-C11 example exercised in CI.
+19. **[#124 — C contracts and composable examples](https://github.com/ephpicman/Numerus/issues/124)** — **Completed in PR #146**  
+    See [the statistical foundation guide](statistical-foundation.md) and strict-C11 [composable example](../examples/statistical_foundation.c).
 
 ### Stage 7 — Final v1 gate
 
-20. **[#126 — Final acceptance audit and release gate](https://github.com/ephpicman/Numerus/issues/126)**  
-    Last. Verify every P0 requirement against merged implementation, explicit contract, tests, docs, and required CI. Resolve or formally remove every P0 item before calling v1 ready.
+20. **[#126 — Final acceptance audit and release gate](https://github.com/ephpicman/Numerus/issues/126)** — **Audit in this PR; release gate BLOCKED**  
+    See [the final audit](v1-statistical-foundation-final-audit.md). Core C primitives and configured Linux CI pass, but userland v1 cannot be declared ready until the PHP façade and PHPT contracts exist; LIN-02 also retains a rank-deficient/minimum-norm acceptance gap. Resolve or formally remove every P0 item before calling v1 ready.
 
 ## Parallelism and sequencing rules
 

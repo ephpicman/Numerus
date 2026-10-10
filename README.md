@@ -73,6 +73,7 @@ ownership-safe PHP façade remains a separate prerequisite before Numerus can be
 described as usable by PHP statistical packages. See the
 [statistical foundation overview](docs/statistical-foundation.md) for the
 current capability inventory, contracts, executable example, and explicit gaps.
+The final P0 evidence review is in the [v1 acceptance audit](docs/v1-statistical-foundation-final-audit.md); it records that overall userland v1 remains blocked until a PHP façade is implemented and tested.
 
 ## Requirements
 

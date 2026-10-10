@@ -87,3 +87,8 @@ Status meanings in this audit:
 4. Specify scalar functions in #112 before implementing them.
 5. No RNG implementation before #109; no optimizer implementation before #110.
 6. This report inventories source and tests; it does not claim tests passed. Merge requires green required checks on the PR.
+
+
+## 2026-10-10 implementation follow-up
+
+The later implementation work is recorded in [the final acceptance audit](v1-statistical-foundation-final-audit.md). The older source-audit rows above describe the pre-implementation baseline and must not be read as current status. The final audit supersedes those baseline statuses for release-gate decisions.
