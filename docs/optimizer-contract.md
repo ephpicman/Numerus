@@ -1,6 +1,6 @@
 # Generic Optimizer Callback and Result Contract
 
-Status: accepted v1 contract implemented by #119 and covered by native tests.
+Status: accepted v1 contract implemented by #119 and covered by native tests. See [current statistical foundation capabilities](statistical-foundation.md) for an integrated example.
 
 ## Current state
 
