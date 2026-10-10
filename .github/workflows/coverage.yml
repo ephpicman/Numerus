@@ -48,6 +48,11 @@ jobs:
             source_objects+=("$object")
           done < <(find src -name '*.c' ! -path 'src/numerus.c' -print0 | sort -z)
 
+          if (("${#source_objects[@]}" == 0)); then
+            echo "::error::No native source files were instrumented."
+            exit 1
+          fi
+
           compile_suite() {
             local name="$1"
             local source="$2"
@@ -81,18 +86,45 @@ jobs:
             "$test_dir/coverage_driver.o" -lm -o "$build_root/native-coverage"
           "$build_root/native-coverage"
 
-      - name: Generate line and branch coverage reports
+      - name: Generate and validate line and branch coverage reports
+        shell: bash
         run: |
+          set -euo pipefail
           mkdir -p coverage
           gcovr \
             --root "$GITHUB_WORKSPACE" \
-            --filter '.*/src/.*' \
-            --object-directory "$RUNNER_TEMP/numerus-coverage" \
-            --branches \
+            --filter 'src/' \
+            --gcov-object-directory "$RUNNER_TEMP/numerus-coverage/objects" \
             --txt coverage/summary.txt \
             --xml-pretty --xml coverage/coverage.xml \
             --html-details coverage/index.html
           cat coverage/summary.txt
+
+          python3 - <<'PY'
+          import sys
+          import xml.etree.ElementTree as ET
+
+          root = ET.parse("coverage/coverage.xml").getroot()
+          lines_valid = int(root.attrib.get("lines-valid", "0"))
+          lines_covered = int(root.attrib.get("lines-covered", "0"))
+          branches_valid = int(root.attrib.get("branches-valid", "0"))
+          source_files = root.findall(".//class")
+
+          if not source_files:
+              sys.exit("::error::Coverage report contains no source files.")
+          if lines_valid == 0:
+              sys.exit("::error::Coverage report contains no executable source lines.")
+          if lines_covered == 0:
+              sys.exit("::error::Coverage report contains no covered source lines.")
+          if branches_valid == 0:
+              sys.exit("::error::Coverage report contains no branch data.")
+
+          print(
+              f"Validated coverage: {lines_covered}/{lines_valid} lines "
+              f"({100 * lines_covered / lines_valid:.2f}%), "
+              f"{branches_valid} branches across {len(source_files)} source files."
+          )
+          PY
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
