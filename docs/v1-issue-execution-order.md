@@ -110,3 +110,13 @@ Do not create one long-lived branch for the whole roadmap. One issue, one branch
 ## Completion tracking
 
 Update this file when an issue is merged, closed as unnecessary, or reordered because audit evidence changes the dependency graph. A closed issue is not automatically a completed capability: record the evidence or explicit scope decision in the issue/roadmap.
+
+
+## Post-audit follow-ups
+
+The original 20-issue statistical-foundation queue is audited and closed. The final audit uncovered two genuine remaining gaps; they are tracked separately rather than hidden by closing #126.
+
+1. **[#148 — Rank-deficient and underdetermined least-squares semantics](https://github.com/ephpicman/Numerus/issues/148)** — resolve first, because the minimum-norm/shape contract should be settled before a PHP wrapper promises its behavior. Reuse the existing SVD/pseudoinverse where sufficient; add reference/property tests.
+2. **[#147 — Minimal PHP-facing numerical API](https://github.com/ephpicman/Numerus/issues/147)** — principal release blocker. Design the minimum userland surface against the finalized C contracts, then implement ownership-safe wrappers and PHPT coverage. Keep model-specific estimator APIs out of scope.
+
+The statistical C foundation CI is green, but the overall PHP userland v1 release gate remains **BLOCKED** until #147 and the accepted LIN-02 behavior are resolved. Windows remains unverified.
