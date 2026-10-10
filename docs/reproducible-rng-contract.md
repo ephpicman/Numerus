@@ -1,6 +1,6 @@
 # Reproducible RNG Contract
 
-Status: accepted v1 contract. The raw PCG32 state API is implemented by issue #115; uniform/normal variates remain issue #116.
+Status: accepted v1 contract, implemented by #115–#117. See [current statistical foundation capabilities](statistical-foundation.md) for the integrated API and example.
 
 ## Algorithm
 
