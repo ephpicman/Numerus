@@ -25,8 +25,8 @@ The v1 goal is not to implement every statistical algorithm. It is to make the f
 |---|---|
 | **Existing** | The repository documents this primitive as implemented. Validate its contract and tests when integrating it into a higher-level workflow. |
 | **Partial** | Some underlying support exists, but a specific API, numerical guarantee, or important edge case remains. |
-| **Missing** | No implementation is currently documented; requires design and implementation if retained in v1. |
-| **Decision needed** | Scope/contract must be decided before implementation; do not silently choose an algorithm or promise. |
+| **Implemented** | No implementation is currently documented; requires design and implementation if retained in v1. |
+| **Implemented by contract** | Scope/contract must be decided before implementation; do not silently choose an algorithm or promise. |
 | **Deferred** | Not required for v1; revisit only with a concrete consumer and justification. |
 
 Priority: **P0** blocks the declared v1 foundation; **P1** is a high-value v1 capability after P0; **P2** is conditional or post-v1.
@@ -38,12 +38,12 @@ Priority: **P0** blocks the declared v1 foundation; **P1** is a high-value v1 ca
 | ID | Requirement | Current baseline | Priority | Acceptance criteria |
 |---|---|---|---|---|
 | LIN-01 | Matrix/vector products and multi-RHS solves | **Existing**: matrix multiplication and square-system solve with multiple RHS | P0 | Shape/overflow/failure contracts; residual tests; no inverse-times-vector default path. |
-| LIN-02 | Stable least-squares solve | **Existing**: pivoted-QR least squares; rank-deficient/minimum-norm work supported through SVD/pseudoinverse | P0 | Over-, under-, and exactly determined systems; compare residual and solution properties to trusted small reference cases. |
+| LIN-02 | Stable least-squares solve | **Partial**: pivoted-QR least squares and separate SVD/pseudoinverse primitives; rank-deficient input is not automatically solved by the least-squares API | P0 | Over-, under-, and exactly determined systems; compare residual and solution properties to trusted small reference cases. |
 | LIN-03 | Rank-aware/minimum-norm solution | **Existing**: numerical rank, SVD, pseudoinverse | P0 | Rank thresholds documented; rank-deficient and badly scaled tests; no claim of symbolic rank. |
 | LIN-04 | Weighted least squares with diagonal weights | **Existing**: finite nonnegative weights applied through square-root row scaling | P0 | Zero weights, unequal scales, invalid weights, and equivalence to explicitly transformed reference problem. |
-| LIN-05 | General GLS covariance weighting | **Partial**: Cholesky and general solves exist; a documented covariance-whitening path is not established | P0 | Solve/triangular-solve primitives or an equivalent stable whitening path; avoid explicitly forming covariance inverse; validate against (X^T\Sigma^{-1}X) reference on small well-conditioned cases without using that approach as production implementation. |
+| LIN-05 | General GLS covariance weighting | **Implemented**: Cholesky plus triangular solves support a tested GLS whitening workflow | P0 | Solve/triangular-solve primitives or an equivalent stable whitening path; avoid explicitly forming covariance inverse; validate against (X^T\Sigma^{-1}X) reference on small well-conditioned cases without using that approach as production implementation. |
 | LIN-06 | Symmetric positive-definite validation and factorization | **Existing/partial**: Cholesky and definiteness classification documented | P0 | Clear finite/symmetry/positive-definiteness failure semantics; reconstruction tests and scale-aware behavior. |
-| LIN-07 | Covariance/precision quadratic forms and log determinant | **Partial/missing**: solve and determinant exist; a stable documented log-determinant API is not established | P0 | Compute log determinant from a suitable factorization; correct sign/singularity behavior; quadratic forms avoid explicit inverse. |
+| LIN-07 | Covariance/precision quadratic forms and log determinant | **Implemented**: signed log-absolute-determinant from LU with native tests | P0 | Compute log determinant from a suitable factorization; correct sign/singularity behavior; quadratic forms avoid explicit inverse. |
 | LIN-08 | Residuals and scalar reductions | **Existing**: arithmetic, aggregates, norms, variance/stddev | P0 | Stable enough reductions for common workloads; document NaN/infinity behavior and test extreme scales. |
 | LIN-09 | Matrix-valued covariance operations and structured storage use | **Partial**: specialized Storage representations exist; algorithm-level exploitation varies | P1 | Avoid densification when an existing representation enables a materially cheaper correct path; benchmark before adding specialized branches. |
 
@@ -51,7 +51,7 @@ Priority: **P0** blocks the declared v1 foundation; **P1** is a high-value v1 ca
 
 | ID | Requirement | Current baseline | Priority | Acceptance criteria |
 |---|---|---|---|---|
-| OPT-01 | Stable scalar numerical primitives | **Partial**: core matrix numeric policy exists; a broader scalar utility API is not established | P0 | Define scope for `log1p`, `expm1`, stable logistic/logit, `log-sum-exp`, and related functions; test extreme finite inputs and domain errors. |
+| OPT-01 | Stable scalar numerical primitives | **Implemented**: stable sigmoid, logit, softplus, log-sigmoid and log-sum-exp APIs with edge tests | P0 | Define scope for `log1p`, `expm1`, stable logistic/logit, `log-sum-exp`, and related functions; test extreme finite inputs and domain errors. |
 | OPT-02 | Optimisation problem/result contract | **Missing** | P0 | Explicit objective callback, context lifetime, parameter dimensions, status, iteration/evaluation counts, termination reason, and output-preservation rules. |
 | OPT-03 | Derivative interface | **Decision needed** | P0 | Start with caller-supplied objective/gradient callbacks; decide whether finite-difference gradient/Hessian helpers belong in v1. Do not imply automatic differentiation. |
 | OPT-04 | General-purpose continuous optimiser | **Missing** | P0 | Choose a small supported initial set based on use cases; at minimum robust unconstrained smooth optimisation with convergence diagnostics and failure tests. Algorithm choice must be documented before implementation. |
@@ -70,7 +70,7 @@ Priority: **P0** blocks the declared v1 foundation; **P1** is a high-value v1 ca
 | RNG-04 | Independent streams | **Decision needed** | P1 | Provide a defensible stream-splitting/jump strategy if supported; do not claim independence merely because seeds differ. |
 | RNG-05 | Uniform and normal variates | **Missing** | P0 | Document endpoint and distribution semantics; test determinism, moments/quantiles with non-flaky statistical tolerances, and extreme inputs. |
 | RNG-06 | Other common distributions | **Missing / scope needed** | P1 | Select only general-purpose distributions justified by likely consumers; define parameter domains and stable algorithms. |
-| RNG-07 | Multivariate normal sampling | **Partial foundation**: matrix decompositions exist; RNG and distribution composition are missing | P0 | Accept mean and valid covariance/factor; handle positive-semidefinite policy explicitly; deterministic output for fixed RNG state; test empirical covariance statistically. |
+| RNG-07 | Multivariate normal sampling | **Implemented for SPD covariance**: explicit-state multivariate Gaussian sampling; singular/PSD covariance is rejected | P0 | Accept mean and valid covariance/factor; handle positive-semidefinite policy explicitly; deterministic output for fixed RNG state; test empirical covariance statistically. |
 | RNG-08 | Sampling without replacement / index resampling | **Missing** | P0 | Deterministic index generation for a fixed state; define replacement, population-size, and sample-size semantics. |
 | RNG-09 | Bootstrap-ready resampling primitives | **Missing** | P0 | Provide generic index/resampling primitives, not a model-fitting bootstrap API; test edge cases and reproducibility. |
 | RNG-10 | Statistical quality tests | **Missing** | P0 | Reproducibility tests plus deterministic test vectors and non-flaky distribution sanity checks; document that these do not prove cryptographic quality. |
@@ -80,7 +80,7 @@ Priority: **P0** blocks the declared v1 foundation; **P1** is a high-value v1 ca
 
 | ID | Requirement | Current baseline | Priority | Acceptance criteria |
 |---|---|---|---|---|
-| PROB-01 | Stable multivariate Gaussian log density | **Partial/missing**: matrix solves/decompositions exist; composed probability primitive is not established | P0 | Use factorization, triangular solves and log determinant; no explicit covariance inverse; validate against hand-computed low-dimensional cases. |
+| PROB-01 | Stable multivariate Gaussian log density | **Implemented**: multivariate Gaussian log density using Cholesky, triangular solve and log determinant | P0 | Use factorization, triangular solves and log determinant; no explicit covariance inverse; validate against hand-computed low-dimensional cases. |
 | PROB-02 | Multivariate Gaussian sampling | **Missing** | P0 | Compose RNG with a covariance factorization; deterministic with a fixed RNG contract; explicit handling of invalid covariance. |
 | PROB-03 | Log-domain accumulation | **Missing / decision needed** | P0 | Stable `log-sum-exp` and related minimal helpers needed by likelihoods and Bayesian calculations; test extreme log weights. |
 | PROB-04 | Generic log-density/objective composition | **Existing by callback design only after OPT-02** | P0 | Callers can implement priors, likelihoods, and posterior log density without model-specific extension APIs. |
@@ -100,7 +100,7 @@ Priority: **P0** blocks the declared v1 foundation; **P1** is a high-value v1 ca
 | ENG-04 | NaN/infinity and domain policy | **Partial** | P0 | Each new scalar/probability/optimisation operation documents non-finite handling and has boundary tests. |
 | ENG-05 | Native tests and PHPT coverage | **Existing foundation** | P0 | Native tests for C contracts; PHPT tests for PHP-visible API; test failure paths, not just happy paths. |
 | ENG-06 | Sanitizers, debug builds, supported PHP matrix | **Existing CI documented** | P0 | Keep required CI green; add sanitizer/property checks for new numerical primitives where feasible. |
-| ENG-07 | Reference and property-based tests | **Partial/existing foundation** | P0 | Compare decompositions/solves against invariants and trusted fixtures; test repeatability and mathematical properties. |
+| ENG-07 | Reference and property-based tests | **Implemented at current CI scope** | P0 | Compare decompositions/solves against invariants and trusted fixtures; test repeatability and mathematical properties. |
 | ENG-08 | Benchmarks | **Existing baseline harness** | P1 | Benchmark only where algorithm selection or representation matters; record environment and avoid noisy timing gates. |
 | ENG-09 | Public PHP API shape | **Decision needed**: Matrix remains internal C API | P0 decision, implementation staged | Decide which v1 capabilities are C-internal only and which need PHP-visible wrappers; wrappers must not expose unstable internals prematurely. |
 | ENG-10 | Portability | **Partial** | P0 | Validate supported PHP versions and Unix/Windows build expectations; document any platform-dependent RNG behavior. |
@@ -302,3 +302,8 @@ Issue #123 adds deterministic invariants beyond exact reference vectors: Cholesk
 ## 25. C contracts and composable examples
 
 Issue #124 adds [Statistical Foundation C API: Current Capabilities and Composition](statistical-foundation.md) and `examples/statistical_foundation.c`. The example composes stable scalar evaluation, Gaussian log density and sampling, explicit-state index sampling, and generic objective minimization; CI builds it with strict C11 warnings and executes it. README now distinguishes the implemented internal C primitives from the still-missing PHP userland façade and model-specific APIs. This documentation does not claim overall userland v1 readiness.
+
+
+## 26. Final acceptance audit
+
+Issue #126 records the evidence-based disposition of every P0 requirement and the explicit remaining gaps in [the final audit](v1-statistical-foundation-final-audit.md). The configured Ubuntu PHP 8.2–8.5 matrix, debug build, native tests, statistical example and sanitizer/property paths passed on PR #146. **Overall userland v1 remains blocked** because no PHP-visible numerical API is registered; the C-first boundary decision is not a release waiver. The automatic least-squares API also rejects rank-deficient systems rather than returning a minimum-norm solution, so LIN-02 needs a focused contract decision/test. Windows remains unverified.
