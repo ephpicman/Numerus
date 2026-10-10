@@ -85,14 +85,18 @@ static void test_invalid_arguments_preserve_output_and_state(void)
         NUMERUS_RNG_INVALID_ARGUMENT);
 
     /* Invalid calls must not advance the state: the next output is vector[0]. */
-    assert(numerus_rng_destroy(NULL), 1);
+    numerus_rng_destroy(NULL);
     assert(numerus_rng_next_u32(rng, &next_value) == NUMERUS_RNG_SUCCESS);
     assert(next_value == UINT32_C(0xa15c02b7));
 
     assert(numerus_rng_create(42, 54, NULL) ==
         NUMERUS_RNG_INVALID_ARGUMENT);
-    assert(numerus_rng_clone(NULL, &rng) == NUMERUS_RNG_INVALID_ARGUMENT);
-    assert(rng == NULL);
+    {
+        numerus_rng *clone = (void *) 1;
+        assert(numerus_rng_clone(NULL, &clone) ==
+            NUMERUS_RNG_INVALID_ARGUMENT);
+        assert(clone == NULL);
+    }
     assert(numerus_rng_clone(NULL, NULL) == NUMERUS_RNG_INVALID_ARGUMENT);
     numerus_rng_destroy(rng);
 }
