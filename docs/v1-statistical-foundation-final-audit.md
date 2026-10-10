@@ -58,10 +58,9 @@ A green CI run establishes the configured test/build commands passed on the list
 
 **The statistical C foundation passes its configured Linux CI, but overall Numerus v1 is not release-ready for PHP userland packages.** The API-boundary decision itself records this condition. The missing PHP façade is not a documentation gap and must not be waived by updating the README.
 
-Required follow-up:
-1. Design and implement a minimal ownership-safe PHP façade for the Matrix/value operations and selected statistical primitives.
-2. Add PHPT coverage for PHP argument/type/shape validation, error mapping, object lifetime (especially Matrix views), explicit RNG state and callbacks if exposed.
-3. Decide and test the underdetermined/rank-deficient least-squares contract before claiming full LIN-02 acceptance.
-4. Keep Windows portability as unverified until a Windows build/test job exists; do not silently claim cross-platform support.
+Required follow-up is now tracked in separate issues:
+1. [#147 — Minimal PHP-facing numerical API](https://github.com/ephpicman/Numerus/issues/147) is the principal release blocker. It includes façade design, ownership-safe Matrix views, error mapping and PHPT coverage.
+2. [#148 — Rank-deficient/underdetermined least-squares semantics](https://github.com/ephpicman/Numerus/issues/148) tracks the remaining LIN-02 contract and reference-test gap.
+3. Keep Windows portability as unverified until a Windows build/test job exists; do not silently claim cross-platform support.
 
 This audit issue can be closed as an audit deliverable only if its outcome is recorded as **release gate blocked**, with the remaining work tracked separately. It must not be interpreted as a v1 release approval.
