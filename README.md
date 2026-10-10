@@ -48,7 +48,7 @@ The shared-library suffix and module path depend on the platform and PHP build. 
 ```php
 <?php
 
-use Numerus\\Matrix;
+use Numerus\Matrix;
 
 $design = Matrix::fromRows([
     [1.0, 1.0],
@@ -65,8 +65,8 @@ $response = Matrix::fromRows([
 // Recommended: pivoted-QR least-squares solve.
 $beta = $design->leastSquares($response);
 
-printf("intercept: %.6f\\n", $beta->get(0, 0));
-printf("slope: %.6f\\n", $beta->get(1, 0));
+printf("intercept: %.6f\n", $beta->get(0, 0));
+printf("slope: %.6f\n", $beta->get(1, 0));
 ```
 
 The PHP-facing API currently includes:
@@ -124,14 +124,14 @@ make test TESTS='tests/*.phpt'
 The native Storage and Matrix APIs also have standalone C tests. From the repository root:
 
 ```sh
-cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \\
-  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \\
+cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/storage_test tests/storage_test.c src/storage/numerus_storage.c
 ./tests/storage_test
 
-cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \\
-  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \\
-  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \\
+cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
+  -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+  -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -o tests/matrix_test tests/matrix_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c
 ./tests/matrix_test
 ```
