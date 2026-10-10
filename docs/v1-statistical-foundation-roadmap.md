@@ -227,3 +227,8 @@ The accepted design contract for the GLS covariance-whitening path and signed lo
 ## 10. RNG algorithm and reproducibility decision
 
 The v1 RNG algorithm/state contract is specified in [Reproducible RNG Contract](reproducible-rng-contract.md) (issue #109). It selects PCG-XSH-RR 64/32, explicit 64-bit seed and stream inputs, opaque mutable state with cloning, exact raw-output vectors, and conservative platform guarantees. This is a design decision only; implementation remains #115, uniform/normal mapping remains #116, and stream-splitting/independence claims remain out of scope unless separately justified.
+
+
+## 11. Optimizer contract decision
+
+The initial optimizer contract is specified in [Generic Optimizer Callback and Result Contract](optimizer-contract.md) (issue #110): unconstrained BFGS with Armijo backtracking, optional caller-supplied gradients with a deterministic central finite-difference fallback, explicit result ownership, and distinct termination reasons. The document defines a bounded initial algorithm, not a claim of implementation; #119 remains the implementation issue. Constraints, automatic differentiation, Hessian APIs, stochastic objectives and model-specific estimators are deferred.

@@ -28,14 +28,14 @@ Do not create one long-lived branch for the whole roadmap. One issue, one branch
 2. **[#108 — Decide the C/PHP API boundary](https://github.com/ephpicman/Numerus/issues/108)**  
    Record the internal C-first boundary and the separate PHP façade release gate before new public APIs are designed. See [API boundary decision](statistical-api-boundary.md).
 
-3. **[#111 — Specify GLS whitening and log-determinant contracts](https://github.com/ephpicman/Numerus/issues/111)** — **Contract documented in this PR**  
+3. **[#111 — Specify GLS whitening and log-determinant contracts](https://github.com/ephpicman/Numerus/issues/111)** — **Completed in PR #130**  
    See [GLS whitening and log-determinant contracts](gls-whitening-and-log-determinant-contracts.md). #113/#114 remain implementation issues and must follow these contracts.
 
-4. **[#109 — Specify RNG algorithm and state contract](https://github.com/ephpicman/Numerus/issues/109)** — **Contract documented in this PR**  
+4. **[#109 — Specify RNG algorithm and state contract](https://github.com/ephpicman/Numerus/issues/109)** — **Completed in PR #131**  
    PCG-XSH-RR 64/32, explicit seed/stream, clone lifecycle, raw vectors and portability/reproducibility limits are specified in [the RNG contract](reproducible-rng-contract.md). #115/#116 remain implementation issues.
 
-5. **[#110 — Define optimizer callback/result/termination contracts](https://github.com/ephpicman/Numerus/issues/110)**  
-   Decide callback semantics, result structure, failure statuses, and initial algorithm candidates.
+5. **[#110 — Define optimizer callback/result/termination contracts](https://github.com/ephpicman/Numerus/issues/110)** — **Contract documented in this PR**  
+   BFGS/Armijo, optional gradient with central finite differences, result ownership and termination semantics are specified in [optimizer contract](optimizer-contract.md). #119 remains implementation work.
 
 6. **[#112 — Select scalar and log-domain utilities](https://github.com/ephpicman/Numerus/issues/112)**  
    Select only functions justified by the optimizer, likelihood, and Gaussian use cases.
