@@ -46,7 +46,7 @@ jobs:
               -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
               -c "$source" -o "$object"
             source_objects+=("$object")
-          done < <(find src -name '*.c' ! -path 'src/numerus.c' -print0 | sort -z)
+          done < <(find src -name '*.c' ! -path 'src/numerus.c' ! -path 'src/numerus_matrix_php.c' -print0 | sort -z)
 
           suite_count=0
           while IFS= read -r -d '' source; do
