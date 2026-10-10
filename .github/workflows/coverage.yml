@@ -27,7 +27,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          build_root="$RUNNER_TEMP/numerus-coverage"
+          build_root="$GITHUB_WORKSPACE/.coverage-build"
           object_dir="$build_root/objects"
           test_dir="$build_root/tests"
           mkdir -p "$object_dir" "$test_dir"
@@ -142,7 +142,7 @@ jobs:
           gcovr \
             --root "$GITHUB_WORKSPACE" \
             --filter '.*/src/.*' \
-            --object-directory "$RUNNER_TEMP/numerus-coverage/objects" \
+            --object-directory "$GITHUB_WORKSPACE/.coverage-build" \
             --txt-metric line --txt-metric branch \
             --txt coverage/summary.txt \
             --xml-pretty --xml coverage/coverage.xml \
