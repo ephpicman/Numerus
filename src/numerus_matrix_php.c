@@ -40,6 +40,13 @@ static zend_object *numerus_matrix_object_create(zend_class_entry *ce)
     return &object->std;
 }
 
+static zend_object *numerus_matrix_object_clone(zend_object *std)
+{
+    (void) std;
+    zend_throw_error(NULL, "Cloning Numerus\\Matrix objects is not supported");
+    return NULL;
+}
+
 static void numerus_matrix_object_free(zend_object *std)
 {
     numerus_php_matrix *object =
@@ -456,6 +463,6 @@ void numerus_matrix_php_register(void)
     memcpy(&numerus_matrix_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     numerus_matrix_handlers.offset = XtOffsetOf(numerus_php_matrix, std);
     numerus_matrix_handlers.free_obj = numerus_matrix_object_free;
-    numerus_matrix_handlers.clone_obj = NULL;
+    numerus_matrix_handlers.clone_obj = numerus_matrix_object_clone;
 
 }
