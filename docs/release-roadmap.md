@@ -33,13 +33,15 @@ Milestones after 1.0 are provisional planning targets. Combine or split minor re
 
 ## Execution order
 
-1. Resolve [#147 — Minimal PHP-facing numerical API](https://github.com/ephpicman/Numerus/issues/147), beginning with a small API proposal and ownership/lifetime contract.
-2. Prove the end-to-end OLS workflow using existing C primitives; identify real gaps rather than reopening completed work without evidence.
-3. Implement only the required missing pieces with focused native tests.
-4. Add PHPT integration tests and a runnable PHP OLS composition example.
-5. Audit documentation, supported CI, API stability, and release criteria before tagging 1.0.
+The original implementation sequence is complete: [#147 — Minimal PHP-facing numerical API](https://github.com/ephpicman/Numerus/issues/147) was delivered in PRs #194–#197, and [#148 — rank-deficient/underdetermined least-squares semantics](https://github.com/ephpicman/Numerus/issues/148) was resolved and its PHP-visible behavior is covered by PHPTs.
 
-The accepted rank-deficient/underdetermined least-squares contract is tracked in [#148](https://github.com/ephpicman/Numerus/issues/148); its resolved semantics and tests must remain consistent with the PHP API.
+The current release sequence is:
+
+1. Keep the release-gate audit synchronized with the shipped PHP API and tests.
+2. Verify post-merge main CI for the intended release-candidate commit: PHP 8.2–8.5, debug build, native coverage, and all PHPTs.
+3. Confirm the executable OLS example and published PHP API documentation match the current implementation.
+4. Keep Windows explicitly unverified until a Windows build and test job passes.
+5. Only then decide whether the 1.0 release gate is satisfied; do not equate merged feature PRs with release approval.
 
 ## Relationship to the foundation roadmap
 
@@ -52,4 +54,4 @@ The [issue execution order](v1-issue-execution-order.md) records the historical 
 - Model-specific `fit_ols()`, `fit_wls()`, `fit_gls()`, or `fit_mle()` functions in Numerus.
 - Recommending explicit matrix inversion as the normal numerical path.
 - Adding features only to fill a version number.
-- Declaring release readiness based on green native tests while the PHP-facing API is absent.
+- Declaring release readiness based on native tests alone or before post-merge release-candidate CI is green.
