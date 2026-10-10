@@ -11,6 +11,7 @@
 #endif
 
 #include "php.h"
+#include "Zend/zend_exceptions.h"
 #include "../php_numerus.h"
 #include "matrix/numerus_matrix.h"
 
