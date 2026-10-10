@@ -267,3 +267,8 @@ Issue #115 implements the opaque PCG-XSH-RR 64/32 state API with explicit seed/s
 ## 18. Uniform and normal variates
 
 Issue #116 adds `numerus_rng_uniform()` with a fixed 53-bit mapping to `[0,1)` and `numerus_rng_normal()` using Box–Muller without cached state. Uniform consumes two raw PCG32 outputs; normal consumes four. Native tests check exact uniform mapping, a tolerance-based normal reference, state advancement, invalid arguments, finite/range guarantees and deterministic mean/variance sanity bounds. The CI workflow runs both ordinary and ASan/UBSan test binaries. Cross-platform bitwise normal output is not promised.
+
+
+## 19. Deterministic index sampling
+
+Issue #117 adds generic index sampling with and without replacement, explicit RNG state, unbiased bounded-integer rejection sampling, and randomized order for no-replacement results. Tests verify exact vectors, bounds, uniqueness, full/empty sample semantics, invalid sizes, checked allocation overflow, OOM output preservation and unchanged RNG state on pre-sampling failure. The native test is included in the normal and ASan/UBSan CI paths.
