@@ -50,11 +50,11 @@ Do not create one long-lived branch for the whole roadmap. One issue, one branch
 8. **[#113 — GLS triangular solves and whitening](https://github.com/ephpicman/Numerus/issues/113)** — **Completed in PR #135**  
    Audit #107 confirmed the gap; this change adds the contracted triangular solve and native coverage. GLS composition reference tests remain in #122.
 
-9. **[#114 — Stable log-determinant](https://github.com/ephpicman/Numerus/issues/114)** — **Implementation in this PR**  
+9. **[#114 — Stable log-determinant](https://github.com/ephpicman/Numerus/issues/114)** — **Completed in PR #136**  
    The audit and #111 contract confirmed the gap. This adds signed log-absolute-determinant using LU factors, preserving outputs on failure.
 
-10. **[#122 — OLS/WLS/GLS reference workflow tests](https://github.com/ephpicman/Numerus/issues/122)**  
-    Add or extend these tests as the audit and any confirmed linear-algebra gaps permit. These are composition tests, not model-fitting APIs.
+10. **[#122 — OLS/WLS/GLS reference workflow tests](https://github.com/ephpicman/Numerus/issues/122)** — **Tests added in this PR**  
+    The new native workflow test composes OLS, diagonal WLS, GLS whitening, Cholesky and log determinant, with ill-scaled/rank-deficient and invalid-covariance cases. These are composition tests, not model-fitting APIs.
 
 ### Stage 3 — Reproducible RNG and resampling
 
