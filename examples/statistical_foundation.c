@@ -67,6 +67,8 @@ int main(void)
     double log_density;
     double parameter_0;
     double parameter_1;
+    double sample_x;
+    double sample_y;
     numerus_optimizer_options options;
     numerus_optimizer_result *optimization = NULL;
     numerus_optimizer_termination termination;
