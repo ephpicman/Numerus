@@ -86,7 +86,7 @@ jobs:
 
             for object in "${source_objects[@]}"; do
               case "$name:$object" in
-                gaussian_log_density:*/src_statistics_numerus_probability.o|gaussian_sampling:*/src_statistics_numerus_probability.o|rng_sampling:*/src_statistics_numerus_rng.o|rng_state:*/src_statistics_numerus_rng.o|optimizer:*/src_statistics_numerus_optimizer.o)
+                gaussian_log_density:*/src_statistics_numerus_probability.o|gaussian_sampling:*/src_statistics_numerus_probability.o|rng_sampling:*/src_statistics_numerus_rng.o|rng_sampling:*/src_statistics_numerus_rng_sampling.o|rng_state:*/src_statistics_numerus_rng.o|optimizer:*/src_statistics_numerus_optimizer.o)
                   continue
                   ;;
               esac
@@ -106,6 +106,15 @@ jobs:
                 -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
                 -D"$variant_macro" -c "$variant_source" -o "$variant_object"
               suite_source_objects+=("$variant_object")
+              if [[ "$name" == "rng_sampling" ]]; then
+                sampling_object="$object_dir/variants/rng_sampling_sampling.o"
+                gcc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics \
+                  -std=c11 -O0 -g --coverage -fprofile-abs-path \
+                  -Wall -Wextra -Wpedantic -Werror \
+                  -DNUMERUS_RNG_TEST_ALLOCATOR \
+                  -c src/statistics/numerus_rng_sampling.c -o "$sampling_object"
+                suite_source_objects+=("$sampling_object")
+              fi
             fi
 
             if [[ "$name" == "matrix_allocation_failure" ]]; then
