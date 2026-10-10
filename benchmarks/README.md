@@ -8,15 +8,15 @@ It is diagnostic tooling, not a performance test with pass/fail thresholds.
 From the repository root, using GCC/Clang with GNU ld on a Unix-like system:
 
 ```sh
-cc -std=c11 -O2 -Wall -Wextra -Wpedantic -Werror \
+cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -O2 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
   -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free \
   -o benchmarks/matrix_benchmark \
   benchmarks/matrix_benchmark.c \
-  numerus_matrix.c numerus_matrix_binary.c \
-  numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_analysis.c \\
-  numerus_matrix_lu.c numerus_matrix_inverse.c numerus_matrix_condition.c numerus_storage.c
+  src/matrix/numerus_matrix.c src/matrix/numerus_matrix_binary.c \
+  src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_analysis.c \\
+  src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_condition.c src/storage/numerus_storage.c
 ./benchmarks/matrix_benchmark
 ```
 
