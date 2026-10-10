@@ -307,8 +307,24 @@ static void test_one_by_one_inverse(void)
     numerus_matrix_destroy(matrix);
 }
 
+
+static void test_inverse_overflow_returns_nonfinite(void)
+{
+    const double values[] = {1e-320};
+    numerus_matrix *matrix = NULL;
+    numerus_matrix *inverse = (void *) 1;
+
+    assert(numerus_matrix_create_dense(1, 1, values, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_inverse(matrix, &inverse) ==
+        NUMERUS_MATRIX_NON_FINITE);
+    assert(inverse == NULL);
+    numerus_matrix_destroy(matrix);
+}
+
 int main(void)
 {
+    test_inverse_overflow_returns_nonfinite();
     test_one_by_one_inverse();
     test_known_and_pivoted_inverses();
     test_three_by_three_cofactor_reference();
