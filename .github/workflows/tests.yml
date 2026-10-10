@@ -108,6 +108,14 @@ jobs:
             -o tests/storage_test tests/storage_test.c src/storage/numerus_storage.c
           ./tests/storage_test
 
+      - name: Run native Storage allocation-failure tests
+        run: |
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free \
+            -o tests/storage_allocation_failure_test tests/storage_allocation_failure_test.c src/storage/numerus_storage.c
+          ./tests/storage_allocation_failure_test
+
       - name: Run native Matrix tests
         run: |
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
@@ -707,6 +715,15 @@ jobs:
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -o tests/storage_sanitized tests/storage_test.c src/storage/numerus_storage.c
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/storage_sanitized
+
+      - name: Run Storage allocation-failure tests with AddressSanitizer and UBSan
+        run: |
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free \
+            -o tests/storage_allocation_failure_sanitized tests/storage_allocation_failure_test.c src/storage/numerus_storage.c
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/storage_allocation_failure_sanitized
 
       - name: Run Matrix adversarial tests with AddressSanitizer and UBSan
         run: |
