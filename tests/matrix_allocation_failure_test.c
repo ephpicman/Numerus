@@ -234,6 +234,62 @@ static void test_solve_allocation_failures(void)
     numerus_matrix_destroy(matrix);
 }
 
+
+static void test_selection_view_allocation_failures(void)
+{
+    const double values[] = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
+    const size_t selected_rows[] = {1, 0};
+    numerus_matrix *source = NULL;
+    long fail_after;
+    int allocation_failure_observed = 0;
+    int successful_view_observed = 0;
+
+    allocations_before_failure = -1;
+    assert(numerus_matrix_create_dense(3, 2, values, &source) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    for (fail_after = 0; fail_after < 16; fail_after++) {
+        numerus_matrix *view = (numerus_matrix *) 1;
+        numerus_matrix_status status;
+
+        allocations_before_failure = fail_after;
+        status = numerus_matrix_create_select_rows(
+            source, selected_rows, 2, &view
+        );
+
+        if (status == NUMERUS_MATRIX_SUCCESS) {
+            double value;
+
+            assert(view != NULL);
+            assert(numerus_matrix_get(view, 0, 0, &value) ==
+                NUMERUS_MATRIX_SUCCESS);
+            assert(value == 3.0);
+            numerus_matrix_destroy(view);
+            successful_view_observed = 1;
+            break;
+        }
+
+        assert(status == NUMERUS_MATRIX_OUT_OF_MEMORY);
+        assert(view == NULL);
+        allocation_failure_observed = 1;
+    }
+
+    allocations_before_failure = -1;
+    assert(allocation_failure_observed);
+    assert(successful_view_observed);
+
+    /* Failed view construction must not damage the borrowed parent. */
+    {
+        double value;
+
+        assert(numerus_matrix_get(source, 2, 1, &value) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(value == 6.0);
+    }
+
+    numerus_matrix_destroy(source);
+}
+
 int main(void)
 {
     const double values[] = {1.0, 2.0, 3.0, 4.0};
@@ -272,6 +328,7 @@ int main(void)
     test_addition_allocation_failures();
     test_inverse_allocation_failures();
     test_solve_allocation_failures();
+    test_selection_view_allocation_failures();
     allocations_before_failure = -1;
 
     /* A failure must not poison later operations. */
