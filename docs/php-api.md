@@ -5,7 +5,7 @@ The initial PHP-facing API is intentionally small. It exposes general matrix ope
 ## Constructing matrices
 
 ```php
-use Numerus\Matrix;
+use Numerus\\Matrix;
 
 $design = Matrix::fromRows([
     [1.0, 1.0],
@@ -18,6 +18,16 @@ $response = Matrix::fromRows([[3.0], [5.0], [7.0]]);
 `fromRows()` accepts a non-empty array of non-empty, equally sized row arrays. Every element must be a PHP integer or float. `zeros($rows, $columns)` creates a matrix with positive dimensions.
 
 Rows and columns are counted from one for dimensions; coordinates passed to `get($row, $column)` are zero-based.
+
+## End-to-end OLS example
+
+After building the extension, run the repository's [OLS example](../examples/ols.php):
+
+```sh
+php -d extension="$(pwd)/modules/numerus.so" examples/ols.php
+```
+
+The example estimates the intercept and slope for a small deterministic data set and checks the expected coefficients before printing them. It is intended as an executable API smoke test and a starting point for userland composition.
 
 ## Composing OLS
 
@@ -49,6 +59,6 @@ The explicit formula is useful for teaching and for users who deliberately need 
 - `$matrix->inverse(): Matrix`
 - `$matrix->leastSquares(Matrix $rightHandSide): Matrix`
 
-All returned matrices own independent native storage. In particular, `transpose()` materializes its result, so returned objects do not depend on the lifetime of their source object.
+All returned matrices own independent native storage. In particular, `transpose()` materializes its result, so returned objects do not depend on the lifetime of their source object. Cloning is deliberately unsupported because the native object owns its storage.
 
-Invalid shapes, coordinates, or dimensions raise `ValueError`. Singular or rank-deficient operations raise an exception. Other numerical failures are also reported as exceptions rather than C status integers. This initial API does not expose mutable elements, lazy views, raw native pointers, or factorization internals.
+Invalid shapes, coordinates, or dimensions raise `ValueError`. Invalid PHP argument types raise `TypeError`. Singular or rank-deficient operations raise an exception. Other numerical failures are also reported as exceptions rather than C status integers. This initial API does not expose mutable elements, lazy views, raw native pointers, or factorization internals.
