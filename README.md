@@ -168,6 +168,17 @@ and guidance on interpreting uncovered code.
 7. Add higher-level algorithms and PHP-facing APIs only when their semantics
    and lifecycle requirements are well understood.
 
+## Documentation
+
+Start with the [documentation index](docs/README.md):
+
+- [User guide](docs/user-guide.md) — installation, current PHP API, OLS example, and limitations.
+- [Developer guide](docs/developers/README.md) — architecture, testing, contribution workflow, and release engineering.
+- [PHP API reference](docs/php-api.md) — exact public method contracts.
+- [Release roadmap](docs/release-roadmap.md) — user-facing milestones and acceptance criteria.
+
+The user guide documents only capabilities exposed through PHP. Internal C primitives and planned roadmap items are labelled separately and should not be mistaken for shipped PHP APIs.
+
 ## License
 
 MIT
