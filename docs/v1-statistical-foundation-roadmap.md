@@ -257,3 +257,8 @@ Issue #114 adds `numerus_matrix_log_determinant()`, calculating the determinant 
 ## 16. OLS/WLS/GLS reference workflows
 
 Issue #122 adds a native composition test covering overdetermined OLS, ill-scaled and rank-deficient least squares, zero and unequal diagonal WLS weights, and GLS covariance whitening through Cholesky plus triangular solves. The GLS fixture checks the signed log determinant of the covariance and verifies non-SPD covariance rejection. These are tests of reusable primitives, not new estimator APIs.
+
+
+## 17. PCG32 RNG state implementation
+
+Issue #115 implements the opaque PCG-XSH-RR 64/32 state API with explicit seed/stream inputs, deterministic raw output, cloning and safe destruction. The exact eight-output reference vector in [the RNG contract](reproducible-rng-contract.md) was checked against the reference algorithm and corrected to `a15c02b7, 7b47f409, ba1d3330, 83d2f293, bfa4784b, cbed606e, bfc6a3ad, 812fff6d`. The native test is registered in CI. Uniform and normal variates remain issue #116.
