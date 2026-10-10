@@ -6,6 +6,7 @@
 #define NUMERUS_NUMERIC_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <math.h>
 
 /**
@@ -59,5 +60,38 @@ static inline bool numerus_double_is_one(double value)
 {
     return numerus_double_equals(value, 1.0);
 }
+
+
+/** Status values for stable scalar and log-domain operations. */
+typedef enum {
+    NUMERUS_NUMERIC_SUCCESS = 0,
+    NUMERUS_NUMERIC_INVALID_ARGUMENT,
+    NUMERUS_NUMERIC_DOMAIN_ERROR,
+    NUMERUS_NUMERIC_NON_FINITE,
+    NUMERUS_NUMERIC_NUMERICAL_FAILURE
+} numerus_numeric_status;
+
+/** Compute a stable sigmoid for a finite input; output is unchanged on failure. */
+numerus_numeric_status numerus_numeric_sigmoid(double input, double *result);
+
+/** Compute log(p / (1-p)) for finite 0 < p < 1. */
+numerus_numeric_status numerus_numeric_logit(double probability, double *result);
+
+/** Compute log(1 + exp(x)) without avoidable overflow. */
+numerus_numeric_status numerus_numeric_softplus(double input, double *result);
+
+/** Compute log(sigmoid(x)) without taking log of a rounded sigmoid result. */
+numerus_numeric_status numerus_numeric_log_sigmoid(double input, double *result);
+
+/**
+ * Compute log(sum(exp(values[i]))) for a non-empty array of finite values.
+ * Uses max-shifting and does not allocate. Output is unchanged on failure.
+ */
+numerus_numeric_status numerus_numeric_log_sum_exp(
+    const double *values,
+    size_t count,
+    double *result
+);
+
 
 #endif
