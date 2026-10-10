@@ -49,6 +49,42 @@ void __wrap_free(void *pointer)
     __real_free(pointer);
 }
 
+static void test_materialize_allocation_failures(void)
+{
+    const double values[] = {2.0, -1.0, 4.0, 3.0, 5.0, 6.0};
+    numerus_matrix *source = NULL;
+    long fail_after;
+    int allocation_failure_observed = 0;
+    int successful_materialization_observed = 0;
+
+    assert(numerus_matrix_create_dense(2, 3, values, &source) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    for (fail_after = 0; fail_after < 16; fail_after++) {
+        numerus_matrix *copy = (numerus_matrix *) 1;
+        numerus_matrix_status status;
+
+        allocations_before_failure = fail_after;
+        status = numerus_matrix_materialize(source, &copy);
+
+        if (status == NUMERUS_MATRIX_SUCCESS) {
+            assert(copy != NULL);
+            numerus_matrix_destroy(copy);
+            successful_materialization_observed = 1;
+            break;
+        }
+
+        assert(status == NUMERUS_MATRIX_OUT_OF_MEMORY);
+        assert(copy == NULL);
+        allocation_failure_observed = 1;
+    }
+
+    assert(allocation_failure_observed);
+    assert(successful_materialization_observed);
+
+    numerus_matrix_destroy(source);
+}
+
 int main(void)
 {
     const double values[] = {1.0, 2.0, 3.0, 4.0};
@@ -82,6 +118,8 @@ int main(void)
 
     assert(allocation_failure_observed);
     assert(successful_creation_observed);
+
+    test_materialize_allocation_failures();
 
     /* A failure must not poison later operations. */
     {
