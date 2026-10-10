@@ -1,6 +1,12 @@
 #include "numerus_rng.h"
 
+#include <float.h>
+#include <math.h>
 #include <stdlib.h>
+
+#if FLT_RADIX != 2 || DBL_MANT_DIG != 53 || DBL_MAX_EXP != 1024
+# error "Numerus RNG variates require IEEE-754 binary64 double"
+#endif
 
 #if defined(NUMERUS_RNG_TEST_ALLOCATOR)
 void *numerus_rng_test_alloc(size_t size);
@@ -119,6 +125,75 @@ numerus_rng_status numerus_rng_clone(
     result->state = source->state;
     result->increment = source->increment;
     *clone = result;
+    return NUMERUS_RNG_SUCCESS;
+}
+
+/*
+ * Convert exactly 53 random bits to a binary64 value in [0, 1). Scaling by
+ * 2^-53 is exact for the integer range represented here.
+ */
+static uint64_t numerus_rng_next_53_bits(numerus_rng *rng)
+{
+    uint64_t high = numerus_rng_next_u32_unchecked(rng);
+    uint64_t low = numerus_rng_next_u32_unchecked(rng);
+
+    return (high << 21u) | (low >> 11u);
+}
+
+numerus_rng_status numerus_rng_uniform(
+    numerus_rng *rng,
+    double *value
+)
+{
+    uint64_t bits;
+    double result;
+
+    if (rng == NULL || value == NULL) {
+        return NUMERUS_RNG_INVALID_ARGUMENT;
+    }
+
+    bits = numerus_rng_next_53_bits(rng);
+    result = (double) bits / 9007199254740992.0;
+    if (!isfinite(result) || result < 0.0 || result >= 1.0) {
+        return NUMERUS_RNG_NUMERICAL_FAILURE;
+    }
+
+    *value = result;
+    return NUMERUS_RNG_SUCCESS;
+}
+
+numerus_rng_status numerus_rng_normal(
+    numerus_rng *rng,
+    double *value
+)
+{
+    const double two_pi = 6.2831853071795864769252867665590057683943387987502;
+    uint64_t radial_bits;
+    uint64_t angular_bits;
+    double u1;
+    double u2;
+    double result;
+
+    if (rng == NULL || value == NULL) {
+        return NUMERUS_RNG_INVALID_ARGUMENT;
+    }
+
+    radial_bits = numerus_rng_next_53_bits(rng);
+    angular_bits = numerus_rng_next_53_bits(rng);
+
+    /*
+     * Add one before scaling to obtain u1 in (0, 1]. This prevents log(0)
+     * while keeping consumption fixed at four raw outputs per normal value.
+     */
+    u1 = (double) (radial_bits + 1u) / 9007199254740992.0;
+    u2 = (double) angular_bits / 9007199254740992.0;
+    result = sqrt(-2.0 * log(u1)) * cos(two_pi * u2);
+
+    if (!isfinite(result)) {
+        return NUMERUS_RNG_NUMERICAL_FAILURE;
+    }
+
+    *value = result;
     return NUMERUS_RNG_SUCCESS;
 }
 
