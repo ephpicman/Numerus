@@ -1,7 +1,7 @@
 # Numerus
 
 [![Tests](https://github.com/ephpicman/Numerus/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/ephpicman/Numerus/actions/workflows/tests.yml)
-[![Native coverage](https://github.com/ephpicman/Numerus/actions/workflows/native-coverage.yml/badge.svg?branch=main)](https://github.com/ephpicman/Numerus/actions/workflows/native-coverage.yml)
+[![Native coverage](https://github.com/ephpicman/Numerus/actions/workflows/coverage.yml/badge.svg?branch=main)](https://github.com/ephpicman/Numerus/actions/workflows/coverage.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Numerus is a native PHP extension that provides reusable numerical-computing primitives. Its current PHP-facing API focuses on matrix operations that can be composed into workflows such as ordinary least squares (OLS).
@@ -174,6 +174,10 @@ Start at the [documentation index](docs/README.md):
 
 The user guide documents only capabilities exposed through PHP. Internal C primitives and planned roadmap items are labelled separately and should not be mistaken for shipped PHP APIs.
 
+## Contributing and community standards
+
+Contributions are welcome. Start with the [contribution guide](CONTRIBUTING.md) and follow the project's [Code of Conduct](CODE_OF_CONDUCT.md). Security issues should be reported according to [SECURITY.md](SECURITY.md), not filed as public bug reports.
+
 ## License
 
-MIT
+Numerus is distributed under the [MIT License](LICENSE).
