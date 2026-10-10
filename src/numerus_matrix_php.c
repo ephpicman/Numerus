@@ -152,7 +152,7 @@ static void numerus_matrix_return_owned(zval *return_value, numerus_matrix *matr
     Z_NUMERUS_MATRIX_P(return_value)->matrix = matrix;
 }
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_matrix_private_construct, 0, 0, IS_VOID, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_matrix_private_construct, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_matrix_from_rows, 0, 1, Numerus\\Matrix, 0)
