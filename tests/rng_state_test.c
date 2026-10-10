@@ -2,6 +2,35 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
+
+static bool fail_next_allocation = false;
+static size_t live_allocations = 0;
+
+void *numerus_rng_test_alloc(size_t size)
+{
+    void *pointer;
+
+    if (fail_next_allocation) {
+        fail_next_allocation = false;
+        return NULL;
+    }
+
+    pointer = malloc(size);
+    if (pointer != NULL) {
+        live_allocations++;
+    }
+    return pointer;
+}
+
+void numerus_rng_test_free(void *pointer)
+{
+    if (pointer != NULL) {
+        assert(live_allocations > 0);
+        live_allocations--;
+        free(pointer);
+    }
+}
 
 static void test_reference_vector(void)
 {
@@ -101,12 +130,37 @@ static void test_invalid_arguments_preserve_output_and_state(void)
     numerus_rng_destroy(rng);
 }
 
+
+static void test_allocation_failures_do_not_leak(void)
+{
+    numerus_rng *rng = (void *) 1;
+    numerus_rng *clone = (void *) 1;
+    size_t before = live_allocations;
+
+    fail_next_allocation = true;
+    assert(numerus_rng_create(1, 2, &rng) == NUMERUS_RNG_OUT_OF_MEMORY);
+    assert(rng == NULL);
+    assert(live_allocations == before);
+
+    assert(numerus_rng_create(1, 2, &rng) == NUMERUS_RNG_SUCCESS);
+    assert(live_allocations == before + 1);
+
+    fail_next_allocation = true;
+    assert(numerus_rng_clone(rng, &clone) == NUMERUS_RNG_OUT_OF_MEMORY);
+    assert(clone == NULL);
+    assert(live_allocations == before + 1);
+
+    numerus_rng_destroy(rng);
+    assert(live_allocations == before);
+}
+
 int main(void)
 {
     test_reference_vector();
     test_replay_and_explicit_state();
     test_clone_copies_exact_state_but_not_storage();
     test_invalid_arguments_preserve_output_and_state();
+    test_allocation_failures_do_not_leak();
     puts("RNG state tests passed.");
     return 0;
 }
