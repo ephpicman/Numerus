@@ -222,3 +222,8 @@ The C-first implementation and PHP façade release gate are defined in [Statisti
 ## 9. GLS and log-determinant contract
 
 The accepted design contract for the GLS covariance-whitening path and signed log-absolute-determinant is recorded in [GLS Whitening and Log-Determinant Contracts](gls-whitening-and-log-determinant-contracts.md) (issue #111). The audit confirms #113 (triangular solve/whitening) and #114 (stable signed log determinant) as real implementation gaps. Neither capability is considered implemented by the design document; their implementations and executable native tests remain separate issues.
+
+
+## 10. RNG algorithm and reproducibility decision
+
+The v1 RNG algorithm/state contract is specified in [Reproducible RNG Contract](reproducible-rng-contract.md) (issue #109). It selects PCG-XSH-RR 64/32, explicit 64-bit seed and stream inputs, opaque mutable state with cloning, exact raw-output vectors, and conservative platform guarantees. This is a design decision only; implementation remains #115, uniform/normal mapping remains #116, and stream-splitting/independence claims remain out of scope unless separately justified.
