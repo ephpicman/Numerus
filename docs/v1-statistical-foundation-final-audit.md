@@ -1,5 +1,7 @@
 # v1 Statistical Foundation — Final Acceptance Audit
 
+> **Historical snapshot:** this audit was written against main after PR #146, before the PHP-facing Matrix API and OLS workflow landed in PRs #194–#197. Its statements that no PHP numerical API exists and that #147/#148 block userland readiness are historical, not the current repository state. See the [current PHP OLS release-gate audit](php-api-release-audit.md) and [release roadmap](release-roadmap.md) for present-day status.
+
 Audit date: 2026-10-10  
 Audit base: `main` after PR #146.  
 Outcome: **core C-internal statistical primitives are implemented and tested; overall userland v1 release gate is BLOCKED.**
@@ -54,13 +56,10 @@ A green CI run establishes the configured test/build commands passed on the list
 - **P1: portability beyond tested Linux matrix** — Windows is unverified.
 - **P2: MCMC, Bayesian diagnostics, GP fitting, cryptographic RNG, GPU/tensor/arbitrary-precision support** — explicitly out of scope for v1.
 
-## Release gate
+## Historical release-gate conclusion
 
-**The statistical C foundation passes its configured Linux CI, but overall Numerus v1 is not release-ready for PHP userland packages.** The API-boundary decision itself records this condition. The missing PHP façade is not a documentation gap and must not be waived by updating the README.
+At the time of this audit, the PHP façade was absent and #147/#148 were legitimate blockers. That conclusion is superseded by the current implementation and must not be used as a present-day status claim.
 
-Required follow-up is now tracked in separate issues:
-1. [#147 — Minimal PHP-facing numerical API](https://github.com/ephpicman/Numerus/issues/147) is the principal release blocker. It includes façade design, ownership-safe Matrix views, error mapping and PHPT coverage.
-2. [#148 — Rank-deficient/underdetermined least-squares semantics](https://github.com/ephpicman/Numerus/issues/148) tracks the remaining LIN-02 contract and reference-test gap.
-3. Keep Windows portability as unverified until a Windows build/test job exists; do not silently claim cross-platform support.
+## Current follow-up
 
-This audit issue can be closed as an audit deliverable only if its outcome is recorded as **release gate blocked**, with the remaining work tracked separately. It must not be interpreted as a v1 release approval.
+PRs #194–#197 delivered the agreed ownership-safe Numerus\\Matrix façade, an executable OLS workflow, PHPT contracts for success and failure behavior, and named-argument metadata. The remaining release decision must be made from current evidence in [the PHP OLS release-gate audit](php-api-release-audit.md): confirm post-merge main CI on the intended release-candidate commit and keep Windows marked unverified until a Windows build/test job passes. This historical foundation audit does not itself approve a release.
