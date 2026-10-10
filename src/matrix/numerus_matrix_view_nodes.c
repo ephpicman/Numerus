@@ -6,46 +6,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-static numerus_matrix_status identity_coordinate_transform(
-    size_t row,
-    size_t column,
-    size_t *parent_row,
-    size_t *parent_column,
-    const void *context
-)
-{
-    (void) context;
 
-    if (parent_row == NULL || parent_column == NULL) {
-        return NUMERUS_MATRIX_INVALID_ARGUMENT;
-    }
 
-    *parent_row = row;
-    *parent_column = column;
 
-    return NUMERUS_MATRIX_SUCCESS;
-}
-
-static numerus_matrix_status passthrough_value_transform(
-    size_t row,
-    size_t column,
-    double parent_value,
-    double *result,
-    const void *context
-)
-{
-    (void) row;
-    (void) column;
-    (void) context;
-
-    if (result == NULL) {
-        return NUMERUS_MATRIX_INVALID_ARGUMENT;
-    }
-
-    *result = parent_value;
-
-    return NUMERUS_MATRIX_SUCCESS;
-}
 
 static numerus_matrix_status slice_coordinate_transform(
     size_t row,
