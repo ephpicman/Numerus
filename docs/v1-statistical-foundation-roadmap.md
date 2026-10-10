@@ -287,3 +287,8 @@ Issue #119 implements the contract in [optimizer-contract.md](optimizer-contract
 ## 22. Multivariate Gaussian log density
 
 Issue #120 implements `numerus_multivariate_gaussian_log_density()` for column-vector observation/mean and SPD covariance. It uses Cholesky, a triangular solve and signed log determinant; it never forms the covariance inverse. Inputs are borrowed, scalar output is preserved on failure, and matrix errors are mapped to a focused probability status. Native tests cover standard-normal and correlated-covariance reference values, non-SPD/non-finite inputs, dimension errors, arithmetic overflow and allocation failure; CI runs normal and ASan/UBSan variants.
+
+
+## 23. Multivariate Gaussian sampling
+
+Issue #121 implements `numerus_multivariate_gaussian_sample()` from a column-vector mean, SPD covariance and explicit RNG state. It uses Cholesky (LL^T) and computes (mu + Lz) from standard normal variates. Sampling occurs on a cloned RNG state; the caller state advances by exactly four raw outputs per dimension only after the output Matrix has been allocated successfully. Tests verify fixed-state values, replay, raw-state consumption, non-SPD/non-finite/shape failures, allocation-failure state preservation and empirical mean/covariance with deterministic non-flaky tolerances. Normal and ASan/UBSan tests are registered in CI.

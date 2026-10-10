@@ -205,3 +205,191 @@ cleanup:
     }
     return status;
 }
+
+
+static numerus_probability_status numerus_probability_map_rng_status(
+    numerus_rng_status status
+)
+{
+    switch (status) {
+        case NUMERUS_RNG_SUCCESS:
+            return NUMERUS_PROBABILITY_SUCCESS;
+        case NUMERUS_RNG_INVALID_ARGUMENT:
+            return NUMERUS_PROBABILITY_INVALID_ARGUMENT;
+        case NUMERUS_RNG_OUT_OF_MEMORY:
+            return NUMERUS_PROBABILITY_OUT_OF_MEMORY;
+        case NUMERUS_RNG_SIZE_OVERFLOW:
+            return NUMERUS_PROBABILITY_SIZE_OVERFLOW;
+        default:
+            return NUMERUS_PROBABILITY_NUMERICAL_FAILURE;
+    }
+}
+
+numerus_probability_status numerus_multivariate_gaussian_sample(
+    const numerus_matrix *mean,
+    const numerus_matrix *covariance,
+    numerus_rng *rng,
+    numerus_matrix **sample
+)
+{
+    size_t dimension;
+    size_t buffer_bytes;
+    size_t row;
+    size_t column;
+    size_t draw_index;
+    double *standard_normals = NULL;
+    double *sample_values = NULL;
+    numerus_matrix *lower = NULL;
+    numerus_matrix *result_matrix = NULL;
+    numerus_rng *working_rng = NULL;
+    numerus_matrix_status matrix_status;
+    numerus_rng_status rng_status;
+    numerus_probability_status status;
+
+    if (sample == NULL) {
+        return NUMERUS_PROBABILITY_INVALID_ARGUMENT;
+    }
+    *sample = NULL;
+
+    if (mean == NULL || covariance == NULL || rng == NULL) {
+        return NUMERUS_PROBABILITY_INVALID_ARGUMENT;
+    }
+
+    dimension = numerus_matrix_rows(mean);
+    if (dimension == 0 ||
+        numerus_matrix_columns(mean) != 1 ||
+        numerus_matrix_rows(covariance) != dimension ||
+        numerus_matrix_columns(covariance) != dimension) {
+        return NUMERUS_PROBABILITY_DIMENSION_MISMATCH;
+    }
+
+    for (row = 0; row < dimension; row++) {
+        double value;
+
+        matrix_status = numerus_matrix_get(mean, row, 0, &value);
+        if (matrix_status != NUMERUS_MATRIX_SUCCESS) {
+            return numerus_probability_map_matrix_status(matrix_status);
+        }
+        if (!isfinite(value)) {
+            return NUMERUS_PROBABILITY_NON_FINITE_INPUT;
+        }
+    }
+
+    matrix_status = numerus_matrix_cholesky(covariance, &lower);
+    if (matrix_status != NUMERUS_MATRIX_SUCCESS) {
+        return numerus_probability_map_matrix_status(matrix_status);
+    }
+
+    if (!numerus_size_multiply(
+            dimension, sizeof(*standard_normals), &buffer_bytes)) {
+        status = NUMERUS_PROBABILITY_SIZE_OVERFLOW;
+        goto cleanup;
+    }
+
+    standard_normals = numerus_probability_alloc(buffer_bytes);
+    sample_values = numerus_probability_alloc(buffer_bytes);
+    if (standard_normals == NULL || sample_values == NULL) {
+        status = NUMERUS_PROBABILITY_OUT_OF_MEMORY;
+        goto cleanup;
+    }
+
+    /*
+     * Work on a clone so any failure before the output Matrix is fully
+     * allocated leaves the caller's RNG state untouched. The original state
+     * is advanced by the same raw-output count only after output creation.
+     */
+    rng_status = numerus_rng_clone(rng, &working_rng);
+    if (rng_status != NUMERUS_RNG_SUCCESS) {
+        status = numerus_probability_map_rng_status(rng_status);
+        goto cleanup;
+    }
+
+    for (row = 0; row < dimension; row++) {
+        rng_status = numerus_rng_normal(working_rng, &standard_normals[row]);
+        if (rng_status != NUMERUS_RNG_SUCCESS) {
+            status = numerus_probability_map_rng_status(rng_status);
+            goto cleanup;
+        }
+    }
+
+    for (row = 0; row < dimension; row++) {
+        double mean_value;
+        double value;
+
+        matrix_status = numerus_matrix_get(mean, row, 0, &mean_value);
+        if (matrix_status != NUMERUS_MATRIX_SUCCESS) {
+            status = numerus_probability_map_matrix_status(matrix_status);
+            goto cleanup;
+        }
+        value = mean_value;
+
+        for (column = 0; column <= row; column++) {
+            double coefficient;
+            double term;
+
+            matrix_status = numerus_matrix_get(
+                lower, row, column, &coefficient
+            );
+            if (matrix_status != NUMERUS_MATRIX_SUCCESS) {
+                status = numerus_probability_map_matrix_status(matrix_status);
+                goto cleanup;
+            }
+
+            term = coefficient * standard_normals[column];
+            if (!isfinite(term)) {
+                status = NUMERUS_PROBABILITY_NUMERICAL_FAILURE;
+                goto cleanup;
+            }
+            value += term;
+            if (!isfinite(value)) {
+                status = NUMERUS_PROBABILITY_NUMERICAL_FAILURE;
+                goto cleanup;
+            }
+        }
+
+        sample_values[row] = value;
+    }
+
+    matrix_status = (numerus_matrix_status) numerus_matrix_create_dense(
+        dimension, 1, sample_values, &result_matrix
+    );
+    if (matrix_status != NUMERUS_MATRIX_SUCCESS) {
+        status = numerus_probability_map_matrix_status(matrix_status);
+        goto cleanup;
+    }
+
+    /* Each normal variate consumes exactly four raw outputs (no cache). */
+    for (row = 0; row < dimension; row++) {
+        for (draw_index = 0; draw_index < 4; draw_index++) {
+            uint32_t ignored;
+
+            rng_status = numerus_rng_next_u32(rng, &ignored);
+            if (rng_status != NUMERUS_RNG_SUCCESS) {
+                status = numerus_probability_map_rng_status(rng_status);
+                goto cleanup;
+            }
+        }
+    }
+
+    *sample = result_matrix;
+    result_matrix = NULL;
+    status = NUMERUS_PROBABILITY_SUCCESS;
+
+cleanup:
+    if (result_matrix != NULL) {
+        numerus_matrix_destroy(result_matrix);
+    }
+    if (working_rng != NULL) {
+        numerus_rng_destroy(working_rng);
+    }
+    if (lower != NULL) {
+        numerus_matrix_destroy(lower);
+    }
+    if (sample_values != NULL) {
+        numerus_probability_free(sample_values);
+    }
+    if (standard_normals != NULL) {
+        numerus_probability_free(standard_normals);
+    }
+    return status;
+}

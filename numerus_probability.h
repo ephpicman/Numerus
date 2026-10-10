@@ -2,6 +2,7 @@
 #define NUMERUS_PROBABILITY_H
 
 #include "numerus_matrix.h"
+#include "numerus_rng.h"
 
 /** Status values for reusable probability primitives. */
 typedef enum {
@@ -28,6 +29,19 @@ numerus_probability_status numerus_multivariate_gaussian_log_density(
     const numerus_matrix *mean,
     const numerus_matrix *covariance,
     double *log_density
+);
+
+/**
+ * Draw one multivariate Gaussian sample from a column-vector mean and an SPD
+ * covariance Matrix using explicit RNG state. The returned dense Matrix is
+ * owned by the caller. All required allocations and factorization happen
+ * before the RNG is advanced; on failure, *sample remains NULL.
+ */
+numerus_probability_status numerus_multivariate_gaussian_sample(
+    const numerus_matrix *mean,
+    const numerus_matrix *covariance,
+    numerus_rng *rng,
+    numerus_matrix **sample
 );
 
 #endif
