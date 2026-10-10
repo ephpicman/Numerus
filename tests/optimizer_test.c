@@ -275,10 +275,11 @@ static void test_quadratic_with_analytic_gradient_and_result_fields(void)
 
     /* Caller input is borrowed read-only and never modified. */
     assert(initial[0] == -5.0 && initial[1] == 8.0);
+    x = 123.0;
     assert(numerus_optimizer_result_get_parameter(
         result, 2, &x
     ) == NUMERUS_OPTIMIZER_OUT_OF_BOUNDS);
-    assert(x == 3.0);
+    assert(x == 123.0);
 
     numerus_optimizer_result_destroy(result);
 }
