@@ -49,7 +49,7 @@ jobs:
       - name: Run native RNG state tests
         run: |
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
-            -DNUMERUS_RNG_USE_LIBC_ALLOC \
+            -DNUMERUS_RNG_TEST_ALLOCATOR \
             -o tests/rng_state_test tests/rng_state_test.c numerus_rng.c
           ./tests/rng_state_test
 
