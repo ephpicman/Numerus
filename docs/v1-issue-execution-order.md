@@ -1,6 +1,8 @@
 # v1 Statistical Foundation — Issue Execution Order
 
-This file is the execution queue for the issues derived from [the v1 statistical-foundation roadmap](v1-statistical-foundation-roadmap.md).
+This file records the dependency-aware execution queue and completion evidence for the broader [v1 statistical-foundation roadmap](v1-statistical-foundation-roadmap.md). The user-facing release gates are defined separately in the [release roadmap](release-roadmap.md); the historical foundation queue does not imply that every P0 item must ship in product 1.0.
+
+For the next product release, the sequence is: resolve [#147 — Minimal PHP-facing numerical API](https://github.com/ephpicman/Numerus/issues/147), validate an end-to-end PHP OLS workflow against existing C primitives, close only the demonstrated API/behavior gaps with native and PHPT coverage, add a runnable PHP example, then audit release documentation and CI. Preserve the resolved least-squares semantics in [#148](https://github.com/ephpicman/Numerus/issues/148). Do not add model-specific estimator functions.
 
 The order is dependency-aware, not just numerical. Work on tests and documentation incrementally with implementation; do not defer quality work until the end.
 
