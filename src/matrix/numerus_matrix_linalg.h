@@ -281,6 +281,9 @@ numerus_matrix_status numerus_matrix_weighted_least_squares(
  * Solve min_X ||A X - B||₂ using column-pivoted QR.
  * Requires full column rank and supports overdetermined/square A and multiple
  * RHS columns. Rank-deficient or underdetermined inputs return RANK_DEFICIENT.
+ * For a minimum-Euclidean-norm solution when A is rank deficient or
+ * underdetermined, compose numerus_matrix_pseudoinverse(A) * B. The
+ * pseudoinverse applies the documented SVD singular-value threshold.
  */
 numerus_matrix_status numerus_matrix_least_squares(
     const numerus_matrix *matrix,
