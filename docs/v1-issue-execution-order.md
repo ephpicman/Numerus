@@ -37,7 +37,7 @@ Do not create one long-lived branch for the whole roadmap. One issue, one branch
 5. **[#110 — Define optimizer callback/result/termination contracts](https://github.com/ephpicman/Numerus/issues/110)** — **Contract documented in this PR**  
    BFGS/Armijo, optional gradient with central finite differences, result ownership and termination semantics are specified in [optimizer contract](optimizer-contract.md). #119 remains implementation work.
 
-6. **[#112 — Select scalar and log-domain utilities](https://github.com/ephpicman/Numerus/issues/112)** — **Decision documented in this PR**  
+6. **[#112 — Select scalar and log-domain utilities](https://github.com/ephpicman/Numerus/issues/112)** — **Completed in PR #133**  
    Select sigmoid, logit, softplus, log-sigmoid and log-sum-exp; defer wrappers for standard `log1p`/`expm1` and speculative special functions. See [scalar utility selection](scalar-log-domain-utilities.md).
 
 7. **[#125 — Resolve portability and non-finite policies](https://github.com/ephpicman/Numerus/issues/125)**  
@@ -47,8 +47,8 @@ Do not create one long-lived branch for the whole roadmap. One issue, one branch
 
 ### Stage 2 — Close confirmed linear-algebra gaps
 
-8. **[#113 — GLS triangular solves and whitening](https://github.com/ephpicman/Numerus/issues/113)**  
-   Proceed only if #107 confirms a real gap and #111 specifies the contract. If existing APIs already suffice, close this issue with evidence and do not add redundant functionality.
+8. **[#113 — GLS triangular solves and whitening](https://github.com/ephpicman/Numerus/issues/113)** — **Implementation in this PR**  
+   Audit #107 confirmed the gap; this change adds the contracted triangular solve and native coverage. GLS composition reference tests remain in #122.
 
 9. **[#114 — Stable log-determinant](https://github.com/ephpicman/Numerus/issues/114)**  
    Proceed only if #107 confirms the current API does not meet the #111 contract. Otherwise close with evidence.
