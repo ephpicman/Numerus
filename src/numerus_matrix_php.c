@@ -64,31 +64,31 @@ static void numerus_matrix_object_free(zend_object *std)
 static void numerus_matrix_throw_status(numerus_matrix_status status)
 {
     const char *message;
-    zend_class_entry *exception_class = zend_ce_exception;
+    bool value_error = false;
 
     switch (status) {
         case NUMERUS_MATRIX_INVALID_ARGUMENT:
             message = "Invalid Matrix argument";
-            exception_class = zend_ce_value_error;
+            value_error = true;
             break;
         case NUMERUS_MATRIX_OVERFLOW:
             message = "Matrix dimensions overflow the supported size";
-            exception_class = zend_ce_value_error;
+            value_error = true;
             break;
         case NUMERUS_MATRIX_OUT_OF_MEMORY:
             message = "Unable to allocate Matrix memory";
             break;
         case NUMERUS_MATRIX_OUT_OF_BOUNDS:
             message = "Matrix coordinate is out of bounds";
-            exception_class = zend_ce_value_error;
+            value_error = true;
             break;
         case NUMERUS_MATRIX_NOT_SQUARE:
             message = "Operation requires a square Matrix";
-            exception_class = zend_ce_value_error;
+            value_error = true;
             break;
         case NUMERUS_MATRIX_DIMENSION_MISMATCH:
             message = "Matrix dimensions are incompatible";
-            exception_class = zend_ce_value_error;
+            value_error = true;
             break;
         case NUMERUS_MATRIX_DIVISION_BY_ZERO:
             message = "Matrix operation attempted division by zero";
@@ -103,12 +103,12 @@ static void numerus_matrix_throw_status(numerus_matrix_status status)
             break;
         case NUMERUS_MATRIX_NOT_SYMMETRIC:
             message = "Matrix must be symmetric";
-            exception_class = zend_ce_value_error;
+            value_error = true;
             break;
         case NUMERUS_MATRIX_NOT_POSITIVE_DEFINITE:
         case NUMERUS_MATRIX_NOT_POSITIVE_SEMIDEFINITE:
             message = "Matrix does not satisfy the required definiteness";
-            exception_class = zend_ce_value_error;
+            value_error = true;
             break;
         case NUMERUS_MATRIX_NO_CONVERGENCE:
             message = "Numerical algorithm did not converge";
@@ -120,7 +120,11 @@ static void numerus_matrix_throw_status(numerus_matrix_status status)
             break;
     }
 
-    zend_throw_exception(exception_class, message, 0);
+    if (value_error) {
+        zend_value_error("%s", message);
+    } else {
+        zend_throw_exception(zend_ce_exception, message, 0);
+    }
 }
 
 static numerus_matrix *numerus_matrix_require(zval *value)
