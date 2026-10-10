@@ -580,7 +580,7 @@ jobs:
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free \
-            -o tests/matrix_allocation_failure_test tests/matrix_allocation_failure_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+            -o tests/matrix_allocation_failure_test tests/matrix_allocation_failure_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_views.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_allocation_failure_test
 
       - name: Run adversarial Matrix numerical tests
@@ -723,7 +723,7 @@ jobs:
             -fsanitize=address,undefined -fno-omit-frame-pointer \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_allocation_failure_sanitized tests/matrix_allocation_failure_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm \
+            -o tests/matrix_allocation_failure_sanitized tests/matrix_allocation_failure_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_views.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm \
             -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/matrix_allocation_failure_sanitized
 
