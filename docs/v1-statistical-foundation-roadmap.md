@@ -292,3 +292,8 @@ Issue #120 implements `numerus_multivariate_gaussian_log_density()` for column-v
 ## 23. Multivariate Gaussian sampling
 
 Issue #121 implements `numerus_multivariate_gaussian_sample()` from a column-vector mean, SPD covariance and explicit RNG state. It uses Cholesky (LL^T) and computes (mu + Lz) from standard normal variates. Sampling occurs on a cloned RNG state; the caller state advances by exactly four raw outputs per dimension only after the output Matrix has been allocated successfully. Tests verify fixed-state values, replay, raw-state consumption, non-SPD/non-finite/shape failures, allocation-failure state preservation and empirical mean/covariance with deterministic non-flaky tolerances. Normal and ASan/UBSan tests are registered in CI.
+
+
+## 24. Cross-API statistical property tests
+
+Issue #123 adds deterministic invariants beyond exact reference vectors: Cholesky reconstruction (LL^T=A), triangular solve residuals, sigmoid/softplus/log-sigmoid identities, replay across multiple seed/stream pairs, sampling bounds/uniqueness, optimizer objective/gradient convergence across a parameter grid, and Gaussian log-density symmetry/Mahalanobis distance. The test binary runs normally and under ASan/UBSan in CI. Existing focused tests retain exact vectors and detailed error cases.

@@ -663,6 +663,28 @@ jobs:
             -DNUMERUS_PROBABILITY_TEST_ALLOCATOR \
             -o tests/gaussian_sampling_sanitized tests/gaussian_sampling_test.c numerus_probability.c numerus_rng.c numerus_matrix_cholesky.c numerus_matrix_solve_triangular.c numerus_matrix_log_determinant.c numerus_matrix_solve.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/gaussian_sampling_sanitized
+      - name: Run statistical property tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -DNUMERUS_PROBABILITY_USE_LIBC_ALLOC \
+            -DNUMERUS_RNG_USE_LIBC_ALLOC \
+            -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
+            -o tests/statistical_property_test tests/statistical_property_test.c numerus_numeric.c numerus_optimizer.c numerus_probability.c numerus_rng.c numerus_rng_sampling.c numerus_matrix_cholesky.c numerus_matrix_solve_triangular.c numerus_matrix_log_determinant.c numerus_matrix_solve.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+          ./tests/statistical_property_test
+
+      - name: Run statistical property tests with AddressSanitizer and UBSan
+        run: |
+          cc -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -DNUMERUS_PROBABILITY_USE_LIBC_ALLOC \
+            -DNUMERUS_RNG_USE_LIBC_ALLOC \
+            -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
+            -o tests/statistical_property_sanitized tests/statistical_property_test.c numerus_numeric.c numerus_optimizer.c numerus_probability.c numerus_rng.c numerus_rng_sampling.c numerus_matrix_cholesky.c numerus_matrix_solve_triangular.c numerus_matrix_log_determinant.c numerus_matrix_solve.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/statistical_property_sanitized
 
       - name: Run extension tests
         run: make test TESTS='tests/*.phpt'
