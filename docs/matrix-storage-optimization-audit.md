@@ -1,5 +1,7 @@
 # Matrix Storage-Aware Optimization Audit
 
+> **Snapshot dated 2026-10-09:** this document records the optimization review at that point in development. For current Matrix behavior and contracts, use [Matrix documentation](matrix.md) and [Matrix operation contracts](matrix-operation-contracts.md); do not treat this snapshot alone as proof that an optimization remains current or enabled.
+
 Date: 2026-10-09
 
 ## Current representations

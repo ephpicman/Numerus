@@ -1,10 +1,10 @@
 # Statistical Foundation C API: Current Capabilities and Composition
 
-Status: implementation reference for the v1 C-internal statistical foundation. This document describes APIs present in the source tree; it does not claim that Numerus exposes them to PHP userland.
+Status: implementation reference for the v1 C-internal statistical foundation. This document describes internal C APIs present in the source tree; it does not claim that every capability is exposed to PHP userland.
 
 ## API boundary
 
-The statistical and Matrix APIs are internal C APIs. `numerus.c` currently registers the extension but does not register PHP-visible Matrix, RNG, optimizer, scalar or probability functions/classes. Native C callers can compose these primitives; PHP packages cannot yet call them through a stable userland API. The PHP façade remains a separate release gate described in [the API-boundary decision](statistical-api-boundary.md).
+The repository now exposes an initial `Numerus\\Matrix` PHP class for matrix construction/access, transpose, multiplication, inverse, and pivoted-QR least-squares solving. The statistical foundation described below remains an internal C API: the RNG, optimizer, scalar/log-domain, and probability primitives are not automatically PHP-callable. See the [current API-boundary decision](statistical-api-boundary.md) and [PHP API reference](php-api.md) for the supported userland surface.
 
 No model-specific estimator API is provided. In particular, Numerus does not implement `fit_ols()`, `fit_wls()`, `fit_gls()`, `fit_mle()`, Gaussian-process fitting or MCMC.
 

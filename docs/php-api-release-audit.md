@@ -8,24 +8,35 @@ This audit evaluates the user-facing 1.0 target in [the release roadmap](release
 |---|---|---|
 | Construct design and response matrices from PHP | `Numerus\\Matrix::fromRows()`, `zeros()`; PHPT construction/access tests | Implemented |
 | Compose the explicit normal-equation identity | `tests/004-ols-composition.phpt` checks `(XᵀX)⁻¹Xᵀy` | Implemented; documented as a non-default numerical path |
-| Recommended stable least-squares path | `Matrix::leastSquares()` uses the existing pivoted-QR solver; `examples/ols.php` is an executable example and `tests/008-ols-example.phpt` invokes it | Implemented for full-column-rank designs |
-| Numerical property/reference coverage | Native least-squares tests cover exact multiple RHS, a noisy overdetermined case, residuals, rank-deficient/underdetermined failures, and non-finite inputs. PHP-visible tests cover the main successful composition; `tests/009-least-squares-contracts.phpt` extends the PHP boundary checks. | Implemented; CI evidence must remain green |
-| Rank-deficient and underdetermined behavior | The QR least-squares API returns rank-deficient status; the PHP façade maps this to `Exception`. Minimum-norm solutions can be composed at C level with the pseudoinverse, but that primitive is not currently exposed in PHP. | Explicit rejection is tested; PHP minimum-norm composition is not exposed |
+| Recommended stable least-squares path | `Matrix::leastSquares()` uses the pivoted-QR solver; `examples/ols.php` is an executable example and `tests/008-ols-example.phpt` invokes it | Implemented for full-column-rank designs |
+| Numerical property/reference coverage | Native least-squares tests cover multiple RHS, noisy overdetermined residuals, rank/shape failures, and non-finite inputs; PHP-visible contract tests cover the boundary | Implemented; latest main CI is green |
+| Rank-deficient and underdetermined behavior | The QR least-squares API reports rank-deficient status; the PHP façade maps solver failures to `Exception`. Minimum-norm solutions are not exposed in PHP | Explicit rejection is tested; consistent with the 1.0 contract |
 | PHP ownership and lifecycle | Returned operations own independent native matrices; transpose lifetime and clone prohibition have dedicated PHPTs | Implemented and tested |
-| Public error behavior | PHPTs cover invalid shapes/coordinates, incompatible multiplication, singular inverse, invalid types, rank/dimension failures, and non-finite least-squares inputs | Broad core coverage; continue pinning down new public methods as added |
-| PHP 8 named-argument metadata | leastSquares(rightHandSide: $response) is exercised by tests/010-least-squares-named-argument.phpt, including Reflection parameter names | Implemented; PR #197 |
-| Supported Linux CI | Tests workflow covers PHP 8.2–8.5 and debug build; native coverage is a separate workflow | Verify green status on the release candidate commit |
-| Windows | `config.w32` exists, but Windows build/test CI is absent | Unverified; do not claim Windows support is validated |
+| Public error behavior | PHPTs cover invalid shapes/coordinates, incompatible multiplication, singular inverse, invalid types, rank/dimension failures, and non-finite least-squares inputs | Sufficient for the current public surface; extend with new methods |
+| PHP 8 named-argument metadata | `leastSquares(rightHandSide: $response)` is exercised by `tests/010-least-squares-named-argument.phpt`, including Reflection parameter names | Implemented |
+| Supported Linux CI | PHP 8.2–8.5, debug build, PHPTs, native tests, and native coverage | Passed on current main commit `dd52d6abd8b68346fc95d7f244ed3fb64586d1b0`; see [Tests run](https://github.com/ephpicman/Numerus/actions/runs/38092837656) and [Native coverage run](https://github.com/ephpicman/Numerus/actions/runs/38092837675) |
+| README and PHP documentation | README quick start, API summary, example, platform caveat, and documentation links agree with the PHP API/user guide | Reviewed and aligned in this change |
+| Windows | `config.w32` exists, but Windows build/test CI is absent | Unverified; README and user guide must not claim validated Windows support |
 
 ## Remaining limitations and decisions
 
-1. `leastSquares()` deliberately requires full column rank. Rank-deficient and underdetermined minimum-norm solutions are not silently selected. If the PHP API later exposes a pseudoinverse or SVD composition, it needs its own public contract and PHPTs.
+1. `leastSquares()` deliberately requires full column rank. Rank-deficient and underdetermined minimum-norm solutions are not silently selected. A future PHP pseudoinverse/SVD surface needs its own public contract and PHPTs.
 2. The current façade has no mutable element assignment or general elementwise API. Neither is needed for the current OLS example; do not expand the API without a demonstrated composition gap.
-3. The PHP exception mapping distinguishes invalid arguments/shapes (`ValueError`) from numerical solver failures (`Exception`). If more precise numerical exception types are introduced, treat that as a deliberate public-API compatibility decision.
-4. Windows portability remains unverified.
+3. PHP errors distinguish invalid arguments/shapes (`ValueError`) from numerical solver failures (`Exception`). More precise numerical exception types would be a deliberate public-API compatibility decision.
+4. Windows portability remains unverified and is not represented as supported-and-tested.
+5. This audit does not claim a release has been published. It records whether the current source meets the agreed 1.0 acceptance criteria.
 
 ## Current CI evidence and release decision
 
-The feature PRs #194–#197 passed their pull-request CI, including the PHP 8.2–8.5 matrix, debug build, and native coverage. PR #197's final head passed both required workflows before merge. Post-merge main runs must still be checked on the resulting commit before treating the release-candidate gate as satisfied.
+The post-merge main commit `dd52d6abd8b68346fc95d7f244ed3fb64586d1b0` passed the supported Linux release gate:
 
-**Do not infer release readiness from native C tests alone or from feature-PR CI alone.** The 1.0 gate can be considered satisfied only after the supported PHP 8.2–8.5 matrix, debug build, native coverage workflow, executable example, and all PHPTs pass on the intended release-candidate commit. Windows remains explicitly unverified until a Windows build and test job is added and passes.
+- PHP 8.2, 8.3, 8.4, and 8.5 test jobs
+- Debug build
+- PHPTs and extension-loading checks
+- Native Storage/Matrix/statistical tests, including sanitizer-oriented jobs
+- Native line/branch coverage workflow
+- The executable OLS example, exercised by PHPT
+
+See [Tests workflow run](https://github.com/ephpicman/Numerus/actions/runs/38092837656) and [Native coverage workflow run](https://github.com/ephpicman/Numerus/actions/runs/38092837675).
+
+**Assessment: the documented Linux 1.0 OLS-enabling acceptance gate is satisfied for this commit**, subject to rerunning the same checks on any later release-candidate commit. This does not mean a version has been tagged or published. Windows remains unverified and must stay clearly labelled as such. Before publishing, follow the [release engineering guide](developers/releases.md), review the final release diff, and run the gate on the exact commit intended for release.

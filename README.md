@@ -1,17 +1,88 @@
 # Numerus
 
-Numerus is a native PHP extension for numerical-computing infrastructure.
+[![Tests](https://github.com/ephpicman/Numerus/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/ephpicman/Numerus/actions/workflows/tests.yml)
+[![Native coverage](https://github.com/ephpicman/Numerus/actions/workflows/coverage.yml/badge.svg?branch=main)](https://github.com/ephpicman/Numerus/actions/workflows/coverage.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-The project is being built as a low-level foundation for numerical work in PHP,
-including matrix computation, numerical methods, optimisation, and statistical
-models. The current focus is on internal primitives rather than a broad
-application-level API.
+Numerus is a native PHP extension that provides reusable numerical-computing primitives. Its current PHP-facing API focuses on matrix operations that can be composed into workflows such as ordinary least squares (OLS).
+
+The project intentionally exposes general-purpose primitives rather than model-specific functions such as `fit_ols()`, `fit_wls()`, `fit_gls()`, or `fit_mle()`.
 
 ## Current status
 
-The user-facing release milestones and the 1.0 acceptance gate are defined in the [release roadmap](docs/release-roadmap.md). The broader [v1 statistical foundation roadmap](docs/v1-statistical-foundation-roadmap.md) tracks reusable capabilities and gaps; its P0 labels do not mean every listed capability is required for 1.0.
+The initial PHP API and executable OLS workflow are implemented. The 1.0 release gate is tracked in the [release roadmap](docs/release-roadmap.md) and [PHP OLS release-gate audit](docs/php-api-release-audit.md). Linux CI currently covers PHP 8.2–8.5, a debug build, PHPTs, native tests, and native line/branch coverage. Windows build configuration exists, but Windows support remains unverified because Windows build/test CI is not yet present.
 
-The codebase contains an immutable **Storage** subsystem and an internal **Matrix** abstraction built on top of Storage. The initial PHP-facing `Numerus\Matrix` value object supports construction, access, transpose, multiplication, inversion, and least-squares composition. See the [PHP API guide](docs/php-api.md) and the runnable [PHP OLS example](examples/ols.php); the public surface remains intentionally small while its contracts and CI coverage are validated.
+## Quick start
+
+Requirements:
+
+- PHP 8.2 or later, with matching development headers and `phpize`
+- Autoconf
+- A C compiler and build toolchain
+
+Build the extension on Unix-like systems:
+
+```sh
+phpize
+./configure --enable-numerus
+make
+```
+
+Load it for a command and run the checked OLS example:
+
+```sh
+php -d extension="$(pwd)/modules/numerus.so" examples/ols.php
+```
+
+Expected output:
+
+```text
+intercept: 1.000000
+slope: 2.000000
+```
+
+The shared-library suffix and module path depend on the platform and PHP build. For persistent use, enable the extension in the appropriate `php.ini` or additional INI file.
+
+## PHP API at a glance
+
+```php
+<?php
+
+use Numerus\Matrix;
+
+$design = Matrix::fromRows([
+    [1.0, 1.0],
+    [1.0, 2.0],
+    [1.0, 3.0],
+]);
+
+$response = Matrix::fromRows([
+    [3.0],
+    [5.0],
+    [7.0],
+]);
+
+// Recommended: pivoted-QR least-squares solve.
+$beta = $design->leastSquares($response);
+
+printf("intercept: %.6f\n", $beta->get(0, 0));
+printf("slope: %.6f\n", $beta->get(1, 0));
+```
+
+The PHP-facing API currently includes:
+
+- `Matrix::fromRows(array $rows)` and `Matrix::zeros(int $rows, int $columns)`
+- `rows()`, `columns()`, and zero-based `get($row, $column)`
+- `transpose()`, `multiply(Matrix $other)`, and `inverse()`
+- `leastSquares(Matrix $rightHandSide)`, using pivoted QR
+
+The least-squares operation supports one or more right-hand-side columns and requires a full-column-rank design matrix. Rank-deficient and underdetermined inputs are rejected explicitly; the initial PHP API does not expose a minimum-norm solution. Prefer `leastSquares()` to explicitly forming normal equations: forming (X^T X) squares the condition number, and explicitly forming an inverse can amplify rounding error.
+
+See the [PHP API reference](docs/php-api.md) for exact contracts and exceptions, the [user guide](docs/user-guide.md) for examples and limitations, and [examples/ols.php](examples/ols.php) for the executable workflow.
+
+## Architecture
+
+Numerus separates opaque native storage, matrix operations, and reusable statistical primitives.
 
 ### Storage
 
@@ -28,93 +99,29 @@ Storage exposes one logical matrix interface over specialised representations:
 - symmetric
 - banded
 
-Storage is opaque and immutable. Its representation is private to
-`src/storage/numerus_storage.c`, and constructor inputs are copied into owned memory.
+Storage is opaque and immutable. Its representation is private to `src/storage/numerus_storage.c`, and constructor inputs are copied into owned memory.
 
 ### Matrix
 
-Matrix can be created as a storage-backed root or as a lazy view.
-Supported coordinate views include transpose, row/column flips, 90-degree and
-180-degree rotations, removing one row or column, and swapping two selected
-rows or columns. Horizontal and vertical joins combine two parent Matrices.
-Views do not copy element data: they map reads to their parent Matrix (or, for
-joins, to one of two parents). The Matrix API also supports generic coordinate
-and value callbacks for custom views.
+The internal Matrix abstraction supports storage-backed roots and lazy coordinate views, including transpose, flips, rotations, row/column removal and swaps, joins, and callback-based views. Removal and swap operations are views, not mutations. Coordinates are zero-based; removing the only row or column is rejected because matrix dimensions must remain positive.
 
-Removal and swap operations are views, not mutations. Coordinates are
-zero-based. Removing the only row or only column is rejected because Matrix
-dimensions must remain positive; invalid indices return an error status.
+Internal C view-parent references are non-owning. The PHP façade materializes returned results so PHP Matrix objects own independent native storage and do not retain C view-parent references. General transform callbacks and their context are borrowed; the context must remain valid and logically unchanged for the child view's lifetime, and callbacks must be deterministic.
 
-Parent references in the internal C API are **non-owning**. The PHP façade materializes results before returning them, so returned PHP Matrix objects own independent native storage and do not retain C view-parent references.
+See [Storage documentation](docs/storage.md) and [Matrix documentation](docs/matrix.md) for the native contracts and implementation details.
 
-General transform callbacks and their context are borrowed. The context must
-remain valid and logically unchanged for the child's lifetime, and callbacks
-must be deterministic and must not depend on mutable external state. Declaring
-the context `const void *` prevents mutation through that pointer; it cannot
-prevent mutation through another alias.
+### Internal statistical foundation
 
-See [Storage documentation](docs/storage.md) and
-[Matrix documentation](docs/matrix.md) for API contracts, design details, and
-cached Matrix analysis.
+The source tree also contains reusable C-level primitives for triangular solves and log determinants, scalar/log-domain functions, explicit-state PCG32 random generation and index sampling, BFGS optimization, and multivariate Gaussian log density/sampling. These are internal composable capabilities, not PHP-facing model-fitting APIs. Do not assume that all internal primitives are available to PHP callers.
 
-### Statistical foundation (internal C API)
+## Testing
 
-The source tree also contains reusable statistical primitives: triangular solves
-and stable log determinants for GLS composition, stable scalar/log-domain
-functions, explicit-state PCG32 random generation and index sampling, generic
-unconstrained BFGS optimization, and multivariate Gaussian log density/sampling.
-These are composable C APIs, not model-fitting functions; the project does not
-provide `fit_ols()`, `fit_gls()`, `fit_mle()`, GP fitting, or MCMC.
-
-The initial Matrix façade exposes generic primitives, not statistical estimators. Users can compose the explicit normal-equation OLS expression `(XᵀX)⁻¹Xᵀy`, while `leastSquares()` provides the preferred pivoted-QR route. The [PHP API guide](docs/php-api.md) documents the API and its numerical limitations.
-
-## Requirements
-
-- PHP 8.2 or later
-- Autoconf
-- A C compiler and build toolchain
-
-## Build
-
-On Unix-like systems:
-
-```sh
-phpize
-./configure --enable-numerus
-make
-```
-
-Load the built extension:
-
-```sh
-php -d extension="$(pwd)/modules/numerus.so" -m
-```
-
-Run the end-to-end OLS example from the repository root after building:
-
-```sh
-php -d extension="$(pwd)/modules/numerus.so" examples/ols.php
-```
-
-Expected output:
-
-```text
-intercept: 1.000000
-slope: 2.000000
-```
-
-On Windows, `config.w32` is provided, but Windows builds are not currently covered by the CI matrix; treat Windows support as unverified until a Windows build and test job passes.
-
-## Tests
-
-PHPT is the test mechanism for PHP-visible behaviour:
+Run PHPTs from a configured extension build:
 
 ```sh
 make test TESTS='tests/*.phpt'
 ```
 
-The internal Storage and Matrix APIs also have standalone native C tests. Run
-these from the repository root:
+The native Storage and Matrix APIs also have standalone C tests. From the repository root:
 
 ```sh
 cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
@@ -129,32 +136,21 @@ cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra
 ./tests/matrix_test
 ```
 
-The allocator defines are for standalone test executables only. The extension
-build uses the Zend Memory Manager. CI runs both native test binaries, PHPTs,
-extension loading checks, and a separate debug-oriented build.
-
-CI also generates a line/branch coverage report for native source files. See the
-[native test coverage guide](docs/native-test-coverage.md) for report artifacts
-and guidance on interpreting uncovered code.
+The allocator defines are for standalone test executables only; the extension build uses the Zend Memory Manager. CI runs native tests, PHPTs, extension-loading checks, and a debug-oriented build. The separate native coverage workflow produces line/branch coverage reports; see the [native test coverage guide](docs/native-test-coverage.md).
 
 ## Project structure
 
 - `config.m4` — Unix Autoconf configuration.
-- `config.w32` — Windows build configuration.
+- `config.w32` — Windows build configuration (not yet validated in CI).
 - `php_numerus.h` — module declarations and version.
 - `src/core/` — checked size arithmetic and scalar numerical helpers.
 - `src/storage/` — immutable storage representations.
 - `src/matrix/` — Matrix core, lazy view nodes, factories, operations, and focused declaration headers; `numerus_matrix.h` remains the compatibility umbrella.
 - `src/statistics/` — RNG, sampling, probability, and optimizer primitives.
 - Root-level C headers are forwarding includes retained for existing native test include paths; declarations and implementations live under `src/`.
-- `php_numerus.h`, `config.m4`, and `config.w32` remain extension-facing build entry points at the repository root.
 - `examples/ols.php` — runnable PHP OLS coefficient workflow.
-- `tests/storage_test.c` — native Storage tests.
-- `tests/matrix_test.c` — native Matrix tests.
 - `tests/` — PHPT and native C tests.
-- `docs/storage.md` — Storage design and API documentation.
-- `docs/matrix.md` — Matrix views, joins, ownership, cached analysis, and API documentation.
-- `.github/workflows/tests.yml` — build and test matrix.
+- `.github/workflows/` — build/test matrix and native coverage workflows.
 
 ## Design principles
 
@@ -162,23 +158,26 @@ and guidance on interpreting uncovered code.
 2. Hide representation details behind opaque C APIs.
 3. Prefer specialised storage when it materially reduces memory or computation.
 4. Keep Storage immutable so higher-level Matrix objects can share it safely.
-5. Validate at API boundaries; use unchecked accessors only after establishing
-   their preconditions.
+5. Validate at API boundaries; use unchecked accessors only after establishing their preconditions.
 6. Make ownership, overflow, allocation failure, and bounds behaviour explicit.
-7. Add higher-level algorithms and PHP-facing APIs only when their semantics
-   and lifecycle requirements are well understood.
+7. Add higher-level algorithms and PHP-facing APIs only when their semantics and lifecycle requirements are well understood.
 
 ## Documentation
 
-Start with the [documentation index](docs/README.md):
+Start at the [documentation index](docs/README.md):
 
 - [User guide](docs/user-guide.md) — installation, current PHP API, OLS example, and limitations.
 - [Developer guide](docs/developers/README.md) — architecture, testing, contribution workflow, and release engineering.
 - [PHP API reference](docs/php-api.md) — exact public method contracts.
 - [Release roadmap](docs/release-roadmap.md) — user-facing milestones and acceptance criteria.
+- [Release-gate audit](docs/php-api-release-audit.md) — evidence and remaining limitations for 1.0.
 
 The user guide documents only capabilities exposed through PHP. Internal C primitives and planned roadmap items are labelled separately and should not be mistaken for shipped PHP APIs.
 
+## Contributing and community standards
+
+Contributions are welcome. Start with the [contribution guide](CONTRIBUTING.md) and follow the project's [Code of Conduct](CODE_OF_CONDUCT.md). Security issues should be reported according to [SECURITY.md](SECURITY.md), not filed as public bug reports.
+
 ## License
 
-MIT
+Numerus is distributed under the [MIT License](LICENSE).

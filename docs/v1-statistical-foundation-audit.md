@@ -1,5 +1,7 @@
 # v1 Statistical Foundation — Source and Test Audit
 
+> **Historical snapshot:** this audit describes the repository before the PHP-facing Matrix API and OLS workflow were delivered. Its statements that no PHP-visible Matrix API exists are historical, not current status. Use the [PHP 1.0 OLS release-gate audit](php-api-release-audit.md) and [release roadmap](release-roadmap.md) for current user-facing readiness.
+
 Audit base: `main` at `eeeccfa0022748bb2848628dd4a7d828eb1cce22` (2026-10-10).
 
 This is a source-tree audit, not a claim that CI was executed locally. The execution environment could not resolve `github.com`, so native tests were not run in this environment. Existing test files and workflow commands were inspected; the PR's GitHub Actions results must be checked before merge.
