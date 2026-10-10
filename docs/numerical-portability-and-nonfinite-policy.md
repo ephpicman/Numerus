@@ -85,3 +85,6 @@ For new statistical algorithms:
 - [Optimizer contract](optimizer-contract.md) defines callback and termination behavior.
 - [Scalar utility selection](scalar-log-domain-utilities.md) defines finite domains and selected stable functions.
 - [GLS/log-determinant contract](gls-whitening-and-log-determinant-contracts.md) defines covariance and factorization assumptions.
+
+
+The v1 Gaussian sampler consumes an explicit RNG state, requires a finite mean vector and SPD covariance accepted by Cholesky, and produces one dense sample vector. It generates on a cloned state and advances the caller state only after output allocation succeeds. Each dimension consumes exactly four raw PCG32 outputs because normal variates use Box–Muller without caching.
