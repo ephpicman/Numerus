@@ -104,12 +104,34 @@ static void test_singular_and_invalid_inputs_preserve_outputs(void)
     assert(log_abs == 23.0);
 }
 
+
+static void test_finite_input_with_nonfinite_factorization(void)
+{
+    const double values[] = {
+        1e308, 1e308,
+        1e308, -1e308
+    };
+    numerus_matrix *matrix = NULL;
+    int sign = 17;
+    double log_abs = 23.0;
+
+    assert(numerus_matrix_create_dense(2, 2, values, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_log_determinant(
+        matrix, &sign, &log_abs
+    ) == NUMERUS_MATRIX_NON_FINITE);
+    assert(sign == 17);
+    assert(log_abs == 23.0);
+    numerus_matrix_destroy(matrix);
+}
+
 int main(void)
 {
     test_identity_and_diagonal();
     test_spd_and_row_permutation();
     test_ill_conditioned_and_extreme_scales();
     test_singular_and_invalid_inputs_preserve_outputs();
+    test_finite_input_with_nonfinite_factorization();
     puts("Matrix log-determinant tests passed.");
     return 0;
 }
