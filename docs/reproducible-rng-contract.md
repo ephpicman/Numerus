@@ -1,6 +1,6 @@
 # Reproducible RNG Contract
 
-Status: selected v1 contract for implementation issue #115 and variate issue #116. This is a design specification; it does not claim an RNG implementation exists.
+Status: accepted v1 contract. The raw PCG32 state API is implemented by issue #115; uniform/normal variates remain issue #116.
 
 ## Algorithm
 
@@ -67,7 +67,7 @@ Names may be adjusted to fit repository conventions without changing semantics.
 
 - The first raw outputs for `seed = 42`, `stream = 54` must be:
 
-  `a15c02b7, 7b47f409, ba1d3330, 83d2f293, bfa4784b, cbed606e, 8c7f0aac, e3c4f9bf`
+  `a15c02b7, 7b47f409, ba1d3330, 83d2f293, bfa4784b, cbed606e, bfc6a3ad, 812fff6d`
 
 - The vector is the reference PCG32 sequence after the seeding procedure above. Native tests must compare exact 32-bit values, not statistical approximations.
 - The raw `uint32_t` sequence is bit-for-bit stable for a fixed algorithm version, seed, stream and call sequence across supported platforms.

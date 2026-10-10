@@ -32,7 +32,7 @@ Do not create one long-lived branch for the whole roadmap. One issue, one branch
    See [GLS whitening and log-determinant contracts](gls-whitening-and-log-determinant-contracts.md). #113/#114 remain implementation issues and must follow these contracts.
 
 4. **[#109 — Specify RNG algorithm and state contract](https://github.com/ephpicman/Numerus/issues/109)** — **Completed in PR #131**  
-   PCG-XSH-RR 64/32, explicit seed/stream, clone lifecycle, raw vectors and portability/reproducibility limits are specified in [the RNG contract](reproducible-rng-contract.md). #115/#116 remain implementation issues.
+   PCG-XSH-RR 64/32, explicit seed/stream, clone lifecycle, raw vectors and portability/reproducibility limits are specified in [the RNG contract](reproducible-rng-contract.md). Raw state is implemented in #115; uniform/normal variates remain #116.
 
 5. **[#110 — Define optimizer callback/result/termination contracts](https://github.com/ephpicman/Numerus/issues/110)** — **Contract documented in this PR**  
    BFGS/Armijo, optional gradient with central finite differences, result ownership and termination semantics are specified in [optimizer contract](optimizer-contract.md). #119 remains implementation work.
@@ -53,7 +53,7 @@ Do not create one long-lived branch for the whole roadmap. One issue, one branch
 9. **[#114 — Stable log-determinant](https://github.com/ephpicman/Numerus/issues/114)** — **Completed in PR #136**  
    The audit and #111 contract confirmed the gap. This adds signed log-absolute-determinant using LU factors, preserving outputs on failure.
 
-10. **[#122 — OLS/WLS/GLS reference workflow tests](https://github.com/ephpicman/Numerus/issues/122)** — **Tests added in this PR**  
+10. **[#122 — OLS/WLS/GLS reference workflow tests](https://github.com/ephpicman/Numerus/issues/122)** — **Completed in PR #137**  
     The new native workflow test composes OLS, diagonal WLS, GLS whitening, Cholesky and log determinant, with ill-scaled/rank-deficient and invalid-covariance cases. These are composition tests, not model-fitting APIs.
 
 ### Stage 3 — Reproducible RNG and resampling
