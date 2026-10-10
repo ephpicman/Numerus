@@ -232,3 +232,8 @@ The v1 RNG algorithm/state contract is specified in [Reproducible RNG Contract](
 ## 11. Optimizer contract decision
 
 The initial optimizer contract is specified in [Generic Optimizer Callback and Result Contract](optimizer-contract.md) (issue #110): unconstrained BFGS with Armijo backtracking, optional caller-supplied gradients with a deterministic central finite-difference fallback, explicit result ownership, and distinct termination reasons. The document defines a bounded initial algorithm, not a claim of implementation; #119 remains the implementation issue. Constraints, automatic differentiation, Hessian APIs, stochastic objectives and model-specific estimators are deferred.
+
+
+## 12. Scalar/log-domain utility selection
+
+The selected v1 scalar set is documented in [Scalar and Log-Domain Utility Selection](scalar-log-domain-utilities.md) (issue #112): stable sigmoid, logit, softplus, log-sigmoid and log-sum-exp. Numerus will use C standard `log1p()`/`expm1()` internally instead of wrapping them without a demonstrated need. Broad special functions and distribution catalogs remain deferred. Implementation and edge-case tests are tracked by #118.
