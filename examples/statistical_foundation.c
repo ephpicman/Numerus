@@ -153,20 +153,17 @@ int main(void)
         goto cleanup;
     }
 
-    printf("sigmoid(0.5) = %.8f\n", sigmoid);
-    printf("Gaussian log density = %.8f\n", log_density);
-    printf("sample = [%.8f, %.8f]\n",
-        ({
-            double value = 0.0;
-            (void) numerus_matrix_get(sample, 0, 0, &value);
-            value;
-        }),
-        ({
-            double value = 0.0;
-            (void) numerus_matrix_get(sample, 1, 0, &value);
-            value;
-        })
-    );
+    if (numerus_matrix_get(sample, 0, 0, &sample_x) !=
+            NUMERUS_MATRIX_SUCCESS ||
+        numerus_matrix_get(sample, 1, 0, &sample_y) !=
+            NUMERUS_MATRIX_SUCCESS) {
+        (void) fail("Sample access", NUMERUS_MATRIX_INVALID_ARGUMENT);
+        goto cleanup;
+    }
+
+    printf("sigmoid(0.5) = %.8f\\n", sigmoid);
+    printf("Gaussian log density = %.8f\\n", log_density);
+    printf("sample = [%.8f, %.8f]\\n", sample_x, sample_y);
     printf("sampled 8 unique indices from [0, 100)\n");
     printf("optimizer minimizer = [%.6f, %.6f]\n", parameter_0, parameter_1);
     result = 0;
