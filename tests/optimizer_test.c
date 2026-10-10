@@ -535,7 +535,7 @@ static void test_result_accessor_invalid_arguments(void)
     scalar_context context = {SCALAR_QUADRATIC, 0.0, 0.0};
     numerus_optimizer_options options;
     numerus_optimizer_result *result = NULL;
-    numerus_optimizer_termination termination = NUMERUS_OPTIMIZER_CONVERGED;
+    numerus_optimizer_termination termination = NUMERUS_OPTIMIZER_CONVERGED_GRADIENT;
     double value = 987.0;
 
     assert(numerus_optimizer_result_parameter_count(NULL) == 0);
