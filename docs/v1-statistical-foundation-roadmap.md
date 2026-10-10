@@ -1,6 +1,6 @@
 # Numerus v1 Statistical and Numerical Foundation Roadmap
 
-This document defines the **product-level v1 acceptance scope** for Numerus. It complements, rather than replaces, the completed Matrix implementation history in [Matrix Operations Roadmap](matrix-operations-roadmap.md) and the operation contracts in [Matrix Operation Contracts](matrix-operation-contracts.md).
+This document inventories the broader statistical and numerical foundation capabilities, their contracts, and implementation gaps. It complements, rather than replaces, the completed Matrix implementation history in [Matrix Operations Roadmap](matrix-operations-roadmap.md) and the operation contracts in [Matrix Operation Contracts](matrix-operation-contracts.md). For the user-facing meaning of product versions and the release acceptance gate, see the [release roadmap](release-roadmap.md).
 
 ## 1. Product boundary
 
@@ -29,7 +29,7 @@ The v1 goal is not to implement every statistical algorithm. It is to make the f
 | **Implemented by contract** | Scope/contract must be decided before implementation; do not silently choose an algorithm or promise. |
 | **Deferred** | Not required for v1; revisit only with a concrete consumer and justification. |
 
-Priority: **P0** blocks the declared v1 foundation; **P1** is a high-value v1 capability after P0; **P2** is conditional or post-v1.
+Priority: **P0** blocks the broader statistical-foundation scope represented by this inventory; **P1** is a high-value capability after its P0 dependencies; **P2** is conditional or deferred. These labels order foundation work and do not independently define the product 1.0 release gate. Product 1.0 is governed by the [release roadmap](release-roadmap.md), whose acceptance target is a reliable OLS workflow composed from PHP.
 
 ## 3. Requirements matrix
 
