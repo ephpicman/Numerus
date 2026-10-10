@@ -148,4 +148,59 @@ int numerus_matrix_create_slice_view(
     numerus_matrix **matrix
 );
 
+
+#ifndef NUMERUS_MATRIX_USE_LIBC_ALLOC
+# include "php.h"
+# include "Zend/zend_alloc.h"
+# define numerus_matrix_alloc(size) emalloc(size)
+# define numerus_matrix_free(ptr) efree(ptr)
+#else
+# include <stdlib.h>
+# define numerus_matrix_alloc(size) malloc(size)
+# define numerus_matrix_free(ptr) free(ptr)
+#endif
+
+struct numerus_matrix {
+    size_t rows;
+    size_t columns;
+    numerus_storage *storage;
+    numerus_matrix *parent;
+    numerus_matrix *parent2;
+    numerus_matrix_join_type join_type;
+    numerus_matrix_binary_operation binary_operation;
+    numerus_coordinate_transform_fn coordinate_transform;
+    numerus_value_transform_fn value_transform;
+    const void *transform_context;
+    size_t transform_index1;
+    size_t transform_index2;
+    numerus_matrix_flags cached_flags;
+    uint32_t flags_computed;
+    int determinant_state;
+    double cached_determinant;
+    double *cached_inverse_values;
+    numerus_matrix_lu_factorization *cached_lu_factorization;
+    double transform_scalar;
+    size_t transform_row_offset;
+    size_t transform_column_offset;
+    size_t transform_parent_columns;
+    size_t *selection_indices;
+    numerus_matrix_selection_axis selection_axis;
+    bool padding_view;
+    size_t padding_top;
+    size_t padding_left;
+    double padding_value;
+    bool repeat_view;
+    bool block_diagonal_view;
+    bool block_grid_view;
+    numerus_matrix **block_matrices;
+    size_t *block_row_offsets;
+    size_t *block_column_offsets;
+    size_t block_row_count;
+    size_t block_column_count;
+    bool diagonal_matrix_view;
+    bool diagonal_offset_positive;
+    size_t diagonal_offset_magnitude;
+    size_t diagonal_vector_length;
+};
+
 #endif
