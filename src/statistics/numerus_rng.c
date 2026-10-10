@@ -1,3 +1,13 @@
+/**
+ * @file numerus_rng.c
+ * @brief Deterministic pseudo-random number generator state and primitive draws.
+ *
+ * @details This file belongs to Numerus's internal C implementation. Its
+ * declarations and behavior are coordinated with the focused headers in the
+ * same subsystem; changes should preserve their documented ownership,
+ * validation, and error-reporting contracts.
+ */
+
 #include "numerus_rng.h"
 
 #include <float.h>

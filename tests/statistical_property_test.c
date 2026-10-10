@@ -1,3 +1,13 @@
+/**
+ * @file statistical_property_test.c
+ * @brief Property-based tests for statistical numerical primitives and distribution invariants.
+ *
+ * @details These native tests define regression coverage for the named API
+ * contract. Assertions are executable specifications: intentional behavior
+ * changes should update these checks together with the corresponding API
+ * documentation. This file is test support, not runtime code.
+ */
+
 #include "../numerus_numeric.h"
 #include "../numerus_optimizer.h"
 #include "../numerus_probability.h"

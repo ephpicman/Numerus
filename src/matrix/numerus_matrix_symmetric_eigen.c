@@ -1,3 +1,13 @@
+/**
+ * @file numerus_matrix_symmetric_eigen.c
+ * @brief Eigenvalue decomposition for symmetric matrices.
+ *
+ * @details This implementation is part of the internal Matrix numerical
+ * layer. It uses the shared Matrix status model and checked-size utilities;
+ * algorithm-specific failure and tolerance behavior is documented alongside
+ * the relevant routines below.
+ */
+
 #include "numerus_matrix.h"
 #include "numerus_numeric.h"
 #include "numerus_size.h"
@@ -81,6 +91,10 @@ numerus_matrix_status numerus_matrix_symmetric_eigen(
         }
     }
 
+    /* Scale-aware symmetry check: compare entries after dividing by the
+     * largest magnitude so tolerance does not depend on the matrix's units.
+     * Only round-off-sized asymmetry is averaged away before Jacobi sweeps.
+     */
     relative_threshold = NUMERUS_EPSILON * (double) size;
     off_diagonal_threshold = scale * relative_threshold;
 
@@ -102,6 +116,10 @@ numerus_matrix_status numerus_matrix_symmetric_eigen(
         }
     }
 
+    /* Cyclic Jacobi iteration: each (p,q) rotation annihilates one symmetric
+     * off-diagonal pair and applies the same orthogonal rotation to the columns
+     * of vectors. Those accumulated columns are the eigenvectors of the input.
+     */
     for (sweep = 0; sweep < max_sweeps; sweep++) {
         bool rotated = false;
         size_t p;
@@ -168,6 +186,13 @@ numerus_matrix_status numerus_matrix_symmetric_eigen(
             }
         }
 
+        /* A sweep with no applied rotations terminates the iteration. In the
+         * usual path this means every off-diagonal entry is below the threshold;
+         * pairs whose rotation parameter is non-finite are also skipped, so
+         * extreme inputs should exercise that path explicitly in regression tests.
+         * Hitting the sweep limit instead returns NO_CONVERGENCE, never partial
+         * eigenpairs.
+         */
         if (!rotated) {
             converged = true;
             break;

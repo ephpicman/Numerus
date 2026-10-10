@@ -1,3 +1,12 @@
+/**
+ * @file numerus_matrix_symmetric_functions.c
+ * @brief Matrix functions specialized for symmetric matrices.
+ *
+ * @details This translation unit implements an internal Matrix algorithm.
+ * Its callers rely on consistent dimension checks, explicit status returns,
+ * and cleanup of temporary allocations on every exit path.
+ */
+
 #include "numerus_matrix.h"
 #include "numerus_numeric.h"
 #include "numerus_size.h"

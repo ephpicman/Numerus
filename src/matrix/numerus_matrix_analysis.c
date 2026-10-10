@@ -1,3 +1,12 @@
+/**
+ * @file numerus_matrix_analysis.c
+ * @brief Matrix structural and numerical analysis routines.
+ *
+ * @details This translation unit implements focused Matrix functionality.
+ * It relies on the common Matrix access/status contracts and checked-size
+ * helpers rather than exposing storage representation details to callers.
+ */
+
 #include "numerus_matrix.h"
 #include "numerus_size.h"
 #include "numerus_numeric.h"

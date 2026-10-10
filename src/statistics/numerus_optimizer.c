@@ -1,3 +1,13 @@
+/**
+ * @file numerus_optimizer.c
+ * @brief Generic numerical optimization routines and result handling.
+ *
+ * @details This file belongs to Numerus's internal C implementation. Its
+ * declarations and behavior are coordinated with the focused headers in the
+ * same subsystem; changes should preserve their documented ownership,
+ * validation, and error-reporting contracts.
+ */
+
 #include "numerus_optimizer.h"
 #include "numerus_size.h"
 
@@ -133,6 +143,11 @@ static numerus_optimizer_termination numerus_optimizer_evaluate_gradient(
         return NUMERUS_OPTIMIZER_CONVERGED_GRADIENT;
     }
 
+    /* If no gradient callback is supplied, estimate each component with a
+     * central difference. The step scales with max(1, |xᵢ|) so parameters
+     * with different magnitudes are not all perturbed by the same absolute
+     * amount. Both callback evaluations are counted as objective evaluations.
+     */
     for (index = 0; index < parameter_count; index++) {
         double step = options->finite_difference_relative_step *
             fmax(1.0, fabs(parameters[index]));
@@ -296,6 +311,10 @@ static void numerus_optimizer_update_inverse_hessian(
         );
     }
 
+    /* BFGS requires positive curvature sᵀy. When round-off or a non-convex
+     * local step makes that condition unreliable, reset the approximation to
+     * identity instead of applying an unstable rank-two update.
+     */
     threshold = sqrt(DBL_EPSILON) * step_norm * gradient_delta_norm;
     if (!isfinite(curvature) || !isfinite(threshold) ||
         curvature <= threshold || curvature <= 0.0) {
@@ -552,6 +571,10 @@ numerus_optimizer_status numerus_optimizer_minimize(
             goto publish_result;
         }
 
+        /* BFGS should produce a descent direction. If its approximation has
+         * become numerically untrustworthy, reset it and retry with steepest
+         * descent; only fail when even that direction is not a descent step.
+         */
         if (!numerus_optimizer_compute_direction(
                 inverse_hessian, gradient_values, parameter_count,
                 direction, &directional_derivative) ||
@@ -566,6 +589,11 @@ numerus_optimizer_status numerus_optimizer_minimize(
             }
         }
 
+        /* Armijo backtracking accepts only a finite trial that decreases the
+         * objective by the sufficient-decrease bound. Failed/non-finite trial
+         * evaluations shrink alpha; the current accepted point is not changed
+         * until a candidate passes this test.
+         */
         alpha = options->initial_step;
         for (line_search_iteration = 0;
              line_search_iteration < options->max_line_search_iterations;
@@ -689,6 +717,10 @@ numerus_optimizer_status numerus_optimizer_minimize(
     }
 
 publish_result:
+    /* A numerically unsuccessful run is still a valid optimization result:
+     * preserve the last accepted parameters and report why iteration stopped.
+     * API/setup failures take the separate path below and publish no result.
+     */
     output->termination = termination;
     numerus_optimizer_release_workspace(
         gradient_values, new_gradient, direction, trial_parameters,

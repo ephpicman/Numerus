@@ -1,3 +1,12 @@
+/**
+ * @file numerus_matrix_compare.c
+ * @brief Matrix comparison operations and exact elementwise equality.
+ *
+ * @details This translation unit implements focused Matrix functionality.
+ * It relies on the common Matrix access/status contracts and checked-size
+ * helpers rather than exposing storage representation details to callers.
+ */
+
 #include "numerus_matrix.h"
 #include "numerus_numeric.h"
 

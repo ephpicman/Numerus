@@ -1,3 +1,12 @@
+/**
+ * @file numerus_matrix_solve_triangular.c
+ * @brief Forward and backward substitution for triangular systems.
+ *
+ * @details This translation unit implements an internal Matrix algorithm.
+ * Its callers rely on consistent dimension checks, explicit status returns,
+ * and cleanup of temporary allocations on every exit path.
+ */
+
 #include "numerus_matrix.h"
 #include "numerus_size.h"
 

@@ -1,3 +1,13 @@
+/**
+ * @file numeric_stable_functions_test.c
+ * @brief Native tests for stable sigmoid/logit/softplus and log-domain numerical functions.
+ *
+ * @details These native tests define regression coverage for the named API
+ * contract. Assertions are executable specifications: intentional behavior
+ * changes should update these checks together with the corresponding API
+ * documentation. This file is test support, not runtime code.
+ */
+
 #include "../numerus_numeric.h"
 
 #include <assert.h>

@@ -1,3 +1,13 @@
+/**
+ * @file matrix_adversarial_test.c
+ * @brief Adversarial Matrix tests for extreme magnitudes, non-finite values, and numerical failure paths.
+ *
+ * @details These native tests define regression coverage for the named Matrix
+ * or statistical contract. Assertions are executable specifications: when
+ * behavior changes intentionally, update the assertions and the corresponding
+ * API documentation together. This file is test support, not runtime code.
+ */
+
 #include "../numerus_matrix.h"
 
 #include <assert.h>

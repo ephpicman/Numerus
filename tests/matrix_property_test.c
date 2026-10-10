@@ -1,3 +1,13 @@
+/**
+ * @file matrix_property_test.c
+ * @brief Property-based Matrix algebra tests checking identities across generated inputs.
+ *
+ * @details These native tests define regression coverage for the named Matrix
+ * contract. Assertions are executable specifications: intentional behavior
+ * changes should update these checks together with the corresponding API
+ * documentation. This file is test support, not runtime code.
+ */
+
 #include "../numerus_matrix.h"
 
 #include <assert.h>

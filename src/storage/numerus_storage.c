@@ -1,3 +1,13 @@
+/**
+ * @file numerus_storage.c
+ * @brief Immutable storage representations and coordinate-based value access.
+ *
+ * @details Each Storage owns only the payload required by its representation.
+ * Matrix code depends on this abstraction rather than the concrete union below;
+ * constructors establish representation invariants and accessors translate
+ * logical coordinates into the corresponding packed or implicit value.
+ */
+
 #include "numerus_storage.h"
 #include "numerus_size.h"
 
@@ -17,6 +27,9 @@
 # define numerus_free(ptr) free(ptr)
 #endif
 
+/* The tag determines which union member is active. Keep this representation
+ * private: all callers must go through the validated constructor/accessor API.
+ */
 struct numerus_storage {
     numerus_storage_kind kind;
     size_t rows;
@@ -137,7 +150,10 @@ static int copy_values(double **destination, const double *source, size_t count)
     return NUMERUS_STORAGE_SUCCESS;
 }
 
-/* Return the packed upper-triangular offset for a valid coordinate. */
+/* Return the packed upper-triangular offset for row <= column. The closed-form
+ * prefix count skips all preceding rows; callers must validate coordinates and
+ * construction must have checked the triangular allocation size first.
+ */
 static size_t upper_offset(size_t size, size_t row, size_t column)
 {
     size_t a = row;
@@ -154,7 +170,9 @@ static size_t upper_offset(size_t size, size_t row, size_t column)
     return skipped + (column - row);
 }
 
-/* Return the packed lower-triangular offset for a valid coordinate. */
+/* Row-major packed lower-triangle offset: each preceding row contributes
+ * 1, 2, ..., row elements. Valid coordinates require column <= row.
+ */
 static size_t lower_offset(size_t row, size_t column)
 {
     return row * (row + 1) / 2 + column;
@@ -386,7 +404,12 @@ static int sparse_compare(const void *left, const void *right)
     return 0;
 }
 
-/** Create immutable default-value sparse Storage and canonicalise its entries. */
+/**
+ * Create immutable default-value sparse Storage and canonicalise its entries.
+ * Entries are sorted by their row-major linear index so coordinate lookup can
+ * use binary search. Construction also validates index bounds and resolves
+ * duplicate-index policy before the object becomes observable.
+ */
 int numerus_storage_create_sparse(
     size_t rows,
     size_t columns,

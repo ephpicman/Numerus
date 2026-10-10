@@ -1,3 +1,13 @@
+/**
+ * @file matrix_inverse_gauss_jordan_test.c
+ * @brief Native tests for Gauss–Jordan inversion, pivoting, and singular-input behavior.
+ *
+ * @details These native tests define regression coverage for the named Matrix
+ * contract. Assertions are executable specifications: intentional behavior
+ * changes should update these checks together with the corresponding API
+ * documentation. This file is test support, not runtime code.
+ */
+
 #include "../numerus_matrix.h"
 
 #include <assert.h>

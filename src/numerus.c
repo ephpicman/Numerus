@@ -1,3 +1,13 @@
+/**
+ * @file numerus.c
+ * @brief PHP extension module entry point and lifecycle hooks.
+ *
+ * @details This file belongs to Numerus's internal C implementation. Its
+ * declarations and behavior are coordinated with the focused headers in the
+ * same subsystem; changes should preserve their documented ownership,
+ * validation, and error-reporting contracts.
+ */
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif

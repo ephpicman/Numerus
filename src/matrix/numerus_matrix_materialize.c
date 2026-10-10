@@ -1,3 +1,13 @@
+/**
+ * @file numerus_matrix_materialize.c
+ * @brief Materialization of lazy Matrix expressions into owned storage.
+ *
+ * @details This implementation is part of the internal Matrix numerical
+ * layer. It uses the shared Matrix status model and checked-size utilities;
+ * algorithm-specific failure and tolerance behavior is documented alongside
+ * the relevant routines below.
+ */
+
 #include "numerus_matrix.h"
 #include "numerus_size.h"
 

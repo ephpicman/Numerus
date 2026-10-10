@@ -1,3 +1,11 @@
+/**
+ * @file numerus_matrix.c
+ * @brief Core Matrix lifecycle, dimensions, element access, and shared operations.
+ *
+ * @details This implementation follows the focused subsystem headers and
+ * preserves their ownership, validation, and status-reporting contracts.
+ */
+
 #include "numerus_matrix_internal.h"
 #include "numerus_size.h"
 #include "numerus_numeric.h"

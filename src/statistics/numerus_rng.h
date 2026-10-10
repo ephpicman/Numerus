@@ -1,3 +1,13 @@
+/**
+ * @file numerus_rng.h
+ * @brief RNG state, status values, and deterministic generation API.
+ *
+ * @details This file belongs to Numerus's internal C implementation. Its
+ * declarations and behavior are coordinated with the focused headers in the
+ * same subsystem; changes should preserve their documented ownership,
+ * validation, and error-reporting contracts.
+ */
+
 #ifndef NUMERUS_RNG_H
 #define NUMERUS_RNG_H
 

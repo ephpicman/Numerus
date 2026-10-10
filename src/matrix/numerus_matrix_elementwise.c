@@ -1,3 +1,13 @@
+/**
+ * @file numerus_matrix_elementwise.c
+ * @brief Elementwise arithmetic and scalar broadcasting for Matrix values.
+ *
+ * @details This translation unit provides internal numerical primitives for
+ * Matrix operations. Input validation, checked dimension arithmetic, and
+ * status propagation are part of the contract and must remain consistent with
+ * the declarations in the focused Matrix headers.
+ */
+
 #include "numerus_matrix.h"
 #include "numerus_size.h"
 #include <math.h>

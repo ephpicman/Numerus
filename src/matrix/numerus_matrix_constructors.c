@@ -1,3 +1,13 @@
+/**
+ * @file numerus_matrix_constructors.c
+ * @brief Matrix constructors and initialization of valid representations.
+ *
+ * @details This implementation is part of the internal Matrix numerical
+ * layer. It uses the shared Matrix status model and checked-size utilities;
+ * algorithm-specific failure and tolerance behavior is documented alongside
+ * the relevant routines below.
+ */
+
 #include "numerus_matrix.h"
 
 /** Create a row vector represented as a one-row dense Matrix. */

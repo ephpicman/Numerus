@@ -1,3 +1,13 @@
+/**
+ * @file gaussian_log_density_test.c
+ * @brief Native regression tests for Gaussian log-density values, invalid inputs, and numerical edge cases.
+ *
+ * @details These native tests define regression coverage for the named Matrix
+ * or statistical contract. Assertions are executable specifications: when
+ * behavior changes intentionally, update the assertions and the corresponding
+ * API documentation together. This file is test support, not runtime code.
+ */
+
 #include "../numerus_probability.h"
 
 #include <assert.h>

@@ -1,3 +1,13 @@
+/**
+ * @file storage_test.c
+ * @brief Native tests for Storage representation and access invariants.
+ *
+ * @details This file is part of Numerus's internal C implementation. Keep its
+ * contracts aligned with the Matrix/Storage interfaces and the corresponding
+ * implementation units; these declarations do not constitute a stable public
+ * C ABI unless explicitly documented otherwise.
+ */
+
 #include "../numerus_storage.h"
 #include "../numerus_size.h"
 

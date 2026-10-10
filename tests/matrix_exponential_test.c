@@ -1,3 +1,13 @@
+/**
+ * @file matrix_exponential_test.c
+ * @brief Native tests for matrix exponential accuracy, convergence, and invalid inputs.
+ *
+ * @details These native tests define regression coverage for the named Matrix
+ * contract. Assertions are executable specifications: intentional behavior
+ * changes should update these checks together with the corresponding API
+ * documentation. This file is test support, not runtime code.
+ */
+
 #include "../numerus_matrix.h"
 
 #include <assert.h>

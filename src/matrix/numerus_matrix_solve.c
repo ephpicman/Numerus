@@ -1,3 +1,13 @@
+/**
+ * @file numerus_matrix_solve.c
+ * @brief Linear-system solving and algorithm selection for Matrix operands.
+ *
+ * @details This translation unit implements one focused part of the internal
+ * Matrix API. Public-to-the-subsystem declarations live in the corresponding
+ * Matrix headers; shared representation invariants and status semantics are
+ * defined by the Matrix core and internal headers.
+ */
+
 #include "numerus_matrix.h"
 #include "numerus_matrix_internal.h"
 #include "numerus_matrix_lu.h"
