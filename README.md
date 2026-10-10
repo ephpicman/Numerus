@@ -127,6 +127,10 @@ The allocator defines are for standalone test executables only. The extension
 build uses the Zend Memory Manager. CI runs both native test binaries, PHPTs,
 extension loading checks, and a separate debug-oriented build.
 
+CI also generates a line/branch coverage report for native source files. See the
+[native test coverage guide](docs/native-test-coverage.md) for report artifacts
+and guidance on interpreting uncovered code.
+
 ## Project structure
 
 - `config.m4` — Unix Autoconf configuration.
