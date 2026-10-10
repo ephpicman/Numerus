@@ -52,4 +52,3 @@ empty row rejected
 negative coordinate rejected
 incompatible product rejected
 singular inverse rejected
-cloning rejected
