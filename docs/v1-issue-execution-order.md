@@ -32,7 +32,7 @@ Do not create one long-lived branch for the whole roadmap. One issue, one branch
    See [GLS whitening and log-determinant contracts](gls-whitening-and-log-determinant-contracts.md). #113/#114 remain implementation issues and must follow these contracts.
 
 4. **[#109 — Specify RNG algorithm and state contract](https://github.com/ephpicman/Numerus/issues/109)** — **Completed in PR #131**  
-   PCG-XSH-RR 64/32, explicit seed/stream, clone lifecycle, raw vectors and portability/reproducibility limits are specified in [the RNG contract](reproducible-rng-contract.md). #115/#116 remain implementation issues.
+   PCG-XSH-RR 64/32, explicit seed/stream, clone lifecycle, raw vectors and portability/reproducibility limits are specified in [the RNG contract](reproducible-rng-contract.md). Raw state is implemented in #115; uniform/normal variates remain #116.
 
 5. **[#110 — Define optimizer callback/result/termination contracts](https://github.com/ephpicman/Numerus/issues/110)** — **Contract documented in this PR**  
    BFGS/Armijo, optional gradient with central finite differences, result ownership and termination semantics are specified in [optimizer contract](optimizer-contract.md). #119 remains implementation work.
