@@ -9,6 +9,8 @@ application-level API.
 
 ## Current status
 
+The user-facing release milestones and the 1.0 acceptance gate are defined in the [release roadmap](docs/release-roadmap.md). The broader [v1 statistical foundation roadmap](docs/v1-statistical-foundation-roadmap.md) tracks reusable capabilities and gaps; its P0 labels do not mean every listed capability is required for 1.0.
+
 The codebase contains the extension skeleton, an immutable **Storage** subsystem,
 and an internal **Matrix** abstraction built on top of Storage. Matrix is
 currently a C-level internal API, not a PHP-facing object API.
