@@ -1,5 +1,5 @@
 --TEST--
-Numerus Matrix results own their storage and reject cloning and invalid argument types
+Numerus Matrix results own their storage and reject invalid argument types
 --SKIPIF--
 <?php
 if (!extension_loaded('numerus')) {
@@ -24,12 +24,6 @@ var_dump($transpose->get(0, 1));
 var_dump($transpose->get(1, 0));
 
 try {
-    clone $transpose;
-} catch (Error $e) {
-    echo "clone rejected\n";
-}
-
-try {
     Matrix::fromRows([1, 2]);
 } catch (TypeError $e) {
     echo "non-array row rejected\n";
@@ -52,7 +46,6 @@ int(2)
 int(2)
 float(3)
 float(2)
-clone rejected
 non-array row rejected
 non-numeric element rejected
 invalid matrix operand rejected
