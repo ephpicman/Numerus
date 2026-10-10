@@ -11,9 +11,7 @@ application-level API.
 
 The user-facing release milestones and the 1.0 acceptance gate are defined in the [release roadmap](docs/release-roadmap.md). The broader [v1 statistical foundation roadmap](docs/v1-statistical-foundation-roadmap.md) tracks reusable capabilities and gaps; its P0 labels do not mean every listed capability is required for 1.0.
 
-The codebase contains the extension skeleton, an immutable **Storage** subsystem,
-and an internal **Matrix** abstraction built on top of Storage. Matrix is
-currently a C-level internal API, not a PHP-facing object API.
+The codebase contains an immutable **Storage** subsystem and an internal **Matrix** abstraction built on top of Storage. An initial PHP-facing `Numerus\\Matrix` value object is being introduced for construction, access, transpose, multiplication, inversion, and least-squares composition. See the [PHP API guide](docs/php-api.md); the surface remains intentionally small while its contracts and CI coverage are validated.
 
 ### Storage
 
@@ -47,9 +45,7 @@ Removal and swap operations are views, not mutations. Coordinates are
 zero-based. Removing the only row or only column is rejected because Matrix
 dimensions must remain positive; invalid indices return an error status.
 
-Parent references are **non-owning**. A caller must keep every parent alive
-while a child or joined Matrix can be read. The eventual PHP object layer must
-enforce this lifetime relationship.
+Parent references in the internal C API are **non-owning**. The initial PHP façade materializes results before returning them, so returned PHP Matrix objects own independent native storage and do not retain C view-parent references.
 
 General transform callbacks and their context are borrowed. The context must
 remain valid and logically unchanged for the child's lifetime, and callbacks
@@ -70,12 +66,7 @@ unconstrained BFGS optimization, and multivariate Gaussian log density/sampling.
 These are composable C APIs, not model-fitting functions; the project does not
 provide `fit_ols()`, `fit_gls()`, `fit_mle()`, GP fitting, or MCMC.
 
-**These primitives are not currently exposed to PHP userland.** A minimal,
-ownership-safe PHP façade remains a separate prerequisite before Numerus can be
-described as usable by PHP statistical packages. See the
-[statistical foundation overview](docs/statistical-foundation.md) for the
-current capability inventory, contracts, executable example, and explicit gaps.
-The final P0 evidence review is in the [v1 acceptance audit](docs/v1-statistical-foundation-final-audit.md); it records that overall userland v1 remains blocked until a PHP façade is implemented and tested.
+The initial Matrix façade exposes generic primitives, not statistical estimators. Users can compose the explicit normal-equation OLS expression `(XᵀX)⁻¹Xᵀy`, while `leastSquares()` provides the preferred pivoted-QR route. The API and its release gate are documented in the [PHP API guide](docs/php-api.md) and [release roadmap](docs/release-roadmap.md). The broader [statistical foundation overview](docs/statistical-foundation.md) and [v1 acceptance audit](docs/v1-statistical-foundation-final-audit.md) continue to track C-level capabilities and remaining release blockers.
 
 ## Requirements
 

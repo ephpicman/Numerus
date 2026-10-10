@@ -11,6 +11,7 @@
 #endif
 
 #include "php.h"
+#include "Zend/zend_exceptions.h"
 #include "../php_numerus.h"
 #include "matrix/numerus_matrix.h"
 
@@ -40,6 +41,13 @@ static zend_object *numerus_matrix_object_create(zend_class_entry *ce)
     return &object->std;
 }
 
+static zend_object *numerus_matrix_object_clone(zend_object *std)
+{
+    (void) std;
+    zend_throw_error(NULL, "Cloning Numerus\\Matrix objects is not supported");
+    return NULL;
+}
+
 static void numerus_matrix_object_free(zend_object *std)
 {
     numerus_php_matrix *object =
@@ -56,31 +64,31 @@ static void numerus_matrix_object_free(zend_object *std)
 static void numerus_matrix_throw_status(numerus_matrix_status status)
 {
     const char *message;
-    zend_class_entry *exception_class = zend_ce_exception;
+    bool value_error = false;
 
     switch (status) {
         case NUMERUS_MATRIX_INVALID_ARGUMENT:
             message = "Invalid Matrix argument";
-            exception_class = zend_ce_value_error;
+            value_error = true;
             break;
         case NUMERUS_MATRIX_OVERFLOW:
             message = "Matrix dimensions overflow the supported size";
-            exception_class = zend_ce_value_error;
+            value_error = true;
             break;
         case NUMERUS_MATRIX_OUT_OF_MEMORY:
             message = "Unable to allocate Matrix memory";
             break;
         case NUMERUS_MATRIX_OUT_OF_BOUNDS:
             message = "Matrix coordinate is out of bounds";
-            exception_class = zend_ce_value_error;
+            value_error = true;
             break;
         case NUMERUS_MATRIX_NOT_SQUARE:
             message = "Operation requires a square Matrix";
-            exception_class = zend_ce_value_error;
+            value_error = true;
             break;
         case NUMERUS_MATRIX_DIMENSION_MISMATCH:
             message = "Matrix dimensions are incompatible";
-            exception_class = zend_ce_value_error;
+            value_error = true;
             break;
         case NUMERUS_MATRIX_DIVISION_BY_ZERO:
             message = "Matrix operation attempted division by zero";
@@ -95,12 +103,12 @@ static void numerus_matrix_throw_status(numerus_matrix_status status)
             break;
         case NUMERUS_MATRIX_NOT_SYMMETRIC:
             message = "Matrix must be symmetric";
-            exception_class = zend_ce_value_error;
+            value_error = true;
             break;
         case NUMERUS_MATRIX_NOT_POSITIVE_DEFINITE:
         case NUMERUS_MATRIX_NOT_POSITIVE_SEMIDEFINITE:
             message = "Matrix does not satisfy the required definiteness";
-            exception_class = zend_ce_value_error;
+            value_error = true;
             break;
         case NUMERUS_MATRIX_NO_CONVERGENCE:
             message = "Numerical algorithm did not converge";
@@ -112,7 +120,11 @@ static void numerus_matrix_throw_status(numerus_matrix_status status)
             break;
     }
 
-    zend_throw_exception(exception_class, message, 0);
+    if (value_error) {
+        zend_value_error("%s", message);
+    } else {
+        zend_throw_exception(zend_ce_exception, message, 0);
+    }
 }
 
 static numerus_matrix *numerus_matrix_require(zval *value)
@@ -140,7 +152,7 @@ static void numerus_matrix_return_owned(zval *return_value, numerus_matrix *matr
     Z_NUMERUS_MATRIX_P(return_value)->matrix = matrix;
 }
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_matrix_private_construct, 0, 0, IS_VOID, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_matrix_private_construct, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_matrix_from_rows, 0, 1, Numerus\\Matrix, 0)
@@ -456,6 +468,6 @@ void numerus_matrix_php_register(void)
     memcpy(&numerus_matrix_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     numerus_matrix_handlers.offset = XtOffsetOf(numerus_php_matrix, std);
     numerus_matrix_handlers.free_obj = numerus_matrix_object_free;
-    numerus_matrix_handlers.clone_obj = NULL;
+    numerus_matrix_handlers.clone_obj = numerus_matrix_object_clone;
 
 }
