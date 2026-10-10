@@ -297,3 +297,8 @@ Issue #121 implements `numerus_multivariate_gaussian_sample()` from a column-vec
 ## 24. Cross-API statistical property tests
 
 Issue #123 adds deterministic invariants beyond exact reference vectors: Cholesky reconstruction (LL^T=A), triangular solve residuals, sigmoid/softplus/log-sigmoid identities, replay across multiple seed/stream pairs, sampling bounds/uniqueness, optimizer objective/gradient convergence across a parameter grid, and Gaussian log-density symmetry/Mahalanobis distance. The test binary runs normally and under ASan/UBSan in CI. Existing focused tests retain exact vectors and detailed error cases.
+
+
+## 25. C contracts and composable examples
+
+Issue #124 adds [Statistical Foundation C API: Current Capabilities and Composition](statistical-foundation.md) and `examples/statistical_foundation.c`. The example composes stable scalar evaluation, Gaussian log density and sampling, explicit-state index sampling, and generic objective minimization; CI builds it with strict C11 warnings and executes it. README now distinguishes the implemented internal C primitives from the still-missing PHP userland façade and model-specific APIs. This documentation does not claim overall userland v1 readiness.
