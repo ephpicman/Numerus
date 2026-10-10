@@ -576,7 +576,20 @@ numerus_optimizer_status numerus_optimizer_minimize(
             bool finite_trial = true;
 
             if (alpha < options->minimum_step) {
-                step_too_small = true;
+                step_norm = 0.0;
+                for (index = 0; index < parameter_count; index++) {
+                    double step = alpha * direction[index];
+                    double magnitude = fabs(step);
+
+                    if (!isfinite(step)) {
+                        step_norm = INFINITY;
+                        break;
+                    }
+                    if (magnitude > step_norm) {
+                        step_norm = magnitude;
+                    }
+                }
+                step_too_small = step_norm <= options->step_tolerance;
                 break;
             }
 
