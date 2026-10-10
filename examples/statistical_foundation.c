@@ -1,8 +1,8 @@
-#include "../numerus_matrix.h"
-#include "../numerus_numeric.h"
-#include "../numerus_optimizer.h"
-#include "../numerus_probability.h"
-#include "../numerus_rng.h"
+#include "../src/matrix/numerus_matrix.h"
+#include "../src/core/numerus_numeric.h"
+#include "../src/statistics/numerus_optimizer.h"
+#include "../src/statistics/numerus_probability.h"
+#include "../src/statistics/numerus_rng.h"
 
 #include <math.h>
 #include <stdbool.h>

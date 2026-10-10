@@ -48,653 +48,653 @@ jobs:
 
       - name: Run native RNG state tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_RNG_TEST_ALLOCATOR \
-            -o tests/rng_state_test tests/rng_state_test.c numerus_rng.c -lm
+            -o tests/rng_state_test tests/rng_state_test.c src/statistics/numerus_rng.c -lm
           ./tests/rng_state_test
 
       - name: Run native RNG variate tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_RNG_USE_LIBC_ALLOC \
-            -o tests/rng_variates_test tests/rng_variates_test.c numerus_rng.c -lm
+            -o tests/rng_variates_test tests/rng_variates_test.c src/statistics/numerus_rng.c -lm
           ./tests/rng_variates_test
 
       - name: Run native RNG sampling tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_RNG_TEST_ALLOCATOR \
-            -o tests/rng_sampling_test tests/rng_sampling_test.c numerus_rng.c numerus_rng_sampling.c -lm
+            -o tests/rng_sampling_test tests/rng_sampling_test.c src/statistics/numerus_rng.c src/statistics/numerus_rng_sampling.c -lm
           ./tests/rng_sampling_test
 
       - name: Run native stable scalar numerical tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
-            -o tests/numeric_stable_functions_test tests/numeric_stable_functions_test.c numerus_numeric.c -lm
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -o tests/numeric_stable_functions_test tests/numeric_stable_functions_test.c src/core/numerus_numeric.c -lm
           ./tests/numeric_stable_functions_test
 
       - name: Run native generic optimizer tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_OPTIMIZER_TEST_ALLOCATOR \
-            -o tests/optimizer_test tests/optimizer_test.c numerus_optimizer.c -lm
+            -o tests/optimizer_test tests/optimizer_test.c src/statistics/numerus_optimizer.c -lm
           ./tests/optimizer_test
       - name: Run native Gaussian log-density tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -DNUMERUS_PROBABILITY_TEST_ALLOCATOR \
             -DNUMERUS_RNG_USE_LIBC_ALLOC \
-            -o tests/gaussian_log_density_test tests/gaussian_log_density_test.c numerus_probability.c numerus_rng.c numerus_matrix_cholesky.c numerus_matrix_solve_triangular.c numerus_matrix_log_determinant.c numerus_matrix_solve.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+            -o tests/gaussian_log_density_test tests/gaussian_log_density_test.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c -lm
           ./tests/gaussian_log_density_test
       - name: Run native Gaussian sampling tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -DNUMERUS_RNG_USE_LIBC_ALLOC \
             -DNUMERUS_PROBABILITY_TEST_ALLOCATOR \
-            -o tests/gaussian_sampling_test tests/gaussian_sampling_test.c numerus_probability.c numerus_rng.c numerus_matrix_cholesky.c numerus_matrix_solve_triangular.c numerus_matrix_log_determinant.c numerus_matrix_solve.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+            -o tests/gaussian_sampling_test tests/gaussian_sampling_test.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c -lm
           ./tests/gaussian_sampling_test
 
       - name: Run native storage tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/storage_test tests/storage_test.c numerus_storage.c
+            -o tests/storage_test tests/storage_test.c src/storage/numerus_storage.c
           ./tests/storage_test
 
       - name: Run native Matrix tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_test tests/matrix_test.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_test tests/matrix_test.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_test
 
       - name: Run native Matrix unary operation tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_unary_test tests/matrix_unary_test.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_unary_test tests/matrix_unary_test.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_unary_test
 
       - name: Run native Matrix binary operation tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_binary_test tests/matrix_binary_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_binary_test tests/matrix_binary_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_binary.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_binary_test
 
       - name: Run native Matrix element-wise min/max/clamp tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_elementwise_test tests/matrix_elementwise_test.c numerus_matrix_elementwise.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_elementwise_test tests/matrix_elementwise_test.c src/matrix/numerus_matrix_elementwise.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_elementwise_test
 
       - name: Run native Matrix map/apply tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_map_test tests/matrix_map_test.c numerus_matrix_map.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_map_test tests/matrix_map_test.c src/matrix/numerus_matrix_map.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_map_test
 
       - name: Run native Matrix normalization tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_normalize_test tests/matrix_normalize_test.c numerus_matrix_normalize.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_normalize_test tests/matrix_normalize_test.c src/matrix/numerus_matrix_normalize.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_normalize_test
 
       - name: Run native Matrix variance/stddev tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_statistics_test tests/matrix_statistics_test.c numerus_matrix_statistics.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_statistics_test tests/matrix_statistics_test.c src/matrix/numerus_matrix_statistics.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_statistics_test
 
       - name: Run native Matrix all/any-close tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_close_test tests/matrix_close_test.c numerus_matrix_compare_close.c numerus_matrix_compare.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_close_test tests/matrix_close_test.c src/matrix/numerus_matrix_compare_close.c src/matrix/numerus_matrix_compare.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_close_test
 
       - name: Run native Matrix Hadamard tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_hadamard_test tests/matrix_hadamard_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_hadamard_test tests/matrix_hadamard_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_binary.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_hadamard_test
 
       - name: Run native Matrix division tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_division_test tests/matrix_division_test.c numerus_matrix.c numerus_matrix_binary.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_division_test tests/matrix_division_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_binary.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_division_test
 
       - name: Run native Matrix materialization tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_materialize_test tests/matrix_materialize_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_materialize_test tests/matrix_materialize_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_materialize_test
 
       - name: Run native Matrix multiplication tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_multiply_test tests/matrix_multiply_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_multiply_test tests/matrix_multiply_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_multiply.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_multiply_test
 
       - name: Run native Matrix scalar division tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_scalar_division_test tests/matrix_scalar_division_test.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_scalar_division_test tests/matrix_scalar_division_test.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_scalar_division_test
 
       - name: Run native Matrix comparison tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_compare_test tests/matrix_compare_test.c numerus_matrix.c numerus_matrix_compare.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_compare_test tests/matrix_compare_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_compare.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_compare_test
 
       - name: Run native Matrix vector constructor tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_vector_constructor_test tests/matrix_vector_constructor_test.c numerus_matrix.c numerus_matrix_constructors.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_vector_constructor_test tests/matrix_vector_constructor_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_vector_constructor_test
 
       - name: Run native Matrix exponential tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_exponential_test tests/matrix_exponential_test.c numerus_matrix_exponential.c numerus_matrix_multiply.c numerus_matrix_solve.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_exponential_test tests/matrix_exponential_test.c src/matrix/numerus_matrix_exponential.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_exponential_test
 
       - name: Run native Matrix polynomial tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_polynomial_test tests/matrix_polynomial_test.c numerus_matrix_polynomial.c numerus_matrix_multiply.c numerus_matrix_materialize.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_polynomial_test tests/matrix_polynomial_test.c src/matrix/numerus_matrix_polynomial.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_polynomial_test
 
       - name: Run native Matrix power tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_power_test tests/matrix_power_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_power.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_power_test tests/matrix_power_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_power.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_power_test
 
       - name: Run native Matrix Kronecker tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_kronecker_test tests/matrix_kronecker_test.c numerus_matrix.c numerus_matrix_kronecker.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_kronecker_test tests/matrix_kronecker_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_kronecker.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_kronecker_test
 
       - name: Run native Matrix slice tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_slice_test tests/matrix_slice_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_slice_test tests/matrix_slice_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_slice_test
 
       - name: Run native Matrix selection tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_selection_test tests/matrix_selection_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_selection_test tests/matrix_selection_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_selection_test
 
       - name: Run native Matrix reshape tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_reshape_test tests/matrix_reshape_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_reshape_test tests/matrix_reshape_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_reshape_test
 
       - name: Run native Matrix padding tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_padding_test tests/matrix_padding_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_padding_test tests/matrix_padding_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_padding_test
 
       - name: Run native Matrix repeat tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_repeat_test tests/matrix_repeat_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_repeat_test tests/matrix_repeat_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_repeat_test
 
       - name: Run native Matrix block-grid tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_block_grid_test tests/matrix_block_grid_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_block_grid_test tests/matrix_block_grid_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_block_grid_test
 
       - name: Run native Matrix diagonal tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_diagonal_test tests/matrix_diagonal_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_diagonal_test tests/matrix_diagonal_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_diagonal_test
 
       - name: Run native Matrix permutation tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_permutation_test tests/matrix_permutation_test.c numerus_matrix.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_permutation_test tests/matrix_permutation_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_permutation_test
 
       - name: Run native Matrix weighted least-squares tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_weighted_least_squares_test tests/matrix_weighted_least_squares_test.c numerus_matrix_weighted_least_squares.c numerus_matrix_least_squares.c numerus_matrix_qr.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_weighted_least_squares_test tests/matrix_weighted_least_squares_test.c src/matrix/numerus_matrix_weighted_least_squares.c src/matrix/numerus_matrix_least_squares.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_weighted_least_squares_test
 
       - name: Run native Matrix least-squares tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_least_squares_test tests/matrix_least_squares_test.c numerus_matrix_least_squares.c numerus_matrix_qr.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_least_squares_test tests/matrix_least_squares_test.c src/matrix/numerus_matrix_least_squares.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_least_squares_test
 
       - name: Run native Matrix system classification tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_system_test tests/matrix_system_test.c numerus_matrix_system.c numerus_matrix_qr.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_system_test tests/matrix_system_test.c src/matrix/numerus_matrix_system.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_system_test
 
       - name: Run native Matrix space basis tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_spaces_test tests/matrix_spaces_test.c numerus_matrix_spaces.c numerus_matrix_qr.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_spaces_test tests/matrix_spaces_test.c src/matrix/numerus_matrix_spaces.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_spaces_test
 
       - name: Run native Matrix null-space tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_null_space_test tests/matrix_null_space_test.c numerus_matrix_null_space.c numerus_matrix_qr.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_null_space_test tests/matrix_null_space_test.c src/matrix/numerus_matrix_null_space.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_null_space_test
 
       - name: Run native Matrix spectral tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_spectral_test tests/matrix_spectral_test.c numerus_matrix_spectral.c numerus_matrix_svd.c numerus_matrix_symmetric_eigen.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_spectral_test tests/matrix_spectral_test.c src/matrix/numerus_matrix_spectral.c src/matrix/numerus_matrix_svd.c src/matrix/numerus_matrix_symmetric_eigen.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_spectral_test
 
       - name: Run native Matrix symmetric function tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_symmetric_functions_test tests/matrix_symmetric_functions_test.c numerus_matrix_symmetric_functions.c numerus_matrix_symmetric_eigen.c numerus_matrix_multiply.c numerus_matrix_materialize.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_symmetric_functions_test tests/matrix_symmetric_functions_test.c src/matrix/numerus_matrix_symmetric_functions.c src/matrix/numerus_matrix_symmetric_eigen.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_symmetric_functions_test
 
       - name: Run native Matrix symmetric eigen tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_symmetric_eigen_test tests/matrix_symmetric_eigen_test.c numerus_matrix_symmetric_eigen.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_symmetric_eigen_test tests/matrix_symmetric_eigen_test.c src/matrix/numerus_matrix_symmetric_eigen.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_symmetric_eigen_test
 
       - name: Run native Matrix SVD tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_svd_test tests/matrix_svd_test.c numerus_matrix_svd.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_svd_test tests/matrix_svd_test.c src/matrix/numerus_matrix_svd.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_svd_test
 
       - name: Run native Matrix pseudoinverse tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_pseudoinverse_test tests/matrix_pseudoinverse_test.c numerus_matrix_pseudoinverse.c numerus_matrix_svd.c numerus_matrix_multiply.c numerus_matrix_materialize.c numerus_matrix_views.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_pseudoinverse_test tests/matrix_pseudoinverse_test.c src/matrix/numerus_matrix_pseudoinverse.c src/matrix/numerus_matrix_svd.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_views.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_pseudoinverse_test
 
       - name: Run native Matrix LDLT tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_ldlt_test tests/matrix_ldlt_test.c numerus_matrix_ldlt.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_ldlt_test tests/matrix_ldlt_test.c src/matrix/numerus_matrix_ldlt.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_ldlt_test
 
       - name: Run native Matrix definiteness classification tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_definiteness_test tests/matrix_definiteness_test.c numerus_matrix_symmetric_eigen.c numerus_matrix_definiteness.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_definiteness_test tests/matrix_definiteness_test.c src/matrix/numerus_matrix_symmetric_eigen.c src/matrix/numerus_matrix_definiteness.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_definiteness_test
 
       - name: Run native Matrix Cholesky tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_cholesky_test tests/matrix_cholesky_test.c numerus_matrix_cholesky.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_cholesky_test tests/matrix_cholesky_test.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_cholesky_test
 
       - name: Run native Matrix QR tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_qr_test tests/matrix_qr_test.c numerus_matrix_qr.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_qr_test tests/matrix_qr_test.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_qr_test
 
       - name: Run native Matrix condition estimate tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_condition_test tests/matrix_condition_test.c numerus_matrix_condition.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+            -o tests/matrix_condition_test tests/matrix_condition_test.c src/matrix/numerus_matrix_condition.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c -lm
           ./tests/matrix_condition_test
 
       - name: Run native Matrix linear solve tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_solve_test tests/matrix_solve_test.c numerus_matrix_solve.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+            -o tests/matrix_solve_test tests/matrix_solve_test.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c -lm
           ./tests/matrix_solve_test
 
       - name: Run native Matrix triangular solve tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_triangular_solve_test tests/matrix_triangular_solve_test.c numerus_matrix_solve_triangular.c numerus_matrix_solve.c numerus_matrix_cholesky.c numerus_matrix_least_squares.c numerus_matrix_qr.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+            -o tests/matrix_triangular_solve_test tests/matrix_triangular_solve_test.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_least_squares.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c -lm
           ./tests/matrix_triangular_solve_test
 
       - name: Run native Matrix Gauss-Jordan inverse tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_inverse_gauss_jordan_test tests/matrix_inverse_gauss_jordan_test.c numerus_matrix_inverse_gauss_jordan.c numerus_matrix_analysis.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_inverse_gauss_jordan_test tests/matrix_inverse_gauss_jordan_test.c src/matrix/numerus_matrix_inverse_gauss_jordan.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_inverse_gauss_jordan_test
 
       - name: Run native Matrix inverse tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_inverse_test tests/matrix_inverse_test.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+            -o tests/matrix_inverse_test tests/matrix_inverse_test.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c -lm
           ./tests/matrix_inverse_test
 
       - name: Run native Matrix echelon form tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_elimination_test tests/matrix_elimination_test.c numerus_matrix_elimination.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+            -o tests/matrix_elimination_test tests/matrix_elimination_test.c src/matrix/numerus_matrix_elimination.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c -lm
           ./tests/matrix_elimination_test
 
       - name: Run native Matrix numerical rank tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_rank_test tests/matrix_rank_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_storage.c -lm
+            -o tests/matrix_rank_test tests/matrix_rank_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/storage/numerus_storage.c -lm
           ./tests/matrix_rank_test
 
       - name: Run native Matrix LU factorization tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_lu_test tests/matrix_lu_test.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c
+            -o tests/matrix_lu_test tests/matrix_lu_test.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c
           ./tests/matrix_lu_test
 
       - name: Run native Matrix determinant edge-case tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_determinant_test tests/matrix_determinant_test.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_determinant_test tests/matrix_determinant_test.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_determinant_test
 
       - name: Run native Matrix log-determinant tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_log_determinant_test tests/matrix_log_determinant_test.c numerus_matrix_log_determinant.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_log_determinant_test tests/matrix_log_determinant_test.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_log_determinant_test
 
       - name: Run native statistical linear-model workflow tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_statistical_workflow_test tests/matrix_statistical_workflow_test.c numerus_matrix_weighted_least_squares.c numerus_matrix_least_squares.c numerus_matrix_qr.c numerus_matrix_cholesky.c numerus_matrix_solve_triangular.c numerus_matrix_log_determinant.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+            -o tests/matrix_statistical_workflow_test tests/matrix_statistical_workflow_test.c src/matrix/numerus_matrix_weighted_least_squares.c src/matrix/numerus_matrix_least_squares.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c -lm
           ./tests/matrix_statistical_workflow_test
 
       - name: Run native Matrix trace tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_trace_test tests/matrix_trace_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_trace_test tests/matrix_trace_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_trace_test
 
       - name: Run native Matrix aggregate tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_aggregate_test tests/matrix_aggregate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_aggregate_test tests/matrix_aggregate_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_aggregate_test
 
       - name: Run native Matrix norm tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_norm_test tests/matrix_norm_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_norm_test tests/matrix_norm_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_norm_test
 
       - name: Run native Matrix finite-value tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_finite_test tests/matrix_finite_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_finite_test tests/matrix_finite_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_finite_test
 
       - name: Run native Matrix structural predicate tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_structural_predicate_test tests/matrix_structural_predicate_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_structural_predicate_test tests/matrix_structural_predicate_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_analysis.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_structural_predicate_test
 
       - name: Run non-gating Matrix benchmarks
         if: matrix.php == '8.5'
         run: |
-          cc -std=c11 -O2 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -O2 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free \
-            -o benchmarks/matrix_benchmark benchmarks/matrix_benchmark.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_analysis.c numerus_matrix_inverse.c numerus_matrix_solve.c numerus_matrix_condition.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o benchmarks/matrix_benchmark benchmarks/matrix_benchmark.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_condition.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./benchmarks/matrix_benchmark
 
       - name: Run Matrix allocation-failure tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free \
-            -o tests/matrix_allocation_failure_test tests/matrix_allocation_failure_test.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c
+            -o tests/matrix_allocation_failure_test tests/matrix_allocation_failure_test.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c
           ./tests/matrix_allocation_failure_test
 
       - name: Run adversarial Matrix numerical tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_adversarial_test tests/matrix_adversarial_test.c numerus_matrix.c numerus_matrix_analysis.c numerus_matrix_statistics.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_adversarial_test tests/matrix_adversarial_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_statistics.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_adversarial_test
 
       - name: Run Matrix algebra property tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_property_test tests/matrix_property_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_property_test tests/matrix_property_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ./tests/matrix_property_test
 
       - name: Run Matrix algebra properties with AddressSanitizer and UBSan
         run: |
-          cc -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
             -fsanitize=address,undefined -fno-omit-frame-pointer \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-            -o tests/matrix_property_sanitized tests/matrix_property_test.c numerus_matrix.c numerus_matrix_binary.c numerus_matrix_materialize.c numerus_matrix_multiply.c numerus_matrix_views.c numerus_storage.c numerus_matrix_lu.c -lm
+            -o tests/matrix_property_sanitized tests/matrix_property_test.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_binary.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_views.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/matrix_property_sanitized
 
       - name: Run RNG state tests with AddressSanitizer and UBSan
         run: |
-          cc -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
             -fsanitize=address,undefined -fno-omit-frame-pointer \
             -DNUMERUS_RNG_TEST_ALLOCATOR \
-            -o tests/rng_state_sanitized tests/rng_state_test.c numerus_rng.c -lm
+            -o tests/rng_state_sanitized tests/rng_state_test.c src/statistics/numerus_rng.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/rng_state_sanitized
 
       - name: Run RNG variate tests with AddressSanitizer and UBSan
         run: |
-          cc -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
             -fsanitize=address,undefined -fno-omit-frame-pointer \
             -DNUMERUS_RNG_USE_LIBC_ALLOC \
-            -o tests/rng_variates_sanitized tests/rng_variates_test.c numerus_rng.c -lm
+            -o tests/rng_variates_sanitized tests/rng_variates_test.c src/statistics/numerus_rng.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/rng_variates_sanitized
 
       - name: Run RNG sampling tests with AddressSanitizer and UBSan
         run: |
-          cc -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
             -fsanitize=address,undefined -fno-omit-frame-pointer \
             -DNUMERUS_RNG_TEST_ALLOCATOR \
-            -o tests/rng_sampling_sanitized tests/rng_sampling_test.c numerus_rng.c numerus_rng_sampling.c -lm
+            -o tests/rng_sampling_sanitized tests/rng_sampling_test.c src/statistics/numerus_rng.c src/statistics/numerus_rng_sampling.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/rng_sampling_sanitized
 
       - name: Run scalar numerical tests with AddressSanitizer and UBSan
         run: |
-          cc -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
             -fsanitize=address,undefined -fno-omit-frame-pointer \
-            -o tests/numeric_stable_functions_sanitized tests/numeric_stable_functions_test.c numerus_numeric.c -lm
+            -o tests/numeric_stable_functions_sanitized tests/numeric_stable_functions_test.c src/core/numerus_numeric.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/numeric_stable_functions_sanitized
 
       - name: Run generic optimizer tests with AddressSanitizer and UBSan
         run: |
-          cc -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
             -fsanitize=address,undefined -fno-omit-frame-pointer \
             -DNUMERUS_OPTIMIZER_TEST_ALLOCATOR \
-            -o tests/optimizer_sanitized tests/optimizer_test.c numerus_optimizer.c -lm
+            -o tests/optimizer_sanitized tests/optimizer_test.c src/statistics/numerus_optimizer.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/optimizer_sanitized
       - name: Run Gaussian log-density tests with AddressSanitizer and UBSan
         run: |
-          cc -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
             -fsanitize=address,undefined -fno-omit-frame-pointer \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -DNUMERUS_PROBABILITY_TEST_ALLOCATOR \
             -DNUMERUS_RNG_USE_LIBC_ALLOC \
-            -o tests/gaussian_log_density_sanitized tests/gaussian_log_density_test.c numerus_probability.c numerus_rng.c numerus_matrix_cholesky.c numerus_matrix_solve_triangular.c numerus_matrix_log_determinant.c numerus_matrix_solve.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+            -o tests/gaussian_log_density_sanitized tests/gaussian_log_density_test.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/gaussian_log_density_sanitized
       - name: Run Gaussian sampling tests with AddressSanitizer and UBSan
         run: |
-          cc -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
             -fsanitize=address,undefined -fno-omit-frame-pointer \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -DNUMERUS_RNG_USE_LIBC_ALLOC \
             -DNUMERUS_PROBABILITY_TEST_ALLOCATOR \
-            -o tests/gaussian_sampling_sanitized tests/gaussian_sampling_test.c numerus_probability.c numerus_rng.c numerus_matrix_cholesky.c numerus_matrix_solve_triangular.c numerus_matrix_log_determinant.c numerus_matrix_solve.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+            -o tests/gaussian_sampling_sanitized tests/gaussian_sampling_test.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/gaussian_sampling_sanitized
       - name: Build and run composable statistical C example
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -DNUMERUS_PROBABILITY_USE_LIBC_ALLOC \
             -DNUMERUS_RNG_USE_LIBC_ALLOC \
             -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
-            -o examples/statistical_foundation examples/statistical_foundation.c numerus_numeric.c numerus_optimizer.c numerus_probability.c numerus_rng.c numerus_rng_sampling.c numerus_matrix_constructors.c numerus_matrix_cholesky.c numerus_matrix_solve_triangular.c numerus_matrix_log_determinant.c numerus_matrix_solve.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+            -o examples/statistical_foundation examples/statistical_foundation.c src/core/numerus_numeric.c src/statistics/numerus_optimizer.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/statistics/numerus_rng_sampling.c src/matrix/numerus_matrix_constructors.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c -lm
           ./examples/statistical_foundation
 
       - name: Run statistical property tests
         run: |
-          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -DNUMERUS_PROBABILITY_USE_LIBC_ALLOC \
             -DNUMERUS_RNG_USE_LIBC_ALLOC \
             -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
-            -o tests/statistical_property_test tests/statistical_property_test.c numerus_numeric.c numerus_optimizer.c numerus_probability.c numerus_rng.c numerus_rng_sampling.c numerus_matrix_cholesky.c numerus_matrix_solve_triangular.c numerus_matrix_log_determinant.c numerus_matrix_solve.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+            -o tests/statistical_property_test tests/statistical_property_test.c src/core/numerus_numeric.c src/statistics/numerus_optimizer.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/statistics/numerus_rng_sampling.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c -lm
           ./tests/statistical_property_test
 
       - name: Run statistical property tests with AddressSanitizer and UBSan
         run: |
-          cc -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
             -fsanitize=address,undefined -fno-omit-frame-pointer \
             -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
             -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
             -DNUMERUS_PROBABILITY_USE_LIBC_ALLOC \
             -DNUMERUS_RNG_USE_LIBC_ALLOC \
             -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
-            -o tests/statistical_property_sanitized tests/statistical_property_test.c numerus_numeric.c numerus_optimizer.c numerus_probability.c numerus_rng.c numerus_rng_sampling.c numerus_matrix_cholesky.c numerus_matrix_solve_triangular.c numerus_matrix_log_determinant.c numerus_matrix_solve.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+            -o tests/statistical_property_sanitized tests/statistical_property_test.c src/core/numerus_numeric.c src/statistics/numerus_optimizer.c src/statistics/numerus_probability.c src/statistics/numerus_rng.c src/statistics/numerus_rng_sampling.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix_solve_triangular.c src/matrix/numerus_matrix_log_determinant.c src/matrix/numerus_matrix_solve.c src/matrix/numerus_matrix_inverse.c src/matrix/numerus_matrix_analysis.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/statistical_property_sanitized
 
       - name: Run extension tests

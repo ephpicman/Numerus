@@ -29,7 +29,7 @@ Storage exposes one logical matrix interface over specialised representations:
 - banded
 
 Storage is opaque and immutable. Its representation is private to
-`numerus_storage.c`, and constructor inputs are copied into owned memory.
+`src/storage/numerus_storage.c`, and constructor inputs are copied into owned memory.
 
 ### Matrix
 
@@ -111,15 +111,15 @@ The internal Storage and Matrix APIs also have standalone native C tests. Run
 these from the repository root:
 
 ```sh
-cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/storage_test tests/storage_test.c numerus_storage.c
+  -o tests/storage_test tests/storage_test.c src/storage/numerus_storage.c
 ./tests/storage_test
 
-cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra -Wpedantic -Werror \
   -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
   -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-  -o tests/matrix_test tests/matrix_test.c numerus_matrix.c numerus_storage.c
+  -o tests/matrix_test tests/matrix_test.c src/matrix/numerus_matrix.c src/storage/numerus_storage.c
 ./tests/matrix_test
 ```
 

@@ -3,7 +3,7 @@
 #endif
 
 #include "php.h"
-#include "php_numerus.h"
+#include "../php_numerus.h"
 
 PHP_MINIT_FUNCTION(numerus)
 {
