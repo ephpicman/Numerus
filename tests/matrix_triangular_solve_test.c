@@ -86,6 +86,58 @@ static void test_transpose_and_upper_solve(void)
     numerus_matrix_destroy(factor);
 }
 
+
+static void test_diagonal_covariance_whitening_reference(void)
+{
+    const double covariance_values[] = {
+        1, 0, 0,
+        0, 4, 0,
+        0, 0, 9
+    };
+    const double design_values[] = {1, 1, 1};
+    const double observation_values[] = {1, 2, 4};
+    numerus_matrix *covariance = NULL;
+    numerus_matrix *lower = NULL;
+    numerus_matrix *design = NULL;
+    numerus_matrix *observations = NULL;
+    numerus_matrix *whitened_design = NULL;
+    numerus_matrix *whitened_observations = NULL;
+    numerus_matrix *coefficients = NULL;
+    double value;
+
+    assert(numerus_matrix_create_dense(
+        3, 3, covariance_values, &covariance
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_cholesky(covariance, &lower) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(3, 1, design_values, &design) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(
+        3, 1, observation_values, &observations
+    ) == NUMERUS_MATRIX_SUCCESS);
+
+    assert(numerus_matrix_solve_triangular(
+        lower, design, true, false, &whitened_design
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_solve_triangular(
+        lower, observations, true, false, &whitened_observations
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_least_squares(
+        whitened_design, whitened_observations, &coefficients
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_get(coefficients, 0, 0, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value - 10.0 / 7.0) < 1e-12);
+
+    numerus_matrix_destroy(coefficients);
+    numerus_matrix_destroy(whitened_observations);
+    numerus_matrix_destroy(whitened_design);
+    numerus_matrix_destroy(observations);
+    numerus_matrix_destroy(design);
+    numerus_matrix_destroy(lower);
+    numerus_matrix_destroy(covariance);
+}
+
 static void test_validation_and_output_preservation(void)
 {
     const double malformed_values[] = {2, 1, 3, 1};
@@ -187,6 +239,7 @@ int main(void)
 {
     test_lower_solve_multiple_rhs();
     test_transpose_and_upper_solve();
+    test_diagonal_covariance_whitening_reference();
     test_validation_and_output_preservation();
     test_nonfinite_rhs();
     puts("Matrix triangular solve tests passed.");
