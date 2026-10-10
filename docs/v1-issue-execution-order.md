@@ -28,8 +28,8 @@ Do not create one long-lived branch for the whole roadmap. One issue, one branch
 2. **[#108 — Decide the C/PHP API boundary](https://github.com/ephpicman/Numerus/issues/108)**  
    Record the internal C-first boundary and the separate PHP façade release gate before new public APIs are designed. See [API boundary decision](statistical-api-boundary.md).
 
-3. **[#111 — Specify GLS whitening and log-determinant contracts](https://github.com/ephpicman/Numerus/issues/111)**  
-   Use audit findings to define the contracts for GLS and Gaussian calculations.
+3. **[#111 — Specify GLS whitening and log-determinant contracts](https://github.com/ephpicman/Numerus/issues/111)** — **Contract documented in this PR**  
+   See [GLS whitening and log-determinant contracts](gls-whitening-and-log-determinant-contracts.md). #113/#114 remain implementation issues and must follow these contracts.
 
 4. **[#109 — Specify RNG algorithm and state contract](https://github.com/ephpicman/Numerus/issues/109)**  
    Decide algorithm, state lifecycle, test vectors, and reproducibility promises before implementation.
