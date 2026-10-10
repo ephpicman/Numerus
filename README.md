@@ -81,7 +81,7 @@ Load the built extension:
 php -d extension="$(pwd)/modules/numerus.so" -m
 ```
 
-On Windows, use the standard PHP build tools and `config.w32`.
+On Windows, `config.w32` is provided, but Windows builds are not currently covered by the CI matrix; treat Windows support as unverified until a Windows build and test job passes.
 
 ## Tests
 

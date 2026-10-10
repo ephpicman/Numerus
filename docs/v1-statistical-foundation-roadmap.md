@@ -237,3 +237,8 @@ The initial optimizer contract is specified in [Generic Optimizer Callback and R
 ## 12. Scalar/log-domain utility selection
 
 The selected v1 scalar set is documented in [Scalar and Log-Domain Utility Selection](scalar-log-domain-utilities.md) (issue #112): stable sigmoid, logit, softplus, log-sigmoid and log-sum-exp. Numerus will use C standard `log1p()`/`expm1()` internally instead of wrapping them without a demonstrated need. Broad special functions and distribution catalogs remain deferred. Implementation and edge-case tests are tracked by #118.
+
+
+## 13. Portability and non-finite policy
+
+The supported/tested build matrix and numerical input/error policy are recorded in [Numerical Portability and Non-Finite Policy](numerical-portability-and-nonfinite-policy.md) (issue #125). CI currently validates PHP 8.2–8.5 on Ubuntu and a debug build; Windows has a configuration file but is not validated by CI, so the README now states that limitation. New statistical APIs must follow the finite-input, domain-error, status-separation and output-preservation rules in this policy.
