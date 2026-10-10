@@ -1,0 +1,54 @@
+name: Bug report
+description: Report a reproducible defect in Numerus.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing, check existing issues and avoid posting security-sensitive details publicly. Report suspected vulnerabilities privately using [SECURITY.md](https://github.com/ephpicman/Numerus/blob/main/SECURITY.md).
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened, and what did you expect to happen?
+      placeholder: Describe the observed behavior and expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: Provide the smallest code sample, input, or command that reproduces the issue.
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: php-version
+    attributes:
+      label: PHP version
+      placeholder: "8.4.x"
+    validations:
+      required: true
+  - type: input
+    id: numerus-version
+    attributes:
+      label: Numerus version or commit
+      placeholder: "commit SHA or release tag"
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Operating system and architecture
+      placeholder: "Linux x86_64, macOS arm64, etc."
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output
+      description: Include relevant compiler, test, or runtime output. Redact secrets and personal data.
+      render: text
+    validations:
+      required: false
