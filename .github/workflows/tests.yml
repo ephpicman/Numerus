@@ -73,6 +73,13 @@ jobs:
             -o tests/numeric_stable_functions_test tests/numeric_stable_functions_test.c numerus_numeric.c -lm
           ./tests/numeric_stable_functions_test
 
+      - name: Run native generic optimizer tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_OPTIMIZER_TEST_ALLOCATOR \
+            -o tests/optimizer_test tests/optimizer_test.c numerus_optimizer.c -lm
+          ./tests/optimizer_test
+
       - name: Run native storage tests
         run: |
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
@@ -610,6 +617,14 @@ jobs:
             -fsanitize=address,undefined -fno-omit-frame-pointer \
             -o tests/numeric_stable_functions_sanitized tests/numeric_stable_functions_test.c numerus_numeric.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/numeric_stable_functions_sanitized
+
+      - name: Run generic optimizer tests with AddressSanitizer and UBSan
+        run: |
+          cc -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -DNUMERUS_OPTIMIZER_TEST_ALLOCATOR \
+            -o tests/optimizer_sanitized tests/optimizer_test.c numerus_optimizer.c -lm
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/optimizer_sanitized
 
       - name: Run extension tests
         run: make test TESTS='tests/*.phpt'
