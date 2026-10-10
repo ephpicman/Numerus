@@ -1,7 +1,6 @@
 #ifndef NUMERUS_RNG_H
 #define NUMERUS_RNG_H
 
-#include <stdbool.h>
 #include <stdint.h>
 
 /**
