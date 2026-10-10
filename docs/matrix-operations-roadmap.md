@@ -2,6 +2,8 @@
 
 This roadmap defines the implementation order for Numerus's internal C Matrix API. Execute it incrementally: each phase is a small, independently reviewable pull request, and no phase is merged until its required CI checks pass.
 
+**Product-scope note:** this document records the Matrix layer's implementation history and contracts. The broader v1 goals for OLS/GLS foundations, optimisation/maximum likelihood, reproducible random sampling, and Gaussian/Bayesian numerical primitives are tracked separately in the [v1 Statistical Foundation Requirements and Roadmap](v1-statistical-foundation-roadmap.md). Do not reopen completed Matrix phases automatically; use that requirements matrix to identify concrete gaps and create focused follow-up work.
+
 ## 1. Accepted design constraints
 
 - Matrix and Storage are immutable.
@@ -322,5 +324,7 @@ This inventory captures the broader feature set discussed for Numerus. It is not
 - Claiming numerical stability solely because an algorithm passes ordinary small-integer examples
 
 ## 7. Current execution status
+
+Phases 0–11 are complete to the extent explicitly marked above. This status concerns the Matrix roadmap only; it does **not** mean the broader statistical foundation v1 is complete. Track overall v1 readiness and outstanding RNG, optimisation, GLS and Gaussian-probability requirements in [v1 Statistical Foundation Requirements and Roadmap](v1-statistical-foundation-roadmap.md).
 
 Phases 0–11 are complete to the extent explicitly marked above. The final Phase 11 CI matrix is green on `main`; positive-definiteness classification was subsequently added and verified in PR #90. Remaining unchecked items are intentionally deferred or conditional, not release blockers: they require a concrete consumer, a numerical/API design decision, or benchmark evidence before implementation. Continue with the highest-value generally useful operation only when it has a clear contract and testable benefit. Do not restart Phase 0 or treat the full operation inventory as a second, independent backlog. Never mark a task complete without merged implementation, tests, documentation, and green CI where applicable.
