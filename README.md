@@ -132,9 +132,8 @@ extension loading checks, and a separate debug-oriented build.
 - `config.m4` — Unix Autoconf configuration.
 - `config.w32` — Windows build configuration.
 - `php_numerus.h` — module declarations and version.
-- `numerus.c` — module implementation.
-- `numerus_storage.h` / `numerus_storage.c` — opaque Storage API and implementation.
-- `numerus_matrix.h` / `numerus_matrix.c` — internal Matrix API and implementation.
+- `src/core/`, `src/storage/`, `src/matrix/`, `src/statistics/` — target implementation layout described in the [source architecture and refactor plan](docs/source-architecture.md); migration is tracked separately.
+- `php_numerus.h`, `config.m4`, and `config.w32` remain extension-facing build entry points at the repository root.
 - `tests/storage_test.c` — native Storage tests.
 - `tests/matrix_test.c` — native Matrix tests.
 - `tests/` — PHPT and native C tests.
