@@ -11,7 +11,7 @@ application-level API.
 
 The user-facing release milestones and the 1.0 acceptance gate are defined in the [release roadmap](docs/release-roadmap.md). The broader [v1 statistical foundation roadmap](docs/v1-statistical-foundation-roadmap.md) tracks reusable capabilities and gaps; its P0 labels do not mean every listed capability is required for 1.0.
 
-The codebase contains an immutable **Storage** subsystem and an internal **Matrix** abstraction built on top of Storage. The initial PHP-facing `Numerus\\Matrix` value object supports construction, access, transpose, multiplication, inversion, and least-squares composition. See the [PHP API guide](docs/php-api.md) and the runnable [PHP OLS example](examples/ols.php); the public surface remains intentionally small while its contracts and CI coverage are validated.
+The codebase contains an immutable **Storage** subsystem and an internal **Matrix** abstraction built on top of Storage. The initial PHP-facing `Numerus\Matrix` value object supports construction, access, transpose, multiplication, inversion, and least-squares composition. See the [PHP API guide](docs/php-api.md) and the runnable [PHP OLS example](examples/ols.php); the public surface remains intentionally small while its contracts and CI coverage are validated.
 
 ### Storage
 
