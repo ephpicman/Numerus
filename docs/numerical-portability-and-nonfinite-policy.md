@@ -45,8 +45,8 @@ For new statistical algorithms:
 ### RNG and distribution transforms (#115–#117, #121)
 
 - Raw PCG32 output is an integer stream and is bit-for-bit reproducible for the documented algorithm, seed, stream and call sequence.
-- Uniform conversion must document exact endpoints and bit extraction. It must not depend on ambient/global RNG state.
-- Normal sampling must avoid feeding zero to `log`; its algorithm must define the number of raw outputs consumed per result. Since ordinary `libm` implementations can differ, only same supported build/runtime repeatability may be promised for floating-point normal values unless deterministic math is implemented and tested.
+- Uniform conversion is fixed to the top 53 bits of two raw outputs, scaled by (2^{-53}), producing ([0,1)). It must not depend on ambient/global RNG state.
+- Normal sampling uses Box–Muller without caching, maps the radial uniform into ((0,1]) to avoid `log(0)), and consumes exactly four raw outputs per result. Since ordinary `libm` implementations can differ, only same supported build/runtime repeatability may be promised for floating-point normal values.
 - RNG functions do not accept floating-point seeds; seed/stream are explicit fixed-width integers. RNG output is not cryptographic.
 
 ### Optimizer callbacks (#119)
