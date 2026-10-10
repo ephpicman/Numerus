@@ -1,6 +1,6 @@
 # Reproducible RNG Contract
 
-Status: selected v1 contract for implementation issue #115 and variate issue #116. This is a design specification; it does not claim an RNG implementation exists.
+Status: accepted v1 contract. The raw PCG32 state API is implemented by issue #115; uniform/normal variates remain issue #116.
 
 ## Algorithm
 
