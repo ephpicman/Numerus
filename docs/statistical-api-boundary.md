@@ -1,12 +1,40 @@
 # Statistical Foundation API Boundary
 
-Status: accepted design decision for the v1 foundation implementation; PHP userland façade remains a separate release-gating design task.
+Status: accepted design decision; initial PHP Matrix façade implementation is in progress on `feat/php-matrix-api`.
 
 ## Decision
 
 **Implement and validate statistical foundation algorithms first as composable internal C APIs. Do not expose the current Matrix/Storage structs, internal status enum, factorization layout, or allocator details directly to PHP.** Keep C contracts authoritative for ownership, numerical failure, output preservation, and reproducibility.
 
 This is a sequencing decision, not a claim that C-only APIs are sufficient for PHP userland packages. A PHP extension whose useful capabilities are entirely inaccessible from PHP cannot yet serve those packages. Before declaring the overall extension v1 usable for userland statistical packages, Numerus needs a separately designed, minimal PHP façade with stable value/ownership semantics. That façade should be designed against the actual primitive contracts rather than guessed while those contracts are still changing.
+
+## Initial PHP façade scope
+
+The first public surface is a value-owning `Numerus\\Matrix` object with these operations:
+
+- `Matrix::fromRows(array $rows)` and `Matrix::zeros(int $rows, int $columns)`
+- `rows()`, `columns()`, and zero-based `get(int $row, int $column)`
+- `transpose()`, `multiply(Matrix $other)`, and `inverse()`
+- `leastSquares(Matrix $rightHandSide)`
+
+These are generic numerical primitives, not model-specific estimators. Both supported OLS paths should remain possible:
+
+```php
+// Explicit normal-equation composition, available to users who choose it:
+$beta = $design->transpose()
+    ->multiply($design)
+    ->inverse()
+    ->multiply($design->transpose()->multiply($response));
+
+// Numerically preferable for ordinary use:
+$beta = $design->leastSquares($response);
+```
+
+Forming `(XᵀX)⁻¹Xᵀy` is intentionally possible, but it is not the recommended default: forming normal equations squares the condition number, and explicit inversion adds avoidable numerical error. The direct least-squares path uses the existing pivoted-QR primitive and reports rank deficiency rather than silently choosing a solution.
+
+For this initial API, returned matrices own independent native storage. `transpose()` materializes the C transpose view before returning, so the public API does not yet expose non-owning views or require parent-object retention. Inputs must be rectangular, non-empty nested arrays containing only PHP integers/floats; matrix coordinates are zero-based. Native statuses map to PHP exceptions rather than public integer codes.
+
+Deferred from this first increment: arithmetic operator overloading, lazy public views, mutable element assignment, public factorization handles, RNG/optimizer callbacks, and broad statistical wrappers. These should be added only with explicit lifetime/error contracts and a demonstrated compositional need.
 
 ## Why this boundary fits the current code
 
