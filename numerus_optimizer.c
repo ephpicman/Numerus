@@ -534,6 +534,7 @@ numerus_optimizer_status numerus_optimizer_minimize(
         );
         double directional_derivative;
         double alpha;
+        double accepted_objective_value = 0.0;
         bool accepted = false;
         bool step_too_small = false;
         size_t line_search_iteration;
@@ -634,6 +635,7 @@ numerus_optimizer_status numerus_optimizer_minimize(
                 NUMERUS_OPTIMIZER_ARMIJO_CONSTANT *
                 alpha * directional_derivative;
             if (isfinite(armijo_bound) && trial_objective <= armijo_bound) {
+                accepted_objective_value = trial_objective;
                 accepted = true;
                 break;
             }
@@ -658,7 +660,7 @@ numerus_optimizer_status numerus_optimizer_minimize(
         }
 
         memcpy(output->parameters, trial_parameters, vector_bytes);
-        objective_value = trial_objective;
+        objective_value = accepted_objective_value;
         output->objective_value = objective_value;
         output->objective_value_valid = true;
         output->iterations++;
