@@ -3,7 +3,7 @@
  * @brief Runs every standalone native test suite against one instrumented build.
  *
  * The coverage workflow renames each suite's main function and links all suites
- * into this driver. Keep the suite list synchronized with tests/*_test.c.
+ * into this driver. Keep the suite list synchronized with the standalone native test files.
  */
 
 #include <stdio.h>
