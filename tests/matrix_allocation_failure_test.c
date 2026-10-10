@@ -57,6 +57,7 @@ static void test_materialize_allocation_failures(void)
     int allocation_failure_observed = 0;
     int successful_materialization_observed = 0;
 
+    allocations_before_failure = -1;
     assert(numerus_matrix_create_dense(2, 3, values, &source) ==
         NUMERUS_MATRIX_SUCCESS);
 
@@ -95,6 +96,7 @@ static void test_addition_allocation_failures(void)
     int allocation_failure_observed = 0;
     int successful_addition_observed = 0;
 
+    allocations_before_failure = -1;
     assert(numerus_matrix_create_dense(2, 2, left_values, &left) ==
         NUMERUS_MATRIX_SUCCESS);
     assert(numerus_matrix_create_dense(2, 2, right_values, &right) ==
