@@ -59,6 +59,21 @@ See [Storage documentation](docs/storage.md) and
 [Matrix documentation](docs/matrix.md) for API contracts, design details, and
 cached Matrix analysis.
 
+### Statistical foundation (internal C API)
+
+The source tree also contains reusable statistical primitives: triangular solves
+and stable log determinants for GLS composition, stable scalar/log-domain
+functions, explicit-state PCG32 random generation and index sampling, generic
+unconstrained BFGS optimization, and multivariate Gaussian log density/sampling.
+These are composable C APIs, not model-fitting functions; the project does not
+provide `fit_ols()`, `fit_gls()`, `fit_mle()`, GP fitting, or MCMC.
+
+**These primitives are not currently exposed to PHP userland.** A minimal,
+ownership-safe PHP façade remains a separate prerequisite before Numerus can be
+described as usable by PHP statistical packages. See the
+[statistical foundation overview](docs/statistical-foundation.md) for the
+current capability inventory, contracts, executable example, and explicit gaps.
+
 ## Requirements
 
 - PHP 8.2 or later
