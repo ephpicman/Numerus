@@ -22,6 +22,9 @@ typedef enum {
     NUMERUS_MATRIX_BINARY_DIVIDE
 } numerus_matrix_binary_operation;
 
+/** Allocate and initialize an internal Matrix node. */
+int numerus_matrix_allocate(numerus_matrix **matrix);
+
 /** Obtain a retained LU factorization, computing and caching it on a miss. */
 numerus_matrix_status numerus_matrix_get_or_factorize_lu(
     const numerus_matrix *matrix,
