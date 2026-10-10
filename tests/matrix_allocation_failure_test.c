@@ -162,6 +162,7 @@ int main(void)
 
     test_materialize_allocation_failures();
     test_addition_allocation_failures();
+    allocations_before_failure = -1;
 
     /* A failure must not poison later operations. */
     {
