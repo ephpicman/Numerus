@@ -1299,6 +1299,27 @@ numerus_matrix_status numerus_matrix_solve(
 );
 
 /**
+ * Solve T X = B or Tᵀ X = B by forward/back substitution.
+ *
+ * The stored T must be square and triangular in the orientation selected by
+ * lower; entries in its structurally zero half must be exactly zero. When
+ * transpose is true, the solve uses Tᵀ but lower still describes stored T.
+ * The diagonal must be finite and nonzero. Multiple RHS columns are supported.
+ * The result is independent dense Storage; *solution is NULL on failure.
+ * Malformed triangular input returns INVALID_ARGUMENT, a zero diagonal returns
+ * SINGULAR, and non-finite input/intermediate values return NON_FINITE.
+ */
+numerus_matrix_status numerus_matrix_solve_triangular(
+    const numerus_matrix *triangular,
+    const numerus_matrix *right_hand_side,
+    bool lower,
+    bool transpose,
+    numerus_matrix **solution
+);
+
+
+
+/**
  * Compute an inverse using Gauss–Jordan elimination with partial pivoting.
  * This alternative is primarily useful for comparison and education; the
  * LU-based numerus_matrix_inverse() remains the default production path.
