@@ -224,12 +224,67 @@ static void test_overflow_and_allocation_failure(void)
     assert(live_probability_allocations == 0);
 }
 
+
+static numerus_matrix_status fail_on_observation_row_one(
+    size_t row,
+    size_t column,
+    size_t *parent_row,
+    size_t *parent_column,
+    const void *context
+)
+{
+    (void) column;
+    (void) context;
+
+    if (row == 1) {
+        return NUMERUS_MATRIX_INVALID_ARGUMENT;
+    }
+
+    *parent_row = row;
+    *parent_column = 0;
+    return NUMERUS_MATRIX_SUCCESS;
+}
+
+static void test_matrix_read_failure_preserves_output_and_allocations(void)
+{
+    const double observation_values[] = {1.0, 2.0};
+    const double mean_values[] = {0.0, 0.0};
+    const double covariance_values[] = {
+        1.0, 0.0,
+        0.0, 1.0
+    };
+    numerus_matrix *root_observation = make_dense(2, 1, observation_values);
+    numerus_matrix *failing_observation = NULL;
+    numerus_matrix *mean = make_dense(2, 1, mean_values);
+    numerus_matrix *covariance = make_dense(2, 2, covariance_values);
+    double log_density = 321.0;
+    size_t allocations_before = live_probability_allocations;
+
+    assert(numerus_matrix_create_from_parent_with_transforms(
+        root_observation, 2, 1, fail_on_observation_row_one,
+        NULL, NULL, &failing_observation
+    ) == NUMERUS_MATRIX_SUCCESS);
+
+    assert(numerus_multivariate_gaussian_log_density(
+        failing_observation, mean, covariance, &log_density
+    ) == NUMERUS_PROBABILITY_INVALID_ARGUMENT);
+    assert(log_density == 321.0);
+    assert(live_probability_allocations == allocations_before);
+
+    numerus_matrix_destroy(failing_observation);
+    numerus_matrix_destroy(covariance);
+    numerus_matrix_destroy(mean);
+    numerus_matrix_destroy(root_observation);
+    assert(live_probability_allocations == 0);
+}
+
 int main(void)
 {
     test_univariate_standard_normal();
     test_multivariate_diagonal_and_correlated_covariance();
     test_invalid_inputs_preserve_output();
     test_overflow_and_allocation_failure();
+    test_matrix_read_failure_preserves_output_and_allocations();
     puts("Gaussian log-density tests passed.");
     return 0;
 }
