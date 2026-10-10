@@ -397,6 +397,14 @@ jobs:
             -o tests/matrix_solve_test tests/matrix_solve_test.c numerus_matrix_solve.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
           ./tests/matrix_solve_test
 
+      - name: Run native Matrix triangular solve tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_triangular_solve_test tests/matrix_triangular_solve_test.c numerus_matrix_solve_triangular.c numerus_matrix_solve.c numerus_matrix_cholesky.c numerus_matrix_least_squares.c numerus_matrix_qr.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+          ./tests/matrix_triangular_solve_test
+
       - name: Run native Matrix Gauss-Jordan inverse tests
         run: |
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
