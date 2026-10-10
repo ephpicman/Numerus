@@ -78,10 +78,8 @@ jobs:
             src/matrix/numerus_matrix.c \
             src/matrix/numerus_matrix_view_nodes.c \
             src/matrix/numerus_matrix_constructors.c \
-            src/matrix/numerus_matrix_binary.c \
-            src/matrix/numerus_matrix_materialize.c \
-            src/matrix/numerus_matrix_multiply.c \
-            src/matrix/numerus_matrix_views.c \
+            src/matrix/numerus_matrix_analysis.c \
+            src/matrix/numerus_matrix_statistics.c \
             src/storage/numerus_storage.c \
             src/matrix/numerus_matrix_lu.c
 
