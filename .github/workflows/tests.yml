@@ -728,6 +728,47 @@ jobs:
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/matrix_allocation_failure_sanitized
 
 
+
+      - name: Run Matrix LU tests with AddressSanitizer and UBSan
+        run: |
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_lu_sanitized tests/matrix_lu_test.c src/matrix/numerus_matrix_lu.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/matrix_lu_sanitized
+
+      - name: Run Matrix Cholesky tests with AddressSanitizer and UBSan
+        run: |
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_cholesky_sanitized tests/matrix_cholesky_test.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/matrix_cholesky_sanitized
+
+      - name: Run Matrix QR tests with AddressSanitizer and UBSan
+        run: |
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_qr_sanitized tests/matrix_qr_test.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/matrix_qr_sanitized
+
+      - name: Run Matrix SVD tests with AddressSanitizer and UBSan
+        run: |
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_svd_sanitized tests/matrix_svd_test.c src/matrix/numerus_matrix_svd.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/matrix_svd_sanitized
+
+      - name: Run Matrix pseudoinverse tests with AddressSanitizer and UBSan
+        run: |
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_pseudoinverse_sanitized tests/matrix_pseudoinverse_test.c src/matrix/numerus_matrix_pseudoinverse.c src/matrix/numerus_matrix_svd.c src/matrix/numerus_matrix_multiply.c src/matrix/numerus_matrix_materialize.c src/matrix/numerus_matrix_views.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/matrix_pseudoinverse_sanitized
+
       - name: Run extension tests
         run: make test TESTS='tests/*.phpt'
 
