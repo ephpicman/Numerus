@@ -139,9 +139,9 @@ jobs:
       - name: Generate line and branch coverage reports
         run: |
           mkdir -p coverage
-          gcovr \
+          gcovr --verbose \
             --root "$GITHUB_WORKSPACE" \
-            --filter '.*/src/.*' \
+            --filter 'src/.*' \
             --object-directory "$GITHUB_WORKSPACE/.coverage-build/objects" \
             --txt-metric line --txt-metric branch \
             --txt coverage/summary.txt \
