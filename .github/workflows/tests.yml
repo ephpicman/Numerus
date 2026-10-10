@@ -461,6 +461,14 @@ jobs:
             -o tests/matrix_log_determinant_test tests/matrix_log_determinant_test.c numerus_matrix_log_determinant.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
           ./tests/matrix_log_determinant_test
 
+      - name: Run native statistical linear-model workflow tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_statistical_workflow_test tests/matrix_statistical_workflow_test.c numerus_matrix_weighted_least_squares.c numerus_matrix_least_squares.c numerus_matrix_qr.c numerus_matrix_cholesky.c numerus_matrix_solve_triangular.c numerus_matrix_log_determinant.c numerus_matrix_inverse.c numerus_matrix_analysis.c numerus_matrix_lu.c numerus_matrix.c numerus_storage.c -lm
+          ./tests/matrix_statistical_workflow_test
+
       - name: Run native Matrix trace tests
         run: |
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
