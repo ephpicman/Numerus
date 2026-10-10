@@ -217,11 +217,59 @@ static void test_wide_rank_deficient_penrose_conditions(void)
     numerus_matrix_destroy(matrix);
 }
 
+
+static void test_tall_rank_deficient_penrose_conditions(void)
+{
+    const double input[] = {
+        1, 2,
+        2, 4,
+        3, 6
+    };
+    numerus_matrix *matrix = NULL;
+    numerus_matrix *inverse = NULL;
+    numerus_matrix *aa_plus = NULL;
+    numerus_matrix *a_plus_a = NULL;
+    numerus_matrix *aa_plus_a = NULL;
+    numerus_matrix *a_plus_a_a_plus = NULL;
+    numerus_matrix *aa_plus_t = NULL;
+    numerus_matrix *a_plus_a_t = NULL;
+
+    assert(numerus_matrix_create_dense(3, 2, input, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_pseudoinverse(matrix, &inverse) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_rows(inverse) == 2);
+    assert(numerus_matrix_columns(inverse) == 3);
+
+    aa_plus = multiply(matrix, inverse);
+    a_plus_a = multiply(inverse, matrix);
+    aa_plus_a = multiply(aa_plus, matrix);
+    a_plus_a_a_plus = multiply(a_plus_a, inverse);
+    aa_plus_t = transpose(aa_plus);
+    a_plus_a_t = transpose(a_plus_a);
+
+    /* Verify all four Moore-Penrose conditions for tall, rank-deficient A. */
+    assert_close(aa_plus_a, matrix, 1e-8);
+    assert_close(a_plus_a_a_plus, inverse, 1e-8);
+    assert_close(aa_plus, aa_plus_t, 1e-8);
+    assert_close(a_plus_a, a_plus_a_t, 1e-8);
+
+    numerus_matrix_destroy(a_plus_a_t);
+    numerus_matrix_destroy(aa_plus_t);
+    numerus_matrix_destroy(a_plus_a_a_plus);
+    numerus_matrix_destroy(aa_plus_a);
+    numerus_matrix_destroy(a_plus_a);
+    numerus_matrix_destroy(aa_plus);
+    numerus_matrix_destroy(inverse);
+    numerus_matrix_destroy(matrix);
+}
+
 int main(void)
 {
     test_rank_deficient_square_and_penrose_conditions();
     test_rectangular_and_zero_inputs();
     test_wide_rank_deficient_penrose_conditions();
+    test_tall_rank_deficient_penrose_conditions();
     test_failure_contracts();
     puts("Matrix pseudoinverse tests passed.");
     return 0;
