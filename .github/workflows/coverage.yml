@@ -28,79 +28,58 @@ jobs:
         run: |
           set -euo pipefail
           build_root="$RUNNER_TEMP/numerus-coverage"
-          mkdir -p "$build_root"
+          object_dir="$build_root/objects"
+          test_dir="$build_root/tests"
+          mkdir -p "$object_dir" "$test_dir"
+          source_objects=()
 
-          compile_and_run() {
+          while IFS= read -r -d '' source; do
+            object_name="${source//\//_}"
+            object="$object_dir/${object_name%.c}.o"
+            gcc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics \
+              -std=c11 -O0 -g --coverage -fprofile-abs-path \
+              -Wall -Wextra -Wpedantic -Werror \
+              -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+              -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+              -DNUMERUS_PROBABILITY_USE_LIBC_ALLOC \
+              -DNUMERUS_RNG_USE_LIBC_ALLOC \
+              -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
+              -c "$source" -o "$object"
+            source_objects+=("$object")
+          done < <(find src -name '*.c' ! -path 'src/numerus.c' -print0 | sort -z)
+
+          compile_suite() {
             local name="$1"
-            shift
-            local build_dir="$build_root/$name"
-            mkdir -p "$build_dir"
-            local objects=()
-            local source
-            local object
-
-            for source in "$@"; do
-              object="$build_dir/$(basename "$source" .c).o"
-              gcc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics \
-                -std=c11 -O0 -g --coverage -fprofile-abs-path \
-                -Wall -Wextra -Wpedantic -Werror \
-                -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
-                -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
-                -DNUMERUS_PROBABILITY_USE_LIBC_ALLOC \
-                -DNUMERUS_RNG_USE_LIBC_ALLOC \
-                -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
-                -c "$source" -o "$object"
-              objects+=("$object")
-            done
-
-            gcc --coverage "${objects[@]}" -lm -o "$build_dir/$name"
-            "$build_dir/$name"
+            local source="$2"
+            gcc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics \
+              -std=c11 -O0 -g --coverage -fprofile-abs-path \
+              -Wall -Wextra -Wpedantic -Werror \
+              -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+              -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+              -DNUMERUS_PROBABILITY_USE_LIBC_ALLOC \
+              -DNUMERUS_RNG_USE_LIBC_ALLOC \
+              -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
+              -Dmain="numerus_coverage_${name}_main" \
+              -c "$source" -o "$test_dir/$name.o"
           }
 
-          compile_and_run storage \
-            tests/storage_test.c \
-            src/storage/numerus_storage.c
+          compile_suite storage tests/storage_test.c
+          compile_suite matrix_property tests/matrix_property_test.c
+          compile_suite matrix_adversarial tests/matrix_adversarial_test.c
+          compile_suite statistical_property tests/statistical_property_test.c
 
-          compile_and_run matrix-property \
-            tests/matrix_property_test.c \
-            src/matrix/numerus_matrix.c \
-            src/matrix/numerus_matrix_view_nodes.c \
-            src/matrix/numerus_matrix_constructors.c \
-            src/matrix/numerus_matrix_binary.c \
-            src/matrix/numerus_matrix_materialize.c \
-            src/matrix/numerus_matrix_multiply.c \
-            src/matrix/numerus_matrix_views.c \
-            src/storage/numerus_storage.c \
-            src/matrix/numerus_matrix_lu.c
+          gcc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics \
+            -std=c11 -O0 -g --coverage -fprofile-abs-path \
+            -Wall -Wextra -Wpedantic -Werror \
+            -c tests/coverage_driver.c -o "$test_dir/coverage_driver.o"
 
-          compile_and_run matrix-adversarial \
-            tests/matrix_adversarial_test.c \
-            src/matrix/numerus_matrix.c \
-            src/matrix/numerus_matrix_view_nodes.c \
-            src/matrix/numerus_matrix_constructors.c \
-            src/matrix/numerus_matrix_analysis.c \
-            src/matrix/numerus_matrix_statistics.c \
-            src/storage/numerus_storage.c \
-            src/matrix/numerus_matrix_lu.c
-
-          compile_and_run statistical-property \
-            tests/statistical_property_test.c \
-            src/core/numerus_numeric.c \
-            src/statistics/numerus_optimizer.c \
-            src/statistics/numerus_probability.c \
-            src/statistics/numerus_rng.c \
-            src/statistics/numerus_rng_sampling.c \
-            src/matrix/numerus_matrix_cholesky.c \
-            src/matrix/numerus_matrix_solve_triangular.c \
-            src/matrix/numerus_matrix_log_determinant.c \
-            src/matrix/numerus_matrix_solve.c \
-            src/matrix/numerus_matrix_inverse.c \
-            src/matrix/numerus_matrix_analysis.c \
-            src/matrix/numerus_matrix_lu.c \
-            src/matrix/numerus_matrix.c \
-            src/matrix/numerus_matrix_view_nodes.c \
-            src/matrix/numerus_matrix_constructors.c \
-            src/storage/numerus_storage.c
+          gcc --coverage "${source_objects[@]}" \
+            "$test_dir/storage.o" \
+            "$test_dir/matrix_property.o" \
+            "$test_dir/matrix_adversarial.o" \
+            "$test_dir/statistical_property.o" \
+            "$test_dir/coverage_driver.o" -lm -o "$build_root/native-coverage"
+          "$build_root/native-coverage"
 
       - name: Generate line and branch coverage reports
         run: |
