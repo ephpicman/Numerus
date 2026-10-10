@@ -738,6 +738,49 @@ static void test_finite_difference_extreme_boundaries(void)
     numerus_optimizer_result_destroy(result);
 }
 
+
+static void test_minimize_invalid_argument_matrix(void)
+{
+    const double initial[] = {1.0};
+    scalar_context context = {SCALAR_QUADRATIC, 0.0, 0.0};
+    numerus_optimizer_options options;
+    numerus_optimizer_result *result = (void *) 1;
+
+    assert(numerus_optimizer_default_options(&options) ==
+        NUMERUS_OPTIMIZER_SUCCESS);
+    assert(numerus_optimizer_minimize(
+        scalar_objective, scalar_gradient, &context,
+        initial, 1, &options, NULL
+    ) == NUMERUS_OPTIMIZER_INVALID_ARGUMENT);
+
+    assert(numerus_optimizer_minimize(
+        NULL, scalar_gradient, &context,
+        initial, 1, &options, &result
+    ) == NUMERUS_OPTIMIZER_INVALID_ARGUMENT);
+    assert(result == NULL);
+
+    result = (void *) 1;
+    assert(numerus_optimizer_minimize(
+        scalar_objective, scalar_gradient, &context,
+        NULL, 1, &options, &result
+    ) == NUMERUS_OPTIMIZER_INVALID_ARGUMENT);
+    assert(result == NULL);
+
+    result = (void *) 1;
+    assert(numerus_optimizer_minimize(
+        scalar_objective, scalar_gradient, &context,
+        initial, 0, &options, &result
+    ) == NUMERUS_OPTIMIZER_INVALID_ARGUMENT);
+    assert(result == NULL);
+
+    result = (void *) 1;
+    assert(numerus_optimizer_minimize(
+        scalar_objective, scalar_gradient, &context,
+        initial, 1, NULL, &result
+    ) == NUMERUS_OPTIMIZER_INVALID_ARGUMENT);
+    assert(result == NULL);
+}
+
 int main(void)
 {
     test_quadratic_with_analytic_gradient_and_result_fields();
@@ -749,6 +792,7 @@ int main(void)
     test_result_accessor_invalid_arguments();
     test_all_optimizer_option_boundaries();
     test_finite_difference_extreme_boundaries();
+    test_minimize_invalid_argument_matrix();
     assert(live_allocations == 0);
     puts("Generic optimizer tests passed.");
     return 0;
