@@ -117,7 +117,7 @@ jobs:
               fi
             fi
 
-            if [[ "$name" == "matrix_allocation_failure" ]]; then
+            if [[ "$name" == "matrix_allocation_failure" || "$name" == "storage_allocation_failure" ]]; then
               gcc --coverage -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free \
                 "${suite_source_objects[@]}" "$test_object" -lm -o "$test_binary"
             else
