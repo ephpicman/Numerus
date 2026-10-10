@@ -128,6 +128,112 @@ static void test_addition_allocation_failures(void)
     numerus_matrix_destroy(left);
 }
 
+
+static void test_inverse_allocation_failures(void)
+{
+    const double values[] = {4.0, 1.0, 2.0, 3.0};
+    numerus_matrix *source = NULL;
+    long fail_after;
+    int allocation_failure_observed = 0;
+    int successful_inverse_observed = 0;
+
+    allocations_before_failure = -1;
+    assert(numerus_matrix_create_dense(2, 2, values, &source) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    for (fail_after = 0; fail_after < 32; fail_after++) {
+        numerus_matrix *inverse = (numerus_matrix *) 1;
+        numerus_matrix_status status;
+
+        allocations_before_failure = fail_after;
+        status = numerus_matrix_inverse(source, &inverse);
+
+        if (status == NUMERUS_MATRIX_SUCCESS) {
+            assert(inverse != NULL);
+            numerus_matrix_destroy(inverse);
+            successful_inverse_observed = 1;
+            break;
+        }
+
+        assert(status == NUMERUS_MATRIX_OUT_OF_MEMORY);
+        assert(inverse == NULL);
+        allocation_failure_observed = 1;
+    }
+
+    allocations_before_failure = -1;
+    assert(allocation_failure_observed);
+    assert(successful_inverse_observed);
+
+    /* Failed construction must leave the source valid and reusable. */
+    {
+        numerus_matrix *inverse = NULL;
+        double value;
+
+        assert(numerus_matrix_get(source, 0, 0, &value) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(value == 4.0);
+        assert(numerus_matrix_inverse(source, &inverse) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(inverse != NULL);
+        numerus_matrix_destroy(inverse);
+    }
+
+    numerus_matrix_destroy(source);
+}
+
+static void test_solve_allocation_failures(void)
+{
+    const double matrix_values[] = {4.0, 1.0, 2.0, 3.0};
+    const double rhs_values[] = {1.0, 2.0};
+    numerus_matrix *matrix = NULL;
+    numerus_matrix *rhs = NULL;
+    long fail_after;
+    int allocation_failure_observed = 0;
+    int successful_solve_observed = 0;
+
+    allocations_before_failure = -1;
+    assert(numerus_matrix_create_dense(2, 2, matrix_values, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(2, 1, rhs_values, &rhs) ==
+        NUMERUS_MATRIX_SUCCESS);
+
+    for (fail_after = 0; fail_after < 32; fail_after++) {
+        numerus_matrix *solution = (numerus_matrix *) 1;
+        numerus_matrix_status status;
+
+        allocations_before_failure = fail_after;
+        status = numerus_matrix_solve(matrix, rhs, &solution);
+
+        if (status == NUMERUS_MATRIX_SUCCESS) {
+            assert(solution != NULL);
+            numerus_matrix_destroy(solution);
+            successful_solve_observed = 1;
+            break;
+        }
+
+        assert(status == NUMERUS_MATRIX_OUT_OF_MEMORY);
+        assert(solution == NULL);
+        allocation_failure_observed = 1;
+    }
+
+    allocations_before_failure = -1;
+    assert(allocation_failure_observed);
+    assert(successful_solve_observed);
+
+    /* The same operands must still work after injected failures. */
+    {
+        numerus_matrix *solution = NULL;
+
+        assert(numerus_matrix_solve(matrix, rhs, &solution) ==
+            NUMERUS_MATRIX_SUCCESS);
+        assert(solution != NULL);
+        numerus_matrix_destroy(solution);
+    }
+
+    numerus_matrix_destroy(rhs);
+    numerus_matrix_destroy(matrix);
+}
+
 int main(void)
 {
     const double values[] = {1.0, 2.0, 3.0, 4.0};
@@ -164,6 +270,8 @@ int main(void)
 
     test_materialize_allocation_failures();
     test_addition_allocation_failures();
+    test_inverse_allocation_failures();
+    test_solve_allocation_failures();
     allocations_before_failure = -1;
 
     /* A failure must not poison later operations. */
