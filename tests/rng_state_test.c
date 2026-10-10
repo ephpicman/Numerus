@@ -80,6 +80,26 @@ static void test_replay_and_explicit_state(void)
     numerus_rng_destroy(second);
 }
 
+
+static void test_stream_selector_changes_sequence(void)
+{
+    numerus_rng *first = NULL;
+    numerus_rng *second = NULL;
+    uint32_t first_value;
+    uint32_t second_value;
+
+    assert(numerus_rng_create(123, 456, &first) == NUMERUS_RNG_SUCCESS);
+    assert(numerus_rng_create(123, 457, &second) == NUMERUS_RNG_SUCCESS);
+    assert(numerus_rng_next_u32(first, &first_value) == NUMERUS_RNG_SUCCESS);
+    assert(numerus_rng_next_u32(second, &second_value) == NUMERUS_RNG_SUCCESS);
+    assert(first_value == UINT32_C(0xbbe3a83d));
+    assert(second_value == UINT32_C(0x113022fe));
+    assert(first_value != second_value);
+
+    numerus_rng_destroy(first);
+    numerus_rng_destroy(second);
+}
+
 static void test_clone_copies_exact_state_but_not_storage(void)
 {
     numerus_rng *source = NULL;
@@ -159,6 +179,7 @@ int main(void)
 {
     test_reference_vector();
     test_replay_and_explicit_state();
+    test_stream_selector_changes_sequence();
     test_clone_copies_exact_state_but_not_storage();
     test_invalid_arguments_preserve_output_and_state();
     test_allocation_failures_do_not_leak();
