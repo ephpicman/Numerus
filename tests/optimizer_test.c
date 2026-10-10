@@ -555,7 +555,7 @@ static void test_result_accessor_invalid_arguments(void)
     assert(numerus_optimizer_result_get_termination(
         NULL, &termination
     ) == NUMERUS_OPTIMIZER_INVALID_ARGUMENT);
-    assert(termination == NUMERUS_OPTIMIZER_CONVERGED);
+    assert(termination == NUMERUS_OPTIMIZER_CONVERGED_GRADIENT);
 
     assert(numerus_optimizer_default_options(&options) ==
         NUMERUS_OPTIMIZER_SUCCESS);
