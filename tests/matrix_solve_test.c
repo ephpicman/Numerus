@@ -181,11 +181,45 @@ static void test_lu_cache_reuse_and_source_lifetime(void)
     numerus_matrix_destroy(rhs);
 }
 
+static void test_nonfinite_coefficients_and_nonsquare_input(void)
+{
+    const double rectangular_values[] = {1, 2, 3, 4, 5, 6};
+    const double nonfinite_values[] = {1, NAN, 0, 1};
+    const double rhs_values[] = {1, 2};
+    numerus_matrix *matrix = NULL;
+    numerus_matrix *rhs = NULL;
+    numerus_matrix *solution = (void *) 1;
+
+    assert(numerus_matrix_create_dense(
+        2, 3, rectangular_values, &matrix
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(2, 1, rhs_values, &rhs) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_solve(matrix, rhs, &solution) ==
+        NUMERUS_MATRIX_NOT_SQUARE);
+    assert(solution == NULL);
+    numerus_matrix_destroy(matrix);
+    numerus_matrix_destroy(rhs);
+
+    assert(numerus_matrix_create_dense(
+        2, 2, nonfinite_values, &matrix
+    ) == NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(2, 1, rhs_values, &rhs) ==
+        NUMERUS_MATRIX_SUCCESS);
+    solution = (void *) 1;
+    assert(numerus_matrix_solve(matrix, rhs, &solution) ==
+        NUMERUS_MATRIX_NON_FINITE);
+    assert(solution == NULL);
+    numerus_matrix_destroy(rhs);
+    numerus_matrix_destroy(matrix);
+}
+
 int main(void)
 {
     test_lu_cache_reuse_and_source_lifetime();
     test_multiple_right_hand_sides();
     test_row_pivoting_and_errors();
+    test_nonfinite_coefficients_and_nonsquare_input();
     puts("Matrix linear solve tests passed.");
     return 0;
 }

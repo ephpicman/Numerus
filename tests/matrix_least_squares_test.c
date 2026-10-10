@@ -234,12 +234,37 @@ static void test_nonfinite_and_read_failures(void)
     numerus_matrix_destroy(matrix);
 }
 
+static void test_nonfinite_coefficients(void)
+{
+    const double nonfinite_values[] = {
+        1, NAN,
+        0, 1,
+        1, 1
+    };
+    const double rhs_values[] = {1, 2, 3};
+    numerus_matrix *matrix = NULL;
+    numerus_matrix *rhs = NULL;
+    numerus_matrix *solution = (void *) 1;
+
+    assert(numerus_matrix_create_dense(3, 2, nonfinite_values, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(3, 1, rhs_values, &rhs) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_least_squares(matrix, rhs, &solution) ==
+        NUMERUS_MATRIX_NON_FINITE);
+    assert(solution == NULL);
+
+    numerus_matrix_destroy(rhs);
+    numerus_matrix_destroy(matrix);
+}
+
 int main(void)
 {
     test_exact_multiple_rhs();
     test_noisy_least_squares_solution();
     test_rank_and_dimension_errors();
     test_nonfinite_and_read_failures();
+    test_nonfinite_coefficients();
     puts("Matrix least-squares tests passed.");
     return 0;
 }
