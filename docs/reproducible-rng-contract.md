@@ -107,3 +107,12 @@ Names may be adjusted to fit repository conventions without changing semantics.
 - `numerus_rng_normal()` uses Box–Muller without caching. The first 53-bit value is mapped to ((0,1]) by adding one before division by (2^{53}), so `log(0)` is impossible. The next 53-bit value is mapped to ([0,1)) for the angle. Each valid normal call consumes exactly four raw outputs.
 - Raw uniform conversion is bit-defined for binary64; normal values are expected to replay on the same supported runtime but are not promised bit-for-bit identical across different `libm` implementations.
 - No hidden cached normal value or global state exists. Invalid pointers do not advance the RNG or modify outputs. A valid transform publishes the output only after the computed value is finite.
+
+
+## Index sampling contract (#117)
+
+- `numerus_rng_sample_indices()` requires a non-empty population. A zero-sized sample succeeds with a NULL result and consumes no RNG output. A sample without replacement cannot exceed the population size.
+- With replacement, each result is drawn uniformly from `[0, population_size)` using rejection sampling over 64-bit values to avoid modulo bias.
+- Without replacement, Algorithm S selects a uniform subset using (O(N)) time and (O(k)) storage; Fisher–Yates then randomizes the returned order. The output contains no duplicates.
+- Result arrays are allocated by Numerus and must be released with `numerus_rng_free_indices()`. Size overflow and allocation failure leave the output NULL and do not advance the RNG state.
+- Determinism is defined for the fixed algorithm version, seed/stream, sampling arguments and call sequence. The exact test vectors live in `tests/rng_sampling_test.c`.
