@@ -226,7 +226,7 @@ The accepted design contract for the GLS covariance-whitening path and signed lo
 
 ## 10. RNG algorithm and reproducibility decision
 
-The v1 RNG algorithm/state contract is specified in [Reproducible RNG Contract](reproducible-rng-contract.md) (issue #109). It selects PCG-XSH-RR 64/32, explicit 64-bit seed and stream inputs, opaque mutable state with cloning, exact raw-output vectors, and conservative platform guarantees. This is a design decision only; implementation remains #115, uniform/normal mapping remains #116, and stream-splitting/independence claims remain out of scope unless separately justified.
+The v1 RNG algorithm/state contract is specified in [Reproducible RNG Contract](reproducible-rng-contract.md) (issue #109). It selects PCG-XSH-RR 64/32, explicit 64-bit seed and stream inputs, opaque mutable state with cloning, exact raw-output vectors, and conservative platform guarantees. The raw state implementation is now #115; uniform/normal mapping remains #116, and stream-splitting/independence claims remain out of scope unless separately justified.
 
 
 ## 11. Optimizer contract decision
