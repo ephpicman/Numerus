@@ -453,6 +453,14 @@ jobs:
             -o tests/matrix_determinant_test tests/matrix_determinant_test.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c
           ./tests/matrix_determinant_test
 
+      - name: Run native Matrix log-determinant tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+            -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_log_determinant_test tests/matrix_log_determinant_test.c numerus_matrix_log_determinant.c numerus_matrix.c numerus_storage.c numerus_matrix_lu.c -lm
+          ./tests/matrix_log_determinant_test
+
       - name: Run native Matrix trace tests
         run: |
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
