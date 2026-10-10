@@ -23,11 +23,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends gcc gcovr
 
-      - name: Build and run instrumented native tests
+      - name: Build and run all instrumented native test suites
         shell: bash
         run: |
           set -euo pipefail
-          build_root="$RUNNER_TEMP/numerus-coverage"
+          build_root="$GITHUB_WORKSPACE/.coverage-build"
           object_dir="$build_root/objects"
           test_dir="$build_root/tests"
           mkdir -p "$object_dir" "$test_dir"
@@ -48,10 +48,14 @@ jobs:
             source_objects+=("$object")
           done < <(find src -name '*.c' ! -path 'src/numerus.c' -print0 | sort -z)
 
-          compile_suite() {
-            local name="$1"
-            local source="$2"
-            gcc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics \
+          suite_count=0
+          while IFS= read -r -d '' source; do
+            filename="$(basename "$source")"
+            name="${filename%_test.c}"
+            test_object="$test_dir/$name.o"
+            test_binary="$test_dir/$name"
+
+            gcc -Isrc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics \
               -std=c11 -O0 -g --coverage -fprofile-abs-path \
               -Wall -Wextra -Wpedantic -Werror \
               -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
@@ -59,40 +63,99 @@ jobs:
               -DNUMERUS_PROBABILITY_USE_LIBC_ALLOC \
               -DNUMERUS_RNG_USE_LIBC_ALLOC \
               -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
-              -Dmain="numerus_coverage_${name}_main" \
-              -c "$source" -o "$test_dir/$name.o"
-          }
+              -c "$source" -o "$test_object"
 
-          compile_suite storage tests/storage_test.c
-          compile_suite matrix_property tests/matrix_property_test.c
-          compile_suite matrix_adversarial tests/matrix_adversarial_test.c
-          compile_suite statistical_property tests/statistical_property_test.c
+            suite_source_objects=()
+            variant_source=""
+            variant_macro=""
 
-          gcc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics \
-            -std=c11 -O0 -g --coverage -fprofile-abs-path \
-            -Wall -Wextra -Wpedantic -Werror \
-            -c tests/coverage_driver.c -o "$test_dir/coverage_driver.o"
+            case "$name" in
+              gaussian_log_density|gaussian_sampling)
+                variant_source="src/statistics/numerus_probability.c"
+                variant_macro="NUMERUS_PROBABILITY_TEST_ALLOCATOR"
+                ;;
+              rng_sampling|rng_state)
+                variant_source="src/statistics/numerus_rng.c"
+                variant_macro="NUMERUS_RNG_TEST_ALLOCATOR"
+                ;;
+              optimizer)
+                variant_source="src/statistics/numerus_optimizer.c"
+                variant_macro="NUMERUS_OPTIMIZER_TEST_ALLOCATOR"
+                ;;
+            esac
 
-          gcc --coverage "${source_objects[@]}" \
-            "$test_dir/storage.o" \
-            "$test_dir/matrix_property.o" \
-            "$test_dir/matrix_adversarial.o" \
-            "$test_dir/statistical_property.o" \
-            "$test_dir/coverage_driver.o" -lm -o "$build_root/native-coverage"
-          "$build_root/native-coverage"
+            for object in "${source_objects[@]}"; do
+              case "$name:$object" in
+                gaussian_log_density:*/src_statistics_numerus_probability.o|gaussian_sampling:*/src_statistics_numerus_probability.o|rng_sampling:*/src_statistics_numerus_rng.o|rng_sampling:*/src_statistics_numerus_rng_sampling.o|rng_state:*/src_statistics_numerus_rng.o|optimizer:*/src_statistics_numerus_optimizer.o)
+                  continue
+                  ;;
+              esac
+              suite_source_objects+=("$object")
+            done
+
+            if [[ -n "$variant_source" ]]; then
+              variant_object="$object_dir/variants/$name.o"
+              mkdir -p "$object_dir/variants"
+              gcc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics \
+                -std=c11 -O0 -g --coverage -fprofile-abs-path \
+                -Wall -Wextra -Wpedantic -Werror \
+                -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+                -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+                -DNUMERUS_PROBABILITY_USE_LIBC_ALLOC \
+                -DNUMERUS_RNG_USE_LIBC_ALLOC \
+                -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
+                -D"$variant_macro" -c "$variant_source" -o "$variant_object"
+              suite_source_objects+=("$variant_object")
+              if [[ "$name" == "rng_sampling" ]]; then
+                sampling_object="$object_dir/variants/rng_sampling_sampling.o"
+                gcc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics \
+                  -std=c11 -O0 -g --coverage -fprofile-abs-path \
+                  -Wall -Wextra -Wpedantic -Werror \
+                  -DNUMERUS_RNG_TEST_ALLOCATOR \
+                  -c src/statistics/numerus_rng_sampling.c -o "$sampling_object"
+                suite_source_objects+=("$sampling_object")
+              fi
+            fi
+
+            if [[ "$name" == "matrix_allocation_failure" ]]; then
+              gcc --coverage -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free \
+                "${suite_source_objects[@]}" "$test_object" -lm -o "$test_binary"
+            else
+              gcc --coverage "${suite_source_objects[@]}" "$test_object" -lm -o "$test_binary"
+            fi
+
+            echo "::group::Native test suite: $name"
+            "$test_binary"
+            echo "::endgroup::"
+            suite_count=$((suite_count + 1))
+          done < <(find tests -maxdepth 1 -type f -name '*_test.c' -print0 | sort -z)
+
+          if [[ "$suite_count" -eq 0 ]]; then
+            echo "No native test suites were discovered." >&2
+            exit 1
+          fi
+          echo "All $suite_count native test suites passed under coverage."
 
       - name: Generate line and branch coverage reports
         run: |
           mkdir -p coverage
-          gcovr \
+          gcovr --verbose \
             --root "$GITHUB_WORKSPACE" \
-            --filter '.*/src/.*' \
-            --object-directory "$RUNNER_TEMP/numerus-coverage" \
-            --branches \
+            --filter 'src/.*' \
+            --object-directory "$GITHUB_WORKSPACE/.coverage-build/objects" \
+            --txt-metric line --txt-metric branch \
             --txt coverage/summary.txt \
             --xml-pretty --xml coverage/coverage.xml \
             --html-details coverage/index.html
           cat coverage/summary.txt
+          if ! grep -Eq '<coverage[^>]*lines-valid="[1-9][0-9]*"' coverage/coverage.xml; then
+            echo "Coverage report contains no instrumented source lines." >&2
+            exit 1
+          fi
+          if ! grep -Eq '<coverage[^>]*branches-valid="[1-9][0-9]*"' coverage/coverage.xml; then
+            echo "Coverage report contains no branch data." >&2
+            exit 1
+          fi
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
