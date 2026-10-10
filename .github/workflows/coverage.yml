@@ -65,11 +65,54 @@ jobs:
               -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
               -c "$source" -o "$test_object"
 
+            suite_source_objects=()
+            variant_source=""
+            variant_macro=""
+
+            case "$name" in
+              gaussian_log_density|gaussian_sampling)
+                variant_source="src/statistics/numerus_probability.c"
+                variant_macro="NUMERUS_PROBABILITY_TEST_ALLOCATOR"
+                ;;
+              rng_sampling|rng_state)
+                variant_source="src/statistics/numerus_rng.c"
+                variant_macro="NUMERUS_RNG_TEST_ALLOCATOR"
+                ;;
+              optimizer)
+                variant_source="src/statistics/numerus_optimizer.c"
+                variant_macro="NUMERUS_OPTIMIZER_TEST_ALLOCATOR"
+                ;;
+            esac
+
+            for object in "${source_objects[@]}"; do
+              case "$name:$object" in
+                gaussian_log_density:*/src_statistics_numerus_probability.o|gaussian_sampling:*/src_statistics_numerus_probability.o|rng_sampling:*/src_statistics_numerus_rng.o|rng_state:*/src_statistics_numerus_rng.o|optimizer:*/src_statistics_numerus_optimizer.o)
+                  continue
+                  ;;
+              esac
+              suite_source_objects+=("$object")
+            done
+
+            if [[ -n "$variant_source" ]]; then
+              variant_object="$object_dir/variants/$name.o"
+              mkdir -p "$object_dir/variants"
+              gcc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics \
+                -std=c11 -O0 -g --coverage -fprofile-abs-path \
+                -Wall -Wextra -Wpedantic -Werror \
+                -DNUMERUS_MATRIX_USE_LIBC_ALLOC \
+                -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+                -DNUMERUS_PROBABILITY_USE_LIBC_ALLOC \
+                -DNUMERUS_RNG_USE_LIBC_ALLOC \
+                -DNUMERUS_OPTIMIZER_USE_LIBC_ALLOC \
+                -D"$variant_macro" -c "$variant_source" -o "$variant_object"
+              suite_source_objects+=("$variant_object")
+            fi
+
             if [[ "$name" == "matrix_allocation_failure" ]]; then
               gcc --coverage -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free \
-                "${source_objects[@]}" "$test_object" -lm -o "$test_binary"
+                "${suite_source_objects[@]}" "$test_object" -lm -o "$test_binary"
             else
-              gcc --coverage "${source_objects[@]}" "$test_object" -lm -o "$test_binary"
+              gcc --coverage "${suite_source_objects[@]}" "$test_object" -lm -o "$test_binary"
             fi
 
             echo "::group::Native test suite: $name"
