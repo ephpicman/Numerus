@@ -15,8 +15,11 @@
 #include "php.h"
 #include "../php_numerus.h"
 
+void numerus_matrix_php_register(void);
+
 PHP_MINIT_FUNCTION(numerus)
 {
+    numerus_matrix_php_register();
     return SUCCESS;
 }
 
