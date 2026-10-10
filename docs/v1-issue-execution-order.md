@@ -37,8 +37,8 @@ Do not create one long-lived branch for the whole roadmap. One issue, one branch
 5. **[#110 — Define optimizer callback/result/termination contracts](https://github.com/ephpicman/Numerus/issues/110)** — **Contract documented in this PR**  
    BFGS/Armijo, optional gradient with central finite differences, result ownership and termination semantics are specified in [optimizer contract](optimizer-contract.md). #119 remains implementation work.
 
-6. **[#112 — Select scalar and log-domain utilities](https://github.com/ephpicman/Numerus/issues/112)**  
-   Select only functions justified by the optimizer, likelihood, and Gaussian use cases.
+6. **[#112 — Select scalar and log-domain utilities](https://github.com/ephpicman/Numerus/issues/112)** — **Decision documented in this PR**  
+   Select sigmoid, logit, softplus, log-sigmoid and log-sum-exp; defer wrappers for standard `log1p`/`expm1` and speculative special functions. See [scalar utility selection](scalar-log-domain-utilities.md).
 
 7. **[#125 — Resolve portability and non-finite policies](https://github.com/ephpicman/Numerus/issues/125)**  
    Coordinate this decision with #108–#112; settle policies before APIs spread inconsistent assumptions.
