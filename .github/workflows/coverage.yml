@@ -108,6 +108,7 @@ jobs:
           lines_valid = int(root.attrib.get("lines-valid", "0"))
           lines_covered = int(root.attrib.get("lines-covered", "0"))
           branches_valid = int(root.attrib.get("branches-valid", "0"))
+          branches_covered = int(root.attrib.get("branches-covered", "0"))
           source_files = root.findall(".//class")
 
           if not source_files:
@@ -118,12 +119,20 @@ jobs:
               sys.exit("::error::Coverage report contains no covered source lines.")
           if branches_valid == 0:
               sys.exit("::error::Coverage report contains no branch data.")
+          if branches_covered == 0:
+              sys.exit("::error::Coverage report contains no covered branches.")
 
+          line_percent = 100 * lines_covered / lines_valid
+          branch_percent = 100 * branches_covered / branches_valid
           print(
-              f"Validated coverage: {lines_covered}/{lines_valid} lines "
-              f"({100 * lines_covered / lines_valid:.2f}%), "
-              f"{branches_valid} branches across {len(source_files)} source files."
+              f"Line coverage: {lines_covered}/{lines_valid} "
+              f"({line_percent:.2f}%; {lines_valid - lines_covered} uncovered)"
           )
+          print(
+              f"Branch coverage: {branches_covered}/{branches_valid} "
+              f"({branch_percent:.2f}%; {branches_valid - branches_covered} uncovered)"
+          )
+          print(f"Coverage includes {len(source_files)} source files.")
           PY
 
       - name: Upload coverage reports
