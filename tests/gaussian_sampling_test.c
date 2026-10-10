@@ -17,16 +17,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static bool fail_next_allocation = false;
+static long allocations_before_failure = -1;
 static size_t live_probability_allocations = 0;
 
 void *numerus_probability_test_alloc(size_t size)
 {
     void *pointer;
 
-    if (fail_next_allocation) {
-        fail_next_allocation = false;
+    if (allocations_before_failure == 0) {
+        allocations_before_failure = -1;
         return NULL;
+    }
+    if (allocations_before_failure > 0) {
+        allocations_before_failure--;
     }
 
     pointer = malloc(size);
