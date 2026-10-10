@@ -57,6 +57,7 @@ The first implementation should expose an explicit options struct rather than hi
 - maximum line-search trials per iteration, greater than zero;
 - gradient infinity-norm tolerance, finite and greater than zero;
 - minimum line-search step, finite and greater than zero;
+- parameter-step tolerance, finite and greater than zero, used only to report `STEP_TOO_SMALL` without calling it convergence;
 - initial line-search step, finite and greater than zero;
 - relative finite-difference step, finite and greater than zero (used only when no gradient callback is supplied).
 
@@ -87,7 +88,8 @@ The result termination taxonomy must distinguish at least:
 - `STEP_TOO_SMALL` (not convergence);
 - `LINE_SEARCH_FAILED`;
 - `OBJECTIVE_CALLBACK_FAILED` (initial/current required evaluation);
-- `GRADIENT_CALLBACK_FAILED`;
+- `GRADIENT_CALLBACK_FAILED` (caller-supplied gradient callback returns false);
+- `GRADIENT_EVALUATION_FAILED` (finite-difference objective perturbation cannot be evaluated);
 - `NON_FINITE_OBJECTIVE`;
 - `NON_FINITE_GRADIENT`;
 - `NUMERICAL_BREAKDOWN`.
