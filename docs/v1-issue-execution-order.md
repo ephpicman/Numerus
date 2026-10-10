@@ -47,11 +47,11 @@ Do not create one long-lived branch for the whole roadmap. One issue, one branch
 
 ### Stage 2 — Close confirmed linear-algebra gaps
 
-8. **[#113 — GLS triangular solves and whitening](https://github.com/ephpicman/Numerus/issues/113)** — **Implementation in this PR**  
+8. **[#113 — GLS triangular solves and whitening](https://github.com/ephpicman/Numerus/issues/113)** — **Completed in PR #135**  
    Audit #107 confirmed the gap; this change adds the contracted triangular solve and native coverage. GLS composition reference tests remain in #122.
 
-9. **[#114 — Stable log-determinant](https://github.com/ephpicman/Numerus/issues/114)**  
-   Proceed only if #107 confirms the current API does not meet the #111 contract. Otherwise close with evidence.
+9. **[#114 — Stable log-determinant](https://github.com/ephpicman/Numerus/issues/114)** — **Implementation in this PR**  
+   The audit and #111 contract confirmed the gap. This adds signed log-absolute-determinant using LU factors, preserving outputs on failure.
 
 10. **[#122 — OLS/WLS/GLS reference workflow tests](https://github.com/ephpicman/Numerus/issues/122)**  
     Add or extend these tests as the audit and any confirmed linear-algebra gaps permit. These are composition tests, not model-fitting APIs.
