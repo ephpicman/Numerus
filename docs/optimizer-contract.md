@@ -1,6 +1,6 @@
 # Generic Optimizer Callback and Result Contract
 
-Status: accepted design contract for #119. This document does not claim an optimizer implementation exists.
+Status: accepted v1 contract implemented by #119 and covered by native tests.
 
 ## Current state
 
