@@ -1,0 +1,79 @@
+name: Source archive smoke test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-archive:
+    name: Build and test clean source archive
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends autoconf build-essential pkg-config
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create and extract source archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/numerus-source.tar.gz"
+          extract_dir="$RUNNER_TEMP/source-archive-check"
+          git archive --format=tar.gz --prefix=numerus/ HEAD -o "$archive"
+          mkdir -p "$extract_dir"
+          tar -xzf "$archive" -C "$extract_dir"
+          cd "$extract_dir/numerus"
+          test -f LICENSE
+          test -f README.md
+          test -f CHANGELOG.md
+          test -f php_numerus.h
+          test -f src/numerus.c
+          echo "archive_path=$extract_dir/numerus" >> "$GITHUB_ENV"
+
+      - name: Prepare build system from archive
+        working-directory: ${{ env.archive_path }}
+        run: phpize
+
+      - name: Configure source archive
+        working-directory: ${{ env.archive_path }}
+        run: ./configure --enable-numerus
+
+      - name: Build source archive
+        working-directory: ${{ env.archive_path }}
+        run: make -j"$(nproc)"
+
+      - name: Run PHPT suite from source archive
+        working-directory: ${{ env.archive_path }}
+        run: make test TESTS='tests/*.phpt'
+
+      - name: Verify extension version and OLS example
+        working-directory: ${{ env.archive_path }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -d extension="$(pwd)/modules/numerus.so" -r '
+            if (phpversion("numerus") !== "1.0.0") {
+                fwrite(STDERR, "Expected Numerus 1.0.0, got " . var_export(phpversion("numerus"), true) . PHP_EOL);
+                exit(1);
+            }
+          '
+          output="$(php -d extension="$(pwd)/modules/numerus.so" examples/ols.php)"
+          printf '%s\n' "$output"
+          grep -Fxq 'intercept: 1.000000' <<< "$output"
+          grep -Fxq 'slope: 2.000000' <<< "$output"
