@@ -14,7 +14,7 @@ This audit evaluates the user-facing 1.0 target in [the release roadmap](release
 | PHP ownership and lifecycle | Returned operations own independent native matrices; transpose lifetime and clone prohibition have dedicated PHPTs | Implemented and tested |
 | Public error behavior | PHPTs cover invalid shapes/coordinates, incompatible multiplication, singular inverse, invalid types, rank/dimension failures, and non-finite least-squares inputs | Sufficient for the current public surface; extend with new methods |
 | PHP 8 named-argument metadata | `leastSquares(rightHandSide: $response)` is exercised by `tests/010-least-squares-named-argument.phpt`, including Reflection parameter names | Implemented |
-| Supported Linux CI | PHP 8.2–8.5, debug build, PHPTs, native tests, and native coverage | Passed on current main commit `dd52d6abd8b68346fc95d7f244ed3fb64586d1b0`; see [Tests run](https://github.com/ephpicman/Numerus/actions/runs/38092837656) and [Native coverage run](https://github.com/ephpicman/Numerus/actions/runs/38092837675) |
+| Supported Linux CI | PHP 8.2–8.5, debug build, PHPTs, native tests, and native coverage | Passed on post-merge main commit `648ea9be77f538da85ec21df2d16973d5c5b35d5`; see [Tests run](https://github.com/ephpicman/Numerus/actions/runs/38096728970) and [Native coverage run](https://github.com/ephpicman/Numerus/actions/runs/38096728974) |
 | README and PHP documentation | README quick start, API summary, example, platform caveat, and documentation links agree with the PHP API/user guide | Reviewed and aligned in this change |
 | Windows | `config.w32` exists, but Windows build/test CI is absent | Unverified; README and user guide must not claim validated Windows support |
 
@@ -28,7 +28,7 @@ This audit evaluates the user-facing 1.0 target in [the release roadmap](release
 
 ## Current CI evidence and release decision
 
-The post-merge main commit `dd52d6abd8b68346fc95d7f244ed3fb64586d1b0` passed the supported Linux release gate:
+The post-merge main commit `648ea9be77f538da85ec21df2d16973d5c5b35d5` passed the supported Linux release gate after PR #200 was merged:
 
 - PHP 8.2, 8.3, 8.4, and 8.5 test jobs
 - Debug build
@@ -37,6 +37,6 @@ The post-merge main commit `dd52d6abd8b68346fc95d7f244ed3fb64586d1b0` passed the
 - Native line/branch coverage workflow
 - The executable OLS example, exercised by PHPT
 
-See [Tests workflow run](https://github.com/ephpicman/Numerus/actions/runs/38092837656) and [Native coverage workflow run](https://github.com/ephpicman/Numerus/actions/runs/38092837675).
+See [Tests workflow run](https://github.com/ephpicman/Numerus/actions/runs/38096728970) and [Native coverage workflow run](https://github.com/ephpicman/Numerus/actions/runs/38096728974).
 
-**Assessment: the documented Linux 1.0 OLS-enabling acceptance gate is satisfied for this commit**, subject to rerunning the same checks on any later release-candidate commit. This does not mean a version has been tagged or published. Windows remains unverified and must stay clearly labelled as such. Before publishing, follow the [release engineering guide](developers/releases.md), review the final release diff, and run the gate on the exact commit intended for release.
+**Assessment: the documented Linux 1.0 OLS-enabling acceptance gate is satisfied for commit `648ea9be77f538da85ec21df2d16973d5c5b35d5`.** This does not mean a version has been tagged or published. Windows remains unverified and must stay clearly labelled as such. Before publishing, follow the [release engineering guide](developers/releases.md), review the final release diff, and run the gate on the exact commit intended for release.
