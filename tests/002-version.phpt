@@ -11,4 +11,4 @@ if (!extension_loaded('numerus')) {
 echo phpversion('numerus'), PHP_EOL;
 ?>
 --EXPECT--
-0.1.0
+1.0.0
