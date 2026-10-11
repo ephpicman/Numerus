@@ -2,7 +2,7 @@
 
 Notable user-facing changes are recorded here. This project follows Semantic Versioning for its public PHP API.
 
-## 1.0.0 — Release candidate
+## 1.0.0
 
 ### Added
 - Public `Numerus\\Matrix` PHP API for constructing and inspecting matrices.
@@ -18,5 +18,3 @@ Notable user-facing changes are recorded here. This project follows Semantic Ver
 - Windows build configuration exists, but Windows support remains unverified because Windows build/test CI is not yet present.
 - Weighted least squares (WLS), generalized least squares (GLS), model inference, and MLE-enabling PHP workflows are outside the 1.0 scope and remain roadmap work.
 
-### Release status
-This entry is prepared for the 1.0.0 release. Replace the release-candidate heading with the publication date when the final release is cut. Do not publish until the exact release commit passes CI and the clean source-archive build/test gate.
