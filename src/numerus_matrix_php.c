@@ -176,6 +176,10 @@ ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_matrix_least_squares, 0, 1, Numer
     ZEND_ARG_OBJ_INFO(0, rightHandSide, Numerus\\Matrix, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_matrix_scale_rows, 0, 1, Numerus\\Matrix, 0)
+    ZEND_ARG_TYPE_INFO(0, scales, IS_ARRAY, 0)
+ZEND_END_ARG_INFO()
+
 PHP_METHOD(NumerusMatrix, __construct)
 {
     ZEND_PARSE_PARAMETERS_NONE();
@@ -440,6 +444,102 @@ PHP_METHOD(NumerusMatrix, leastSquares)
     numerus_matrix_return_owned(return_value, result);
 }
 
+
+PHP_METHOD(NumerusMatrix, scaleRows)
+{
+    zval *scales_zv;
+    zval *scale_zv;
+    HashTable *scales;
+    uint32_t row_count;
+    uint32_t current_row = 0;
+    size_t rows;
+    size_t columns;
+    size_t element_count;
+    double *values = NULL;
+    numerus_matrix *source;
+    numerus_matrix *result = NULL;
+    numerus_matrix_status status = NUMERUS_MATRIX_SUCCESS;
+    size_t column;
+
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+        Z_PARAM_ARRAY(scales_zv)
+    ZEND_PARSE_PARAMETERS_END();
+
+    source = numerus_matrix_require(ZEND_THIS);
+    if (source == NULL) {
+        RETURN_THROWS();
+    }
+
+    scales = Z_ARRVAL_P(scales_zv);
+    row_count = zend_hash_num_elements(scales);
+    rows = numerus_matrix_rows(source);
+    columns = numerus_matrix_columns(source);
+
+    if ((size_t) row_count != rows) {
+        zend_value_error("The number of row scales must match the Matrix row count");
+        RETURN_THROWS();
+    }
+
+    if (rows > SIZE_MAX / columns) {
+        zend_value_error("Matrix dimensions are too large");
+        RETURN_THROWS();
+    }
+    element_count = rows * columns;
+
+    values = safe_emalloc(element_count, sizeof(*values), 0);
+    ZEND_HASH_FOREACH_VAL(scales, scale_zv) {
+        double scale;
+        if (Z_TYPE_P(scale_zv) != IS_LONG && Z_TYPE_P(scale_zv) != IS_DOUBLE) {
+            efree(values);
+            zend_type_error("Row scales must be integers or floats");
+            RETURN_THROWS();
+        }
+
+        scale = zval_get_double(scale_zv);
+        if (!isfinite(scale)) {
+            efree(values);
+            zend_value_error("Row scales must be finite");
+            RETURN_THROWS();
+        }
+
+        for (column = 0; column < columns; column++) {
+            double value;
+            status = numerus_matrix_get(source, current_row, column, &value);
+            if (status != NUMERUS_MATRIX_SUCCESS) {
+                efree(values);
+                numerus_matrix_throw_status(status);
+                RETURN_THROWS();
+            }
+
+            value *= scale;
+            if (!isfinite(value)) {
+                efree(values);
+                zend_throw_exception(
+                    zend_ce_exception,
+                    "Row scaling produced a non-finite value",
+                    0
+                );
+                RETURN_THROWS();
+            }
+
+            values[current_row * columns + column] = value;
+        }
+        current_row++;
+    } ZEND_HASH_FOREACH_END();
+
+    status = (numerus_matrix_status) numerus_matrix_create_dense(
+        rows, columns, values, &result
+    );
+    efree(values);
+
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        numerus_matrix_throw_status(status);
+        RETURN_THROWS();
+    }
+
+    numerus_matrix_return_owned(return_value, result);
+}
+
 static const zend_function_entry numerus_matrix_methods[] = {
     PHP_ME(NumerusMatrix, __construct, arginfo_matrix_private_construct, ZEND_ACC_PRIVATE)
     PHP_ME(NumerusMatrix, fromRows, arginfo_matrix_from_rows, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
@@ -451,6 +551,7 @@ static const zend_function_entry numerus_matrix_methods[] = {
     PHP_ME(NumerusMatrix, inverse, arginfo_matrix_unary, ZEND_ACC_PUBLIC)
     PHP_ME(NumerusMatrix, multiply, arginfo_matrix_binary, ZEND_ACC_PUBLIC)
     PHP_ME(NumerusMatrix, leastSquares, arginfo_matrix_least_squares, ZEND_ACC_PUBLIC)
+    PHP_ME(NumerusMatrix, scaleRows, arginfo_matrix_scale_rows, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
