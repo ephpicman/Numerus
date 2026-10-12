@@ -1,6 +1,6 @@
 # Architecture and Ownership
 
-This document describes implementation boundaries, not the PHP-visible feature list. Use the [user guide](../user-guide.md) for supported PHP methods.
+This document describes implementation boundaries, not the PHP-visible feature list. Use the [user guide](../../docs/user-guide.md) for supported PHP methods.
 
 ## Subsystems
 

@@ -28,7 +28,7 @@ A successful compilation alone does not prove the PHP-visible contract is correc
 - examples/ — runnable user-facing examples.
 - docs/ — public guide, developer notes, API contracts, and roadmap.
 
-Read [Architecture](architecture.md) for subsystem boundaries and ownership. For the public PHP surface, start with the [user guide](../user-guide.md) and [PHP API reference](../php-api.md).
+Read [Architecture](architecture.md) for subsystem boundaries and ownership. For the public PHP surface, start with the [user guide](../../docs/user-guide.md) and [PHP API reference](../../docs/php-api.md).
 
 ## Development principles
 

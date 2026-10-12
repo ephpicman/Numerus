@@ -6,8 +6,8 @@ Numerus aims to provide reliable, reusable numerical primitives for PHP through 
 
 ## Before opening a pull request
 
-1. Read the [developer guide](docs/developers/README.md) and the relevant subsystem/API documentation.
-2. Check the [release roadmap](docs/release-roadmap.md) and existing issues to understand scope and avoid duplicate work.
+1. Read the [developer guide](contrib/developers/README.md) and the relevant subsystem/API documentation.
+2. Check the [release roadmap](contrib/release-roadmap.md) and existing issues to understand scope and avoid duplicate work.
 3. Keep each pull request focused on one coherent change.
 4. Preserve existing behavior unless a deliberate compatibility change is justified and documented.
 

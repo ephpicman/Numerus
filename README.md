@@ -10,7 +10,7 @@ The project intentionally exposes general-purpose primitives rather than model-s
 
 ## Current status
 
-The initial PHP API and executable OLS workflow are implemented. The 1.0 release gate is tracked in the [release roadmap](docs/release-roadmap.md) and [PHP OLS release-gate audit](docs/php-api-release-audit.md). Linux CI currently covers PHP 8.2–8.5, a debug build, PHPTs, native tests, and native line/branch coverage. Windows build configuration exists, but Windows support remains unverified because Windows build/test CI is not yet present.
+The initial PHP API and executable OLS workflow are implemented. The 1.0 release gate is tracked in the [release roadmap](contrib/release-roadmap.md) and [PHP OLS release-gate audit](contrib/php-api-release-audit.md). Linux CI currently covers PHP 8.2–8.5, a debug build, PHPTs, native tests, and native line/branch coverage. Windows build configuration exists, but Windows support remains unverified because Windows build/test CI is not yet present.
 
 ## Quick start
 
@@ -107,7 +107,7 @@ The internal Matrix abstraction supports storage-backed roots and lazy coordinat
 
 Internal C view-parent references are non-owning. The PHP façade materializes returned results so PHP Matrix objects own independent native storage and do not retain C view-parent references. General transform callbacks and their context are borrowed; the context must remain valid and logically unchanged for the child view's lifetime, and callbacks must be deterministic.
 
-See [Storage documentation](docs/storage.md) and [Matrix documentation](docs/matrix.md) for the native contracts and implementation details.
+See [Storage documentation](contrib/storage.md) and [Matrix documentation](contrib/matrix.md) for the native contracts and implementation details.
 
 ### Internal statistical foundation
 
@@ -136,7 +136,7 @@ cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -Wall -Wextra
 ./tests/matrix_test
 ```
 
-The allocator defines are for standalone test executables only; the extension build uses the Zend Memory Manager. CI runs native tests, PHPTs, extension-loading checks, and a debug-oriented build. The separate native coverage workflow produces line/branch coverage reports; see the [native test coverage guide](docs/native-test-coverage.md).
+The allocator defines are for standalone test executables only; the extension build uses the Zend Memory Manager. CI runs native tests, PHPTs, extension-loading checks, and a debug-oriented build. The separate native coverage workflow produces line/branch coverage reports; see the [native test coverage guide](contrib/native-test-coverage.md).
 
 ## Project structure
 
@@ -164,13 +164,13 @@ The allocator defines are for standalone test executables only; the extension bu
 
 ## Documentation
 
-Start at the [documentation index](docs/README.md):
+Start at the [documentation index](contrib/README.md):
 
 - [User guide](docs/user-guide.md) — installation, current PHP API, OLS example, and limitations.
-- [Developer guide](docs/developers/README.md) — architecture, testing, contribution workflow, and release engineering.
+- [Developer guide](contrib/developers/README.md) — architecture, testing, contribution workflow, and release engineering.
 - [PHP API reference](docs/php-api.md) — exact public method contracts.
-- [Release roadmap](docs/release-roadmap.md) — user-facing milestones and acceptance criteria.
-- [Release-gate audit](docs/php-api-release-audit.md) — evidence and remaining limitations for 1.0.
+- [Release roadmap](contrib/release-roadmap.md) — user-facing milestones and acceptance criteria.
+- [Release-gate audit](contrib/php-api-release-audit.md) — evidence and remaining limitations for 1.0.
 
 The user guide documents only capabilities exposed through PHP. Internal C primitives and planned roadmap items are labelled separately and should not be mistaken for shipped PHP APIs.
 

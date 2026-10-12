@@ -23,7 +23,7 @@ The explicit normal-equation composition `(XᵀX)⁻¹Xᵀy` is possible but is 
 
 Returned PHP matrices own independent native storage. Native lazy views have non-owning parent references, but the PHP façade materializes returned results rather than exposing those borrowed views. Cloning PHP Matrix objects is unsupported to avoid ambiguous native ownership.
 
-See the [PHP API reference](php-api.md), [user guide](user-guide.md), and [release-gate audit](php-api-release-audit.md) for the exact public contract and acceptance evidence.
+See the [PHP API reference](../docs/php-api.md), [user guide](../docs/user-guide.md), and [release-gate audit](php-api-release-audit.md) for the exact public contract and acceptance evidence.
 
 ## Internal capabilities are not automatically PHP APIs
 
