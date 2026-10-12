@@ -5,7 +5,7 @@ The initial PHP-facing API is intentionally small. It exposes general matrix ope
 ## Constructing matrices
 
 ```php
-use Numerus\Matrix;
+use Numerus\\Matrix;
 
 $design = Matrix::fromRows([
     [1.0, 1.0],
@@ -47,6 +47,14 @@ $betaFromNormalEquations = $xt
 
 The explicit formula is useful for teaching and for users who deliberately need that composition. It is not the numerical default: forming normal equations squares the condition number, and explicitly forming an inverse can amplify rounding error. The QR-based least-squares operation accepts one or more right-hand-side columns and requires the design matrix to have full column rank. It rejects rank-deficient and underdetermined designs with a generic `Exception`; a right-hand-side row-count mismatch raises `ValueError`. Non-finite values encountered by the QR/least-squares computation raise a generic `Exception`. For minimum-norm solutions to rank-deficient or underdetermined systems, the C API provides a pseudoinverse primitive, but this initial PHP façade does not expose it.
 
+## Composing weighted least squares
+
+Weighted least squares (WLS) minimizes `sum_i w_i * ||X_i beta - y_i||^2`, where statistical weights `w_i` are non-negative. It can be composed from ordinary least squares by multiplying each row of both the design matrix and response matrix by `sqrt(w_i)`.
+
+`Matrix::scaleRows(array $scales): Matrix` is a general-purpose row-scaling operation. The array must contain exactly one value per matrix row. Every element must be a PHP integer or float, and each scale must be finite. Negative scales are valid because this method represents generic multiplication, not statistical weights; WLS callers must validate that statistical weights are non-negative before taking square roots.
+
+The method returns a new matrix with independent native storage and never mutates the source. A row-count mismatch, invalid element type, or non-finite scale is rejected at the PHP boundary (`ValueError` for invalid shape/value constraints and `TypeError` for invalid element types). If multiplying a finite scale by a matrix element produces a non-finite result, or native allocation fails, the operation raises a generic `Exception`. The source remains unchanged on success and failure.
+
 ## Public methods
 
 - `Matrix::fromRows(array $rows): Matrix`
@@ -58,6 +66,7 @@ The explicit formula is useful for teaching and for users who deliberately need 
 - `$matrix->multiply(Matrix $other): Matrix`
 - `$matrix->inverse(): Matrix`
 - `$matrix->leastSquares(Matrix $rightHandSide): Matrix`
+- `$matrix->scaleRows(array $scales): Matrix`
 
 All returned matrices own independent native storage. In particular, `transpose()` materializes its result, so returned objects do not depend on the lifetime of their source object. Cloning is deliberately unsupported because the native object owns its storage.
 
