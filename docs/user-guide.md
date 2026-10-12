@@ -136,7 +136,7 @@ The least-squares API accepts one or more right-hand-side columns and requires t
 
 The repository contains additional internal C capabilities, but they are not part of the current PHP-facing API. Do not assume PHP callers can use ready-made OLS, WLS, GLS, or MLE estimators; a PHP-facing pseudoinverse; a complete statistical inference API; or all internal matrix views, decompositions, probability, RNG, and optimizer primitives.
 
-Consult the [release roadmap](release-roadmap.md) for intended milestones, not as a list of shipped PHP features.
+Consult the [release roadmap](../contrib/release-roadmap.md) for intended milestones, not as a list of shipped PHP features.
 
 ## Running tests
 
@@ -146,7 +146,7 @@ From a configured extension build:
 make test TESTS='tests/*.phpt'
 ~~~
 
-Native C tests and debug/coverage workflows are documented in the [developer guide](developers/README.md).
+Native C tests and debug/coverage workflows are documented in the [developer guide](../contrib/developers/README.md).
 
 ## License
 
