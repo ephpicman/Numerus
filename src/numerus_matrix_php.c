@@ -459,7 +459,6 @@ PHP_METHOD(NumerusMatrix, scaleRows)
     numerus_matrix *source;
     numerus_matrix *result = NULL;
     numerus_matrix_status status = NUMERUS_MATRIX_SUCCESS;
-    size_t row;
     size_t column;
 
     ZEND_PARSE_PARAMETERS_START(1, 1)
