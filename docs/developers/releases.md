@@ -9,7 +9,7 @@ Use Semantic Versioning for the public PHP API:
 - **Minor**: backward-compatible new public capabilities.
 - **Major**: intentional incompatible changes to the public API or documented behavior.
 
-Before 1.0, public API contracts may still evolve; nevertheless, avoid gratuitous breaking changes and document intentional ones. A 0.x version should not be represented as a stable 1.0 contract.
+After 1.0, the public API is a compatibility commitment. Avoid gratuitous breaking changes; document intentional behavior changes and treat parameter names, error behavior, and numerical semantics as part of the contract.
 
 Keep the extension version macro in `php_numerus.h`, Git tag, release notes, and any package metadata synchronized. Do not bump versions merely because internal files were reorganized unless a release is being cut.
 
