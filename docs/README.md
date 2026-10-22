@@ -4,9 +4,10 @@ Numerus is a native PHP extension providing composable numerical-computing primi
 
 ## User guide
 
-- [User guide](user-guide.md) — requirements, build instructions, Matrix API, OLS example, errors, and current limitations.
+- [User guide](user-guide.md) — requirements, build instructions, Matrix API, OLS/WLS examples, errors, and current limitations.
 - [PHP API reference](php-api.md) — currently exposed PHP methods.
 - [Runnable OLS example](../examples/ols.php) — executable example source.
+- [Runnable WLS example](../examples/wls.php) — executable example source.
 
 ## Developer and contributor guide
 
