@@ -4,7 +4,7 @@
 [![Native coverage](https://github.com/ephpicman/Numerus/actions/workflows/coverage.yml/badge.svg?branch=main)](https://github.com/ephpicman/Numerus/actions/workflows/coverage.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Numerus is a native PHP extension that provides reusable numerical-computing primitives. Its current PHP-facing API focuses on matrix operations that can be composed into workflows such as ordinary least squares (OLS).
+Numerus is a native PHP extension that provides reusable numerical-computing primitives. Its current PHP-facing API focuses on matrix operations that can be composed into ordinary least squares (OLS) and weighted least squares (WLS) workflows.
 
 The project intentionally exposes general-purpose primitives rather than model-specific functions such as `fit_ols()`, `fit_wls()`, `fit_gls()`, or `fit_mle()`.
 
@@ -150,6 +150,7 @@ The allocator defines are for standalone test executables only; the extension bu
 - `src/statistics/` — RNG, sampling, probability, and optimizer primitives.
 - Root-level C headers are forwarding includes retained for existing native test include paths; declarations and implementations live under `src/`.
 - `examples/ols.php` — runnable PHP OLS coefficient workflow.
+- `examples/wls.php` — runnable PHP WLS coefficient workflow.
 - `tests/` — PHPT and native C tests.
 - `.github/workflows/` — build/test matrix and native coverage workflows.
 
@@ -167,7 +168,7 @@ The allocator defines are for standalone test executables only; the extension bu
 
 Start at the [documentation index](docs/README.md):
 
-- [User guide](docs/user-guide.md) — installation, current PHP API, OLS example, and limitations.
+- [User guide](docs/user-guide.md) — installation, current PHP API, OLS/WLS examples, and limitations.
 - [Developer guide](docs/developers/README.md) — architecture, testing, contribution workflow, and release engineering.
 - [PHP API reference](docs/php-api.md) — exact public method contracts.
 - [Release roadmap](docs/release-roadmap.md) — user-facing milestones and acceptance criteria.
