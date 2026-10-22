@@ -75,10 +75,11 @@ The PHP-facing API currently includes:
 - `rows()`, `columns()`, and zero-based `get($row, $column)`
 - `transpose()`, `multiply(Matrix $other)`, and `inverse()`
 - `leastSquares(Matrix $rightHandSide)`, using pivoted QR
+- `weightedLeastSquares(Matrix $rightHandSide, array $weights)`, using square-root row scaling and pivoted QR
 
 The least-squares operation supports one or more right-hand-side columns and requires a full-column-rank design matrix. Rank-deficient and underdetermined inputs are rejected explicitly; the initial PHP API does not expose a minimum-norm solution. Prefer `leastSquares()` to explicitly forming normal equations: forming (X^T X) squares the condition number, and explicitly forming an inverse can amplify rounding error.
 
-See the [PHP API reference](docs/php-api.md) for exact contracts and exceptions, the [user guide](docs/user-guide.md) for examples and limitations, and [examples/ols.php](examples/ols.php) for the executable workflow.
+See the [PHP API reference](docs/php-api.md) for exact contracts and exceptions, the [user guide](docs/user-guide.md) for examples and limitations, and [examples/ols.php](examples/ols.php) / [examples/wls.php](examples/wls.php) for executable OLS and WLS workflows.
 
 ## Architecture
 
