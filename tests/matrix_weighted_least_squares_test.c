@@ -106,6 +106,78 @@ static void test_zero_weight_excludes_observation(void)
     numerus_matrix_destroy(matrix);
 }
 
+static void test_unequal_weights_and_multiple_rhs(void)
+{
+    const double matrix_values[] = {
+        1, 0,
+        0, 1,
+        1, 1
+    };
+    const double rhs_values[] = {
+        1, 2,
+        2, 4,
+        4, 8
+    };
+    const double weights[] = {1, 2, 3};
+    numerus_matrix *matrix = NULL;
+    numerus_matrix *rhs = NULL;
+    numerus_matrix *solution = NULL;
+    double value;
+
+    assert(numerus_matrix_create_dense(3, 2, matrix_values, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(3, 2, rhs_values, &rhs) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_weighted_least_squares(
+        matrix, rhs, weights, 3, &solution
+    ) == NUMERUS_MATRIX_SUCCESS);
+
+    /* Exact weighted normal-equation solution is [17/11, 25/11]^T.
+     * The second RHS is twice the first, so its coefficient column doubles.
+     * This catches implementations that accidentally ignore unequal weights.
+     */
+    assert(numerus_matrix_rows(solution) == 2);
+    assert(numerus_matrix_columns(solution) == 2);
+    assert(numerus_matrix_get(solution, 0, 0, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value - 17.0 / 11.0) < 1e-9);
+    assert(numerus_matrix_get(solution, 1, 0, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value - 25.0 / 11.0) < 1e-9);
+    assert(numerus_matrix_get(solution, 0, 1, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value - 34.0 / 11.0) < 1e-9);
+    assert(numerus_matrix_get(solution, 1, 1, &value) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(fabs(value - 50.0 / 11.0) < 1e-9);
+
+    numerus_matrix_destroy(solution);
+    numerus_matrix_destroy(rhs);
+    numerus_matrix_destroy(matrix);
+}
+
+static void test_infinite_weight_is_rejected(void)
+{
+    const double matrix_values[] = {1, 0, 0, 1, 1, 1};
+    const double rhs_values[] = {1, 2, 4};
+    const double weights[] = {1, INFINITY, 1};
+    numerus_matrix *matrix = NULL;
+    numerus_matrix *rhs = NULL;
+    numerus_matrix *solution = (void *) 1;
+
+    assert(numerus_matrix_create_dense(3, 2, matrix_values, &matrix) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_create_dense(3, 1, rhs_values, &rhs) ==
+        NUMERUS_MATRIX_SUCCESS);
+    assert(numerus_matrix_weighted_least_squares(
+        matrix, rhs, weights, 3, &solution
+    ) == NUMERUS_MATRIX_NON_FINITE);
+    assert(solution == NULL);
+
+    numerus_matrix_destroy(rhs);
+    numerus_matrix_destroy(matrix);
+}
+
 static void test_validation_and_rank_failure(void)
 {
     const double matrix_values[] = {1, 0, 1, 0, 1, 1};
@@ -177,6 +249,8 @@ int main(void)
 {
     test_equal_weights_match_ordinary_least_squares();
     test_zero_weight_excludes_observation();
+    test_unequal_weights_and_multiple_rhs();
+    test_infinite_weight_is_rejected();
     test_validation_and_rank_failure();
     test_nonfinite_and_read_failures();
     puts("Matrix weighted least-squares tests passed.");
