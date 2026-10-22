@@ -55,6 +55,7 @@ bool(true)
 bool(true)
 bool(true)
 bool(true)
+bool(true)
 negative weight rejected
 non-finite weight rejected
 weight count rejected
