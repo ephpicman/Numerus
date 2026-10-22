@@ -31,6 +31,16 @@ Milestones after 1.0 are provisional planning targets. Combine or split minor re
 6. Supported PHP 8.2–8.5 CI and required debug/sanitizer checks pass. Unverified platforms, including Windows until its build/test job passes, are clearly identified.
 7. API contracts, numerical limitations, and the supported workflow are documented. README does not claim PHP-userland readiness before these gates pass.
 
+## 1.1 definition of done
+
+1. The public `Matrix::weightedLeastSquares(Matrix $rightHandSide, array $weights): Matrix` signature and PHP named-argument metadata are documented and tested.
+2. Weights are finite, non-negative integers/floats, one per observation; zero weights contribute no residual term. Dimension, type, non-finite, rank-deficiency, and multiple-RHS behavior are covered.
+3. The native solver uses square-root row scaling plus the existing pivoted-QR path and does not form `XᵀWX`.
+4. The executable WLS example validates a deterministic expected result, and the PHPT suite executes it end to end.
+5. README, user guide, API reference, changelog, version metadata, source-archive workflow, and this release audit agree on the 1.1 scope.
+6. Regular PHP 8.2–8.5 CI, native coverage, and clean source-archive smoke test pass on the exact release commit.
+7. Windows remains explicitly unverified until a Windows build/test job passes. WLS is a matrix primitive, not a `fit_wls()` model API.
+
 ## Execution order
 
 The original implementation sequence is complete: [#147 — Minimal PHP-facing numerical API](https://github.com/ephpicman/Numerus/issues/147) was delivered in PRs #194–#197, and [#148 — rank-deficient/underdetermined least-squares semantics](https://github.com/ephpicman/Numerus/issues/148) was resolved and its PHP-visible behavior is covered by PHPTs.
@@ -41,13 +51,13 @@ The current release sequence is:
 2. Verify post-merge main CI for the intended release-candidate commit: PHP 8.2–8.5, debug build, native coverage, and all PHPTs.
 3. Confirm the executable OLS example and published PHP API documentation match the current implementation.
 4. Keep Windows explicitly unverified until a Windows build and test job passes.
-5. Only then decide whether the 1.0 release gate is satisfied; do not equate merged feature PRs with release approval.
+5. Only then decide whether the relevant release gate is satisfied; do not equate merged feature PRs with release approval.
 
 ## Relationship to the foundation roadmap
 
 The [v1 statistical foundation roadmap](v1-statistical-foundation-roadmap.md) tracks a broader set of C-level capabilities, including optimization, RNG, and probability primitives. Its P0/P1 labels prioritize work within that foundation inventory; they do **not** mean that every P0 capability is mandatory for product release 1.0. The 1.0 release gate is the OLS-enabling PHP workflow above. Later milestones select the next coherent user-facing workflow from the broader inventory.
 
-The [issue execution order](v1-issue-execution-order.md) records the historical foundation queue and its completion evidence. The [PHP 1.0 OLS release-gate audit](php-api-release-audit.md) tracks concrete userland evidence and remaining limitations. For new release work, follow the release milestone and execution order in this document, while preserving unresolved foundation requirements where they are dependencies or necessary correctness fixes.
+The [issue execution order](v1-issue-execution-order.md) records the historical foundation queue and its completion evidence. The [PHP 1.0 OLS release-gate audit](php-api-release-audit.md) tracks the historical OLS gate; the [PHP 1.1 WLS release-gate audit](php-api-wls-release-audit.md) tracks WLS release evidence and remaining limitations. For new release work, follow the release milestone and execution order in this document, while preserving unresolved foundation requirements where they are dependencies or necessary correctness fixes.
 
 ## Non-goals
 
