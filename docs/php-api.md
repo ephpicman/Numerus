@@ -5,7 +5,7 @@ The initial PHP-facing API is intentionally small. It exposes general matrix ope
 ## Constructing matrices
 
 ```php
-use Numerus\\Matrix;
+use Numerus\Matrix;
 
 $design = Matrix::fromRows([
     [1.0, 1.0],
