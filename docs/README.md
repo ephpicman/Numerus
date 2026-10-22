@@ -26,6 +26,8 @@ These documents describe implementation details and internal C APIs. They are no
 - [Native test coverage](native-test-coverage.md)
 - [Statistical API boundary](statistical-api-boundary.md)
 - [Release roadmap](release-roadmap.md)
+- [PHP 1.1 WLS release-gate audit](php-api-wls-release-audit.md)
+- [Historical PHP 1.0 OLS release-gate audit](php-api-release-audit.md)
 - [Statistical foundation roadmap](v1-statistical-foundation-roadmap.md)
 
 ## Documentation rule
