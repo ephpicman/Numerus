@@ -5,7 +5,7 @@ The initial PHP-facing API is intentionally small. It exposes general matrix ope
 ## Constructing matrices
 
 ```php
-use Numerus\Matrix;
+use Numerus\\Matrix;
 
 $design = Matrix::fromRows([
     [1.0, 1.0],
@@ -28,6 +28,16 @@ php -d extension="$(pwd)/modules/numerus.so" examples/ols.php
 ```
 
 The example estimates the intercept and slope for a small deterministic data set and checks the expected coefficients before printing them. It is intended as an executable API smoke test and a starting point for userland composition.
+
+## End-to-end WLS example
+
+Run the weighted least-squares example the same way:
+
+```sh
+php -d extension="$(pwd)/modules/numerus.so" examples/wls.php
+```
+
+Like the OLS example, this is an executable API smoke test: it uses a deterministic data set, applies one non-negative weight per observation, checks the expected intercept and slope, and prints the coefficients. It fails with a `RuntimeException` if the result differs from the fixture beyond the stated tolerance.
 
 ## Composing OLS
 
@@ -58,7 +68,6 @@ $beta = $design->weightedLeastSquares($response, [1.0, 0.5, 2.0]);
 Weights must be finite, non-negative numeric values, and their count must equal the number of rows in both the design and response matrices. A zero weight excludes that observation from the objective. The weighted design (after square-root row scaling) must have full column rank; otherwise the operation raises an exception. The method returns an independently owned Matrix and supports multiple response columns.
 
 The current native implementation applies square-root row scaling and delegates to the existing pivoted-QR least-squares solver. It materializes the scaled design and response matrices, so WLS currently uses additional memory proportional to the input matrices. No model-specific `fit_wls()` function is provided. See the runnable [WLS example](../examples/wls.php).
-
 
 ## Public methods
 
