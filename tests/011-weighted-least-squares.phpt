@@ -17,6 +17,15 @@ $zeroWeight = $x2->weightedLeastSquares($y2, [1.0, 1.0, 0.0]);
 var_dump(abs($zeroWeight->get(0, 0) - 1.0) < 1e-10);
 var_dump(abs($zeroWeight->get(1, 0) - 2.0) < 1e-10);
 
+$unequal = $x->weightedLeastSquares($y, [1.0, 2.0, 3.0]);
+var_dump(abs($unequal->get(0, 0) - 17.0 / 11.0) < 1e-9);
+var_dump(abs($unequal->get(1, 0) - 25.0 / 11.0) < 1e-9);
+
+$multiResponse = Matrix::fromRows([[1.0, 2.0], [2.0, 4.0], [4.0, 8.0]]);
+$multi = $x->weightedLeastSquares($multiResponse, [1.0, 2.0, 3.0]);
+var_dump($multi->rows() === 2 && $multi->columns() === 2);
+var_dump(abs($multi->get(0, 1) - 34.0 / 11.0) < 1e-9);
+
 try {
     $x->weightedLeastSquares($y, [1.0, -1.0, 1.0]);
 } catch (ValueError $e) {
@@ -39,6 +48,9 @@ try {
 }
 ?>
 --EXPECT--
+bool(true)
+bool(true)
+bool(true)
 bool(true)
 bool(true)
 bool(true)
