@@ -61,6 +61,7 @@ Dimensions are positive counts. Element coordinates are **zero-based**, so get(0
 | $matrix->multiply(Matrix $other) | Matrix multiplication |
 | $matrix->inverse() | Invert an invertible square matrix |
 | $matrix->leastSquares(Matrix $rightHandSide) | Solve least squares using pivoted QR |
+| $matrix->weightedLeastSquares(Matrix $rightHandSide, array $weights) | Solve weighted least squares using square-root row scaling and pivoted QR |
 
 See the [PHP API reference](php-api.md) for exact signatures and error behavior.
 
@@ -113,6 +114,21 @@ The explicit normal-equation expression (XᵀX)⁻¹Xᵀy can be composed from t
 
 The least-squares API accepts one or more right-hand-side columns and requires the design matrix to have full column rank. Rank-deficient and underdetermined designs are rejected. A minimum-norm solution for such systems is not available through this initial PHP façade.
 
+## Example: weighted least squares
+
+WLS minimizes the sum of squared residuals weighted by the supplied observation weights. Pass one finite, non-negative numeric weight per row of the design and response matrices:
+
+~~~php
+$weights = [1.0, 2.0, 2.0, 1.0];
+$beta = $X->weightedLeastSquares($y, $weights);
+~~~
+
+A zero weight excludes an observation. The effective weighted design must have full column rank; otherwise the operation raises an exception. The current native implementation materializes square-root-scaled design and response matrices before calling pivoted QR. Run the executable example with:
+
+~~~sh
+php -d extension="$(pwd)/modules/numerus.so" examples/wls.php
+~~~
+
 ## Errors and input constraints
 
 - fromRows() requires non-empty, equally sized row arrays. Elements must be PHP integers or floats.
@@ -120,6 +136,7 @@ The least-squares API accepts one or more right-hand-side columns and requires t
 - Invalid dimensions, shapes, or coordinates raise ValueError.
 - Invalid PHP argument types raise TypeError.
 - Least-squares row-count mismatch raises ValueError; rank-deficient or underdetermined inputs and non-finite values encountered by the computation raise an exception.
+- WLS requires one finite, non-negative numeric weight per observation. Weight-count mismatch and negative weights raise ValueError; non-finite weights raise an exception.
 - The current API does not promise a specialised exception class for numerical failures.
 
 ## Current scope: what is and is not exposed
@@ -130,11 +147,12 @@ The least-squares API accepts one or more right-hand-side columns and requires t
 - Dimension and element access
 - Transpose, multiplication, inverse
 - Pivoted-QR least-squares solving
-- Composition of an OLS coefficient workflow
+- Weighted least-squares via square-root row scaling and pivoted QR
+- Composition of OLS and WLS coefficient workflows
 
 ### Not currently exposed as PHP-level APIs
 
-The repository contains additional internal C capabilities, but they are not part of the current PHP-facing API. Do not assume PHP callers can use ready-made OLS, WLS, GLS, or MLE estimators; a PHP-facing pseudoinverse; a complete statistical inference API; or all internal matrix views, decompositions, probability, RNG, and optimizer primitives.
+The repository contains additional internal C capabilities, but they are not part of the current PHP-facing API. Do not assume PHP callers can use ready-made OLS, GLS, or MLE estimators; a PHP-facing pseudoinverse; a complete statistical inference API; or all internal matrix views, decompositions, probability, RNG, and optimizer primitives.
 
 Consult the [release roadmap](release-roadmap.md) for intended milestones, not as a list of shipped PHP features.
 
