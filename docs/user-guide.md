@@ -1,6 +1,6 @@
 # Numerus User Guide
 
-Numerus is a native PHP extension for numerical-computing infrastructure. Its public PHP API currently focuses on matrix construction and operations that users can compose into workflows such as ordinary least squares (OLS).
+Numerus is a native PHP extension for numerical-computing infrastructure. Its public PHP API focuses on matrix construction and operations that users can compose into ordinary least squares (OLS) and weighted least squares (WLS) workflows.
 
 **Important:** Numerus does not currently expose ready-made statistical model methods such as fit_ols(), fit_wls(), fit_gls(), or fit_mle(). Users compose general-purpose operations themselves.
 
@@ -123,7 +123,7 @@ $weights = [1.0, 2.0, 2.0, 1.0];
 $beta = $X->weightedLeastSquares($y, $weights);
 ~~~
 
-A zero weight excludes an observation. The effective weighted design must have full column rank; otherwise the operation raises an exception. The current native implementation materializes square-root-scaled design and response matrices before calling pivoted QR. Run the executable example with:
+A zero weight removes that observation's contribution to the weighted objective. The implementation still validates the design and response data, including values in zero-weight rows. The effective weighted design must have full column rank; otherwise the operation raises an exception. WLS materializes square-root-scaled design and response matrices before calling pivoted QR, so it needs additional memory proportional to the inputs. Run the executable example with:
 
 ~~~sh
 php -d extension="$(pwd)/modules/numerus.so" examples/wls.php
@@ -136,7 +136,7 @@ php -d extension="$(pwd)/modules/numerus.so" examples/wls.php
 - Invalid dimensions, shapes, or coordinates raise ValueError.
 - Invalid PHP argument types raise TypeError.
 - Least-squares row-count mismatch raises ValueError; rank-deficient or underdetermined inputs and non-finite values encountered by the computation raise an exception.
-- WLS requires one finite, non-negative numeric weight per observation. Weight-count mismatch and negative weights raise ValueError; non-finite weights raise an exception.
+- WLS requires one finite, non-negative numeric weight per observation. Weight-count mismatch and negative weights raise ValueError; non-finite weights raise an exception. String numerals are not accepted as numeric weights.
 - The current API does not promise a specialised exception class for numerical failures.
 
 ## Current scope: what is and is not exposed
