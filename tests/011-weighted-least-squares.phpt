@@ -2,7 +2,7 @@
 Numerus weighted least-squares PHP API
 --FILE--
 <?php
-use Numerus\\Matrix;
+use Numerus\Matrix;
 
 $x = Matrix::fromRows([[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]]);
 $y = Matrix::fromRows([[1.0], [2.0], [4.0]]);
