@@ -14,6 +14,6 @@
 extern zend_module_entry numerus_module_entry;
 #define phpext_numerus_ptr &numerus_module_entry
 
-#define PHP_NUMERUS_VERSION "1.0.0"
+#define PHP_NUMERUS_VERSION "1.1.0"
 
 #endif
