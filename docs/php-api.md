@@ -1,6 +1,6 @@
 # PHP Matrix API
 
-The initial PHP-facing API is intentionally small. It exposes general matrix operations rather than statistical estimators.
+The PHP-facing API is intentionally small. It exposes general matrix operations rather than model-specific statistical estimators.
 
 ## Constructing matrices
 
@@ -65,7 +65,7 @@ Use the design matrix as the receiver and pass the response matrix plus one weig
 $beta = $design->weightedLeastSquares($response, [1.0, 0.5, 2.0]);
 ```
 
-Weights must be finite, non-negative numeric values, and their count must equal the number of rows in both the design and response matrices. A zero weight excludes that observation from the objective. The weighted design (after square-root row scaling) must have full column rank; otherwise the operation raises an exception. The method returns an independently owned Matrix and supports multiple response columns.
+Weights must be finite, non-negative PHP integers or floats, and their count must equal the number of rows in both the design and response matrices. Numeric strings are not accepted. A zero weight excludes that observation from the objective, but values in that row are still validated. The weighted design (after square-root row scaling) must have full column rank; otherwise the operation raises an exception. The method returns an independently owned Matrix and supports multiple response columns. PHP named arguments are `rightHandSide` and `weights`; both names are part of the public API contract.
 
 The current native implementation applies square-root row scaling and delegates to the existing pivoted-QR least-squares solver. It materializes the scaled design and response matrices, so WLS currently uses additional memory proportional to the input matrices. No model-specific `fit_wls()` function is provided. See the runnable [WLS example](../examples/wls.php).
 
