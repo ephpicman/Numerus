@@ -119,7 +119,15 @@ The least-squares API accepts one or more right-hand-side columns and requires t
 WLS minimizes the sum of squared residuals weighted by the supplied observation weights. Pass one finite, non-negative numeric weight per row of the design and response matrices:
 
 ~~~php
+$X = Matrix::fromRows([
+    [1.0, 1.0],
+    [1.0, 2.0],
+    [1.0, 3.0],
+    [1.0, 4.0],
+]);
+$y = Matrix::fromRows([[2.0], [2.9], [4.2], [4.8]]);
 $weights = [1.0, 2.0, 2.0, 1.0];
+
 $beta = $X->weightedLeastSquares($y, $weights);
 ~~~
 
