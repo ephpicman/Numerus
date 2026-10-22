@@ -48,10 +48,10 @@ The original implementation sequence is complete: [#147 — Minimal PHP-facing n
 The current release sequence is:
 
 1. Keep the release-gate audit synchronized with the shipped PHP API and tests.
-2. Verify post-merge main CI for the intended release-candidate commit: PHP 8.2–8.5, debug build, native coverage, and all PHPTs.
-3. Confirm the executable OLS example and published PHP API documentation match the current implementation.
+2. Verify the PHP 8.2–8.5 test matrix, debug build, native coverage, and source-archive smoke test on the intended 1.1.0 release-candidate commit.
+3. Confirm the executable OLS and WLS examples, public API documentation, changelog, and version metadata match the implementation.
 4. Keep Windows explicitly unverified until a Windows build and test job passes.
-5. Only then decide whether the relevant release gate is satisfied; do not equate merged feature PRs with release approval.
+5. Review the [PHP 1.1 WLS release-gate audit](php-api-wls-release-audit.md), then decide whether the 1.1 gate is satisfied; do not equate merged feature PRs with release approval.
 
 ## Relationship to the foundation roadmap
 
