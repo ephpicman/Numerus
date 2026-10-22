@@ -1,6 +1,6 @@
 # Numerus Release Roadmap
 
-This document defines the **user-facing release milestones** for Numerus. It is the source of truth for what a version means to a PHP user. The [v1 statistical foundation roadmap](v1-statistical-foundation-roadmap.md) remains the detailed inventory of reusable numerical capabilities and engineering gaps; its priority labels are not, by themselves, a promise that every listed capability must ship in 1.0.
+This document defines the **user-facing release milestones** for Numerus. It is the source of truth for what a version means to a PHP user. The [v1 statistical foundation roadmap](v1-statistical-foundation-roadmap.md) remains the detailed inventory of reusable numerical capabilities and engineering gaps; its priority labels are not, by themselves, a promise that every listed capability must ship in any particular release.
 
 ## Product principle
 
