@@ -4,13 +4,13 @@
 [![Native coverage](https://github.com/ephpicman/Numerus/actions/workflows/coverage.yml/badge.svg?branch=main)](https://github.com/ephpicman/Numerus/actions/workflows/coverage.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Numerus is a native PHP extension that provides reusable numerical-computing primitives. Its current PHP-facing API focuses on matrix operations that can be composed into workflows such as ordinary least squares (OLS).
+Numerus is a native PHP extension that provides reusable numerical-computing primitives. Its current PHP-facing API focuses on matrix operations that can be composed into ordinary least squares (OLS) and weighted least squares (WLS) workflows.
 
 The project intentionally exposes general-purpose primitives rather than model-specific functions such as `fit_ols()`, `fit_wls()`, `fit_gls()`, or `fit_mle()`.
 
 ## Current status
 
-The initial PHP API and executable OLS workflow are implemented. The 1.0 release gate is tracked in the [release roadmap](docs/release-roadmap.md) and [PHP OLS release-gate audit](docs/php-api-release-audit.md). Linux CI currently covers PHP 8.2–8.5, a debug build, PHPTs, native tests, and native line/branch coverage. Windows build configuration exists, but Windows support remains unverified because Windows build/test CI is not yet present.
+The 1.0 OLS foundation is established, and the 1.1 release candidate adds a tested PHP weighted least-squares (WLS) primitive. The 1.1 acceptance criteria are tracked in the [release roadmap](docs/release-roadmap.md) and [WLS release-gate audit](docs/php-api-wls-release-audit.md). Linux CI currently covers PHP 8.2–8.5, a debug build, PHPTs, native tests, and native line/branch coverage. Windows build configuration exists, but Windows support remains unverified because Windows build/test CI is not yet present.
 
 ## Quick start
 
@@ -75,10 +75,11 @@ The PHP-facing API currently includes:
 - `rows()`, `columns()`, and zero-based `get($row, $column)`
 - `transpose()`, `multiply(Matrix $other)`, and `inverse()`
 - `leastSquares(Matrix $rightHandSide)`, using pivoted QR
+- `weightedLeastSquares(Matrix $rightHandSide, array $weights)`, using square-root row scaling and pivoted QR
 
 The least-squares operation supports one or more right-hand-side columns and requires a full-column-rank design matrix. Rank-deficient and underdetermined inputs are rejected explicitly; the initial PHP API does not expose a minimum-norm solution. Prefer `leastSquares()` to explicitly forming normal equations: forming (X^T X) squares the condition number, and explicitly forming an inverse can amplify rounding error.
 
-See the [PHP API reference](docs/php-api.md) for exact contracts and exceptions, the [user guide](docs/user-guide.md) for examples and limitations, and [examples/ols.php](examples/ols.php) for the executable workflow.
+Run the checked WLS example with `php -d extension="$(pwd)/modules/numerus.so" examples/wls.php`. See the [PHP API reference](docs/php-api.md) for exact contracts and exceptions, the [user guide](docs/user-guide.md) for examples and limitations, and [examples/ols.php](examples/ols.php) / [examples/wls.php](examples/wls.php) for executable OLS and WLS workflows.
 
 ## Architecture
 
@@ -149,6 +150,7 @@ The allocator defines are for standalone test executables only; the extension bu
 - `src/statistics/` — RNG, sampling, probability, and optimizer primitives.
 - Root-level C headers are forwarding includes retained for existing native test include paths; declarations and implementations live under `src/`.
 - `examples/ols.php` — runnable PHP OLS coefficient workflow.
+- `examples/wls.php` — runnable PHP WLS coefficient workflow.
 - `tests/` — PHPT and native C tests.
 - `.github/workflows/` — build/test matrix and native coverage workflows.
 
@@ -166,11 +168,12 @@ The allocator defines are for standalone test executables only; the extension bu
 
 Start at the [documentation index](docs/README.md):
 
-- [User guide](docs/user-guide.md) — installation, current PHP API, OLS example, and limitations.
+- [User guide](docs/user-guide.md) — installation, current PHP API, OLS/WLS examples, and limitations.
 - [Developer guide](docs/developers/README.md) — architecture, testing, contribution workflow, and release engineering.
 - [PHP API reference](docs/php-api.md) — exact public method contracts.
 - [Release roadmap](docs/release-roadmap.md) — user-facing milestones and acceptance criteria.
-- [Release-gate audit](docs/php-api-release-audit.md) — evidence and remaining limitations for 1.0.
+- [1.0 OLS release-gate audit](docs/php-api-release-audit.md) — historical evidence for the 1.0 foundation.
+- [1.1 WLS release-gate audit](docs/php-api-wls-release-audit.md) — acceptance evidence and remaining release checks.
 
 The user guide documents only capabilities exposed through PHP. Internal C primitives and planned roadmap items are labelled separately and should not be mistaken for shipped PHP APIs.
 

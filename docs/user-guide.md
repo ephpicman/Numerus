@@ -1,6 +1,6 @@
 # Numerus User Guide
 
-Numerus is a native PHP extension for numerical-computing infrastructure. Its public PHP API currently focuses on matrix construction and operations that users can compose into workflows such as ordinary least squares (OLS).
+Numerus is a native PHP extension for numerical-computing infrastructure. Its public PHP API focuses on matrix construction and operations that users can compose into ordinary least squares (OLS) and weighted least squares (WLS) workflows.
 
 **Important:** Numerus does not currently expose ready-made statistical model methods such as fit_ols(), fit_wls(), fit_gls(), or fit_mle(). Users compose general-purpose operations themselves.
 
@@ -61,6 +61,7 @@ Dimensions are positive counts. Element coordinates are **zero-based**, so get(0
 | $matrix->multiply(Matrix $other) | Matrix multiplication |
 | $matrix->inverse() | Invert an invertible square matrix |
 | $matrix->leastSquares(Matrix $rightHandSide) | Solve least squares using pivoted QR |
+| $matrix->weightedLeastSquares(Matrix $rightHandSide, array $weights) | Solve weighted least squares using square-root row scaling and pivoted QR |
 
 See the [PHP API reference](php-api.md) for exact signatures and error behavior.
 
@@ -113,6 +114,29 @@ The explicit normal-equation expression (XᵀX)⁻¹Xᵀy can be composed from t
 
 The least-squares API accepts one or more right-hand-side columns and requires the design matrix to have full column rank. Rank-deficient and underdetermined designs are rejected. A minimum-norm solution for such systems is not available through this initial PHP façade.
 
+## Example: weighted least squares
+
+WLS minimizes the sum of squared residuals weighted by the supplied observation weights. Pass one finite, non-negative numeric weight per row of the design and response matrices:
+
+~~~php
+$X = Matrix::fromRows([
+    [1.0, 1.0],
+    [1.0, 2.0],
+    [1.0, 3.0],
+    [1.0, 4.0],
+]);
+$y = Matrix::fromRows([[2.0], [2.9], [4.2], [4.8]]);
+$weights = [1.0, 2.0, 2.0, 1.0];
+
+$beta = $X->weightedLeastSquares($y, $weights);
+~~~
+
+A zero weight removes that observation's contribution to the weighted objective. The implementation still validates the design and response data, including values in zero-weight rows. The effective weighted design must have full column rank; otherwise the operation raises an exception. WLS materializes square-root-scaled design and response matrices before calling pivoted QR, so it needs additional memory proportional to the inputs. Run the executable example with:
+
+~~~sh
+php -d extension="$(pwd)/modules/numerus.so" examples/wls.php
+~~~
+
 ## Errors and input constraints
 
 - fromRows() requires non-empty, equally sized row arrays. Elements must be PHP integers or floats.
@@ -120,6 +144,7 @@ The least-squares API accepts one or more right-hand-side columns and requires t
 - Invalid dimensions, shapes, or coordinates raise ValueError.
 - Invalid PHP argument types raise TypeError.
 - Least-squares row-count mismatch raises ValueError; rank-deficient or underdetermined inputs and non-finite values encountered by the computation raise an exception.
+- WLS requires one finite, non-negative numeric weight per observation. Weight-count mismatch and negative weights raise ValueError; non-finite weights raise an exception. String numerals are not accepted as numeric weights.
 - The current API does not promise a specialised exception class for numerical failures.
 
 ## Current scope: what is and is not exposed
@@ -130,11 +155,12 @@ The least-squares API accepts one or more right-hand-side columns and requires t
 - Dimension and element access
 - Transpose, multiplication, inverse
 - Pivoted-QR least-squares solving
-- Composition of an OLS coefficient workflow
+- Weighted least-squares via square-root row scaling and pivoted QR
+- Composition of OLS and WLS coefficient workflows
 
 ### Not currently exposed as PHP-level APIs
 
-The repository contains additional internal C capabilities, but they are not part of the current PHP-facing API. Do not assume PHP callers can use ready-made OLS, WLS, GLS, or MLE estimators; a PHP-facing pseudoinverse; a complete statistical inference API; or all internal matrix views, decompositions, probability, RNG, and optimizer primitives.
+The repository contains additional internal C capabilities, but they are not part of the current PHP-facing API. Do not assume PHP callers can use ready-made OLS, GLS, or MLE estimators; a PHP-facing pseudoinverse; a complete statistical inference API; or all internal matrix views, decompositions, probability, RNG, and optimizer primitives.
 
 Consult the [release roadmap](release-roadmap.md) for intended milestones, not as a list of shipped PHP features.
 

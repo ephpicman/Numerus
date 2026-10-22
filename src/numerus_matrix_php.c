@@ -176,6 +176,11 @@ ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_matrix_least_squares, 0, 1, Numer
     ZEND_ARG_OBJ_INFO(0, rightHandSide, Numerus\\Matrix, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_matrix_weighted_least_squares, 0, 2, Numerus\\Matrix, 0)
+    ZEND_ARG_OBJ_INFO(0, rightHandSide, Numerus\\Matrix, 0)
+    ZEND_ARG_TYPE_INFO(0, weights, IS_ARRAY, 0)
+ZEND_END_ARG_INFO()
+
 PHP_METHOD(NumerusMatrix, __construct)
 {
     ZEND_PARSE_PARAMETERS_NONE();
@@ -440,6 +445,61 @@ PHP_METHOD(NumerusMatrix, leastSquares)
     numerus_matrix_return_owned(return_value, result);
 }
 
+PHP_METHOD(NumerusMatrix, weightedLeastSquares)
+{
+    zval *rhs_zv;
+    zval *weights_zv;
+    zval *weight_zv;
+    HashTable *weights_ht;
+    uint32_t weights_count;
+    size_t index = 0;
+    double *weights;
+    numerus_matrix *source;
+    numerus_matrix *rhs;
+    numerus_matrix *result = NULL;
+    numerus_matrix_status status;
+
+    ZEND_PARSE_PARAMETERS_START(2, 2)
+        Z_PARAM_OBJECT_OF_CLASS(rhs_zv, numerus_matrix_ce)
+        Z_PARAM_ARRAY(weights_zv)
+    ZEND_PARSE_PARAMETERS_END();
+
+    source = numerus_matrix_require(ZEND_THIS);
+    rhs = numerus_matrix_require(rhs_zv);
+    if (source == NULL || rhs == NULL) {
+        RETURN_THROWS();
+    }
+
+    weights_ht = Z_ARRVAL_P(weights_zv);
+    weights_count = zend_hash_num_elements(weights_ht);
+    if (weights_count == 0) {
+        zend_value_error("Weights must not be empty");
+        RETURN_THROWS();
+    }
+
+    weights = safe_emalloc((size_t) weights_count, sizeof(*weights), 0);
+    ZEND_HASH_FOREACH_VAL(weights_ht, weight_zv) {
+        if (Z_TYPE_P(weight_zv) != IS_LONG && Z_TYPE_P(weight_zv) != IS_DOUBLE) {
+            efree(weights);
+            zend_type_error("Weights must contain only integers or floats");
+            RETURN_THROWS();
+        }
+        weights[index++] = zval_get_double(weight_zv);
+    } ZEND_HASH_FOREACH_END();
+
+    status = numerus_matrix_weighted_least_squares(
+        source, rhs, weights, (size_t) weights_count, &result
+    );
+    efree(weights);
+
+    if (status != NUMERUS_MATRIX_SUCCESS) {
+        numerus_matrix_throw_status(status);
+        RETURN_THROWS();
+    }
+
+    numerus_matrix_return_owned(return_value, result);
+}
+
 static const zend_function_entry numerus_matrix_methods[] = {
     PHP_ME(NumerusMatrix, __construct, arginfo_matrix_private_construct, ZEND_ACC_PRIVATE)
     PHP_ME(NumerusMatrix, fromRows, arginfo_matrix_from_rows, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
@@ -451,6 +511,7 @@ static const zend_function_entry numerus_matrix_methods[] = {
     PHP_ME(NumerusMatrix, inverse, arginfo_matrix_unary, ZEND_ACC_PUBLIC)
     PHP_ME(NumerusMatrix, multiply, arginfo_matrix_binary, ZEND_ACC_PUBLIC)
     PHP_ME(NumerusMatrix, leastSquares, arginfo_matrix_least_squares, ZEND_ACC_PUBLIC)
+    PHP_ME(NumerusMatrix, weightedLeastSquares, arginfo_matrix_weighted_least_squares, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 

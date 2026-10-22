@@ -762,6 +762,14 @@ jobs:
             -o tests/matrix_cholesky_sanitized tests/matrix_cholesky_test.c src/matrix/numerus_matrix_cholesky.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/matrix_cholesky_sanitized
 
+      - name: Run weighted least-squares tests with AddressSanitizer and UBSan
+        run: |
+          cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -DNUMERUS_MATRIX_USE_LIBC_ALLOC -DNUMERUS_STORAGE_USE_LIBC_ALLOC \
+            -o tests/matrix_weighted_least_squares_sanitized tests/matrix_weighted_least_squares_test.c src/matrix/numerus_matrix_weighted_least_squares.c src/matrix/numerus_matrix_least_squares.c src/matrix/numerus_matrix_qr.c src/matrix/numerus_matrix.c src/matrix/numerus_matrix_view_nodes.c src/matrix/numerus_matrix_constructors.c src/storage/numerus_storage.c src/matrix/numerus_matrix_lu.c -lm
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./tests/matrix_weighted_least_squares_sanitized
+
       - name: Run Matrix QR tests with AddressSanitizer and UBSan
         run: |
           cc -Isrc/core -Isrc/storage -Isrc/matrix -Isrc/statistics -std=c11 -g -O1 -Wall -Wextra -Wpedantic -Werror \

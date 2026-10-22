@@ -62,14 +62,14 @@ jobs:
         working-directory: ${{ env.archive_path }}
         run: make test TESTS='tests/*.phpt'
 
-      - name: Verify extension version and OLS example
+      - name: Verify extension version, OLS, and WLS examples
         working-directory: ${{ env.archive_path }}
         shell: bash
         run: |
           set -euo pipefail
           php -d extension="$(pwd)/modules/numerus.so" -r '
-            if (phpversion("numerus") !== "1.0.0") {
-                fwrite(STDERR, "Expected Numerus 1.0.0, got " . var_export(phpversion("numerus"), true) . PHP_EOL);
+            if (phpversion("numerus") !== "1.1.0") {
+                fwrite(STDERR, "Expected Numerus 1.1.0, got " . var_export(phpversion("numerus"), true) . PHP_EOL);
                 exit(1);
             }
           '
@@ -77,3 +77,7 @@ jobs:
           printf '%s\n' "$output"
           grep -Fxq 'intercept: 1.000000' <<< "$output"
           grep -Fxq 'slope: 2.000000' <<< "$output"
+          wls_output="$(php -d extension="$(pwd)/modules/numerus.so" examples/wls.php)"
+          printf '%s\n' "$wls_output"
+          grep -Fxq 'intercept: 1.000000' <<< "$wls_output"
+          grep -Fxq 'slope: 1.000000' <<< "$wls_output"
