@@ -47,6 +47,19 @@ $betaFromNormalEquations = $xt
 
 The explicit formula is useful for teaching and for users who deliberately need that composition. It is not the numerical default: forming normal equations squares the condition number, and explicitly forming an inverse can amplify rounding error. The QR-based least-squares operation accepts one or more right-hand-side columns and requires the design matrix to have full column rank. It rejects rank-deficient and underdetermined designs with a generic `Exception`; a right-hand-side row-count mismatch raises `ValueError`. Non-finite values encountered by the QR/least-squares computation raise a generic `Exception`. For minimum-norm solutions to rank-deficient or underdetermined systems, the C API provides a pseudoinverse primitive, but this initial PHP façade does not expose it.
 
+## Composing weighted least squares (WLS)
+
+Use the design matrix as the receiver and pass the response matrix plus one weight per observation:
+
+```php
+$beta = $design->weightedLeastSquares($response, [1.0, 0.5, 2.0]);
+```
+
+Weights must be finite, non-negative numeric values, and their count must equal the number of rows in both the design and response matrices. A zero weight excludes that observation from the objective. The weighted design (after square-root row scaling) must have full column rank; otherwise the operation raises an exception. The method returns an independently owned Matrix and supports multiple response columns.
+
+The current native implementation applies square-root row scaling and delegates to the existing pivoted-QR least-squares solver. It materializes the scaled design and response matrices, so WLS currently uses additional memory proportional to the input matrices. No model-specific `fit_wls()` function is provided. See the runnable [WLS example](../examples/wls.php).
+
+
 ## Public methods
 
 - `Matrix::fromRows(array $rows): Matrix`
@@ -58,6 +71,7 @@ The explicit formula is useful for teaching and for users who deliberately need 
 - `$matrix->multiply(Matrix $other): Matrix`
 - `$matrix->inverse(): Matrix`
 - `$matrix->leastSquares(Matrix $rightHandSide): Matrix`
+- `$matrix->weightedLeastSquares(Matrix $rightHandSide, array $weights): Matrix`
 
 All returned matrices own independent native storage. In particular, `transpose()` materializes its result, so returned objects do not depend on the lifetime of their source object. Cloning is deliberately unsupported because the native object owns its storage.
 
